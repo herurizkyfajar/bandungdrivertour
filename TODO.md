@@ -1,0 +1,19 @@
+- [x] Edit `resources/views/spj/show.blade.php` untuk menambahkan baris "Traveling Plans" di bawah "Biaya Marketing"
+- [x] Update TODO status setelah perubahan selesai
+- [x] Ubah default status booking baru menjadi `baru_masuk`
+- [x] Ubah validasi status booking ke 5 status baru
+- [x] Ubah opsi dropdown status di form edit booking
+- [x] Ubah tampilan label status di daftar booking (mapping Indonesia)
+- [ ] Tambah filter status booking di halaman index
+- [ ] Implementasi AJAX filter tanpa tombol submit dan tanpa reload
+- [ ] Refactor tabel booking ke partial view untuk response AJAX
+- [x] Tambah migration kolom `manual_invoice_path` di tabel invoices
+- [x] Update model `Invoice` agar mendukung `manual_invoice_path`
+- [x] Update `BookingsController@update` untuk upload invoice manual khusus super_admin
+- [x] Update form edit booking untuk input upload invoice manual (admin only)
+- [x] Update tabel booking untuk menampilkan link invoice manual bila tersedia
+- [ ] Jalankan migration untuk kolom baru invoice manual
+- [x] Tambah watermark logo berulang opacity tipis di `resources/views/invoices/show.blade.php`
+- [ ] Verifikasi watermark tampil pada mode normal, print, dan download PDF
+- [x] Ubah format invoice_number menjadi `INV-YYYYMMDD-00161_Nama Klien` (nomor urut mulai 161)
+- [x] Samakan nama file PDF invoice dengan format invoice_number baru
