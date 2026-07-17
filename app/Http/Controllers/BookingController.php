@@ -101,19 +101,29 @@ class BookingController extends Controller
 
         // ==================== TAMBAHAN LOGIKA WEBHOOK N8N ====================
         try {
-            // Memuat relasi kendaraan dan layanan jika dipilih oleh kustomer
-            $booking->load(['vehicle', 'service']);
+            // Memuat relasi kendaraan, layanan, dan group/company jika dipilih oleh kustomer
+            $booking->load(['vehicle', 'service', 'group']);
+
+            // Menggabungkan info_source dan info_source_other jika diisi kustom
+            $infoSourceResult = $booking->info_source;
+            if ($booking->info_source_other) {
+                $infoSourceResult .= ' (' . $booking->info_source_other . ')';
+            }
 
             $webhookData = [
-                'customer_name'  => $booking->customer_name,
-                'contact_number' => $booking->contact_number,
-                'pickup_location'=> $booking->pickup_location,
-                'booking_date'   => date('d-m-Y', strtotime($booking->booking_date)),
-                'pickup_time'    => $booking->pickup_time,
-                'vehicle_name'   => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
-                'service_name'   => $booking->service ? $booking->service->name : 'Tidak Ada',
-                'invoice_number' => $invoice->invoice_number,
-                'booking_url'    => route('invoice.show', $invoice), // Tautan menuju detail invoice kustomer
+                'company'              => $booking->group ? $booking->group->name : 'Personal / Umum',
+                'customer_name'        => $booking->customer_name,
+                'contact_number'       => $booking->contact_number,
+                'number_of_passengers' => $booking->number_of_passengers ?? '-',
+                'country_of_origin'    => $booking->country_of_origin ?? '-',
+                'pickup_location'      => $booking->pickup_location,
+                'booking_date'         => date('d-m-Y', strtotime($booking->booking_date)),
+                'pickup_time'          => $booking->pickup_time,
+                'vehicle_name'         => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
+                'service_name'         => $booking->service ? $booking->service->name : 'Tidak Ada',
+                'invoice_number'       => $invoice->invoice_number,
+                'info_source'          => $infoSourceResult ?? '-',
+                'booking_url'          => route('invoice.show', $invoice), // Tautan menuju detail invoice kustomer
             ];
 
             // Mengirim data ke n8n Production URL (Otomatis berjalan tanpa perlu diklik manual)
