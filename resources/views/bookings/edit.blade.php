@@ -200,7 +200,7 @@
         </div>
         <div class="col-6" id="down_payment_amount_wrap" style="display: {{ old('payment_plan', $booking->payment_plan) === 'down_payment' ? 'block' : 'none' }};">
           <div class="field">
-            <label for="down_payment_amount">Down Payment Amount (IDR)</label>
+            <label for="down_payment_amount">Down Payment Amount (IDR) <span style="color:red;">*</span></label>
             <input id="down_payment_amount" type="text" inputmode="numeric" name="down_payment_amount" value="{{ old('down_payment_amount', $booking->down_payment_amount !== null ? number_format($booking->down_payment_amount, 0, '.', '') : '') }}" placeholder="Masukkan nominal down payment">
           </div>
         </div>
