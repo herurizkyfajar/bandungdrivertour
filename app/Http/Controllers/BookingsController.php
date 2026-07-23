@@ -365,8 +365,32 @@ class BookingsController extends Controller
 
     public function destroy(Booking $booking)
     {
-        Invoice::where('booking_id', $booking->id)->delete();
         $booking->delete();
-        return redirect()->route('bookings.index')->with('success', 'Booking deleted.');
+        return redirect()->route('bookings.index')->with('success', 'Booking dipindahkan ke trash.');
+    }
+
+    public function trash()
+    {
+        $bookings = Booking::onlyTrashed()
+            ->with(['vehicle', 'service', 'mitra', 'invoice'])
+            ->latest('deleted_at')
+            ->paginate(20);
+
+        return view('bookings.trash', compact('bookings'));
+    }
+
+    public function restore($id)
+    {
+        $booking = Booking::onlyTrashed()->findOrFail($id);
+        $booking->restore();
+        return redirect()->route('bookings.trash')->with('success', 'Booking berhasil di-restore.');
+    }
+
+    public function forceDelete($id)
+    {
+        $booking = Booking::onlyTrashed()->findOrFail($id);
+        Invoice::where('booking_id', $booking->id)->delete();
+        $booking->forceDelete();
+        return redirect()->route('bookings.trash')->with('success', 'Booking dihapus permanen.');
     }
 }

@@ -104,6 +104,9 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::resource('mitras', MitraController::class);
     Route::resource('bookings', BookingsController::class)->except(['show']);
     Route::patch('/bookings/{booking}/phase', [BookingsController::class, 'updatePhase'])->name('bookings.phase.update');
+    Route::get('/bookings-trash', [BookingsController::class, 'trash'])->name('bookings.trash');
+    Route::post('/bookings/{id}/restore', [BookingsController::class, 'restore'])->name('bookings.restore');
+    Route::delete('/bookings/{id}/force-delete', [BookingsController::class, 'forceDelete'])->name('bookings.force-delete');
     Route::resource('vehicles', VehiclesController::class)->except(['show']);
     Route::resource('services', ServiceController::class)->except(['show']);
     Route::resource('groups', GroupController::class)->except(['show']);
