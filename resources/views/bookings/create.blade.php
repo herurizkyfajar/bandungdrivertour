@@ -60,27 +60,31 @@
                 <div class="col-3">
                     <div class="field">
                         <label for="pickup_time">Pickup Time (12H) <span style="color:red;">*</span></label>
-                        <div style="display:flex; gap:.4rem;">
-                            <select id="pt_hour" name="pt_hour" required style="flex:1;">
+                        <div style="display:flex; gap:.4rem; align-items:center;">
+                            <select id="pt_hour" name="pt_hour" required style="width:65px; padding:.5rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem; appearance:auto;">
                                 <option value="">HH</option>
                                 @foreach(range(1,12) as $h)
                                     <option value="{{ $h }}">{{ $h }}</option>
                                 @endforeach
                             </select>
-                            <span style="display:flex; align-items:center; font-weight:600;">:</span>
-                            <select id="pt_min" name="pt_min" required style="flex:1;">
-                                <option value="">MM</option>
-                                <option value="00">00</option>
-                                <option value="15">15</option>
-                                <option value="30">30</option>
-                                <option value="45">45</option>
-                            </select>
-                            <select id="pt_ampm" name="pt_ampm" required style="flex:1;">
-                                <option value="">AM/PM</option>
-                                <option value="AM">AM</option>
-                                <option value="PM">PM</option>
-                            </select>
+                            <span style="font-weight:700; font-size:1.1rem; color:#64748b;">:</span>
+                            <input id="pt_min" name="pt_min" type="number" min="0" max="59" placeholder="MM" required style="width:60px; padding:.5rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem; text-align:center;">
+                            <div style="display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden;">
+                                <label for="pt_ampm_am" style="margin:0; cursor:pointer;">
+                                    <input type="radio" id="pt_ampm_am" name="pt_ampm" value="AM" required style="display:none;">
+                                    <span class="pt-ampm-btn">AM</span>
+                                </label>
+                                <label for="pt_ampm_pm" style="margin:0; cursor:pointer;">
+                                    <input type="radio" id="pt_ampm_pm" name="pt_ampm" value="PM" style="display:none;">
+                                    <span class="pt-ampm-btn">PM</span>
+                                </label>
+                            </div>
                         </div>
+                        <style>
+                            .pt-ampm-btn { display:block; padding:.45rem .75rem; font-size:.85rem; font-weight:600; color:#64748b; background:#f8fafc; transition:all .15s; }
+                            .pt-ampm-btn:hover { background:#e2e8f0; }
+                            input[name="pt_ampm"]:checked + .pt-ampm-btn { background:#3b82f6; color:#fff; }
+                        </style>
                         <input type="hidden" id="pickup_time" name="pickup_time" value="{{ old('pickup_time') }}">
                     </div>
                 </div>
@@ -305,34 +309,41 @@ renderCountryList(filterCountries(countrySearch.value));
   (function(){
     var ptHour = document.getElementById('pt_hour');
     var ptMin = document.getElementById('pt_min');
-    var ptAmPm = document.getElementById('pt_ampm');
+    var ptAmPm = document.querySelector('input[name="pt_ampm"]:checked');
     var ptHidden = document.getElementById('pickup_time');
-    if (!ptHour || !ptMin || !ptAmPm || !ptHidden) return;
+    if (!ptHour || !ptMin || !ptHidden) return;
 
+    function getAmPm() {
+      var checked = document.querySelector('input[name="pt_ampm"]:checked');
+      return checked ? checked.value : '';
+    }
     function to24(h, m, ap) {
       if (!h || !ap) return '';
       var hr = parseInt(h, 10);
       if (ap === 'AM' && hr === 12) hr = 0;
       else if (ap === 'PM' && hr !== 12) hr += 12;
-      return String(hr).padStart(2,'0') + ':' + (m || '00');
+      return String(hr).padStart(2,'0') + ':' + String(m || 0).padStart(2,'0');
     }
     function from24(val) {
       if (!val) return;
       var parts = val.split(':');
       var hr = parseInt(parts[0], 10);
-      var m = parts[1] || '00';
+      var m = parseInt(parts[1], 10) || 0;
       var ap = hr >= 12 ? 'PM' : 'AM';
       var h12 = hr % 12; if (h12 === 0) h12 = 12;
       ptHour.value = h12;
       ptMin.value = m;
-      ptAmPm.value = ap;
+      var radios = document.querySelectorAll('input[name="pt_ampm"]');
+      radios.forEach(function(r){ r.checked = r.value === ap; });
     }
     function sync() {
-      ptHidden.value = to24(ptHour.value, ptMin.value, ptAmPm.value);
+      ptHidden.value = to24(ptHour.value, ptMin.value, getAmPm());
     }
     ptHour.addEventListener('change', sync);
-    ptMin.addEventListener('change', sync);
-    ptAmPm.addEventListener('change', sync);
+    ptMin.addEventListener('input', sync);
+    document.querySelectorAll('input[name="pt_ampm"]').forEach(function(r){
+      r.addEventListener('change', sync);
+    });
 
     if (ptHidden.value) from24(ptHidden.value);
   })();
