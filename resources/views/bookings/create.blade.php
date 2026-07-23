@@ -25,15 +25,15 @@
                 </div>
                 <div class="col-4">
                     <div class="field">
-                        <label for="number_of_passengers">Number of Passengers</label>
-                        <input id="number_of_passengers" type="number" name="number_of_passengers" value="{{ old('number_of_passengers') }}" placeholder="Number of passengers">
+                        <label for="number_of_passengers">Number of Passengers <span style="color:red;">*</span></label>
+                        <input id="number_of_passengers" type="number" name="number_of_passengers" value="{{ old('number_of_passengers') }}" placeholder="Number of passengers" required>
                     </div>
                 </div>
                 <div class="col-4">
                     <div class="field">
-                        <label for="country_of_origin">Country of Origin</label>
+                        <label for="country_of_origin">Country of Origin <span style="color:red;">*</span></label>
                         <div class="search-select" id="country_select">
-                            <input id="country_search" class="search-input" type="text" placeholder="Type to search country" autocomplete="off" value="{{ old('country_of_origin') }}">
+                            <input id="country_search" class="search-input" type="text" placeholder="Type to search country" autocomplete="off" value="{{ old('country_of_origin') }}" required>
                             <input type="hidden" name="country_of_origin" id="country_of_origin_hidden" value="{{ old('country_of_origin') }}">
                             <div class="search-dropdown" id="country_dropdown"></div>
                         </div>
@@ -43,12 +43,6 @@
                     <div class="field">
                         <label for="pickup_location">Pickup Location <span style="color:red;">*</span></label>
                         <input id="pickup_location" type="text" name="pickup_location" value="{{ old('pickup_location') }}" placeholder="Pickup location" required>
-                    </div>
-                </div>
-                <div class="col-12">
-                    <div class="field">
-                        <label for="pickup_address_en">Pickup Address (English)</label>
-                        <input id="pickup_address_en" type="text" name="pickup_address_en" value="{{ old('pickup_address_en') }}" placeholder="Complete address in English">
                     </div>
                 </div>
                 <div class="col-3">
@@ -71,8 +65,8 @@
                 </div>
                 <div class="col-6">
                     <div class="field">
-                        <label for="vehicle_id">Car of Choice</label>
-                        <select id="vehicle_id" name="vehicle_id">
+                        <label for="vehicle_id">Car of Choice <span style="color:red;">*</span></label>
+                        <select id="vehicle_id" name="vehicle_id" required>
                             <option value="">Select car</option>
                             @foreach($vehicles ?? [] as $v)
                                 <option value="{{ $v->id }}" {{ old('vehicle_id') == $v->id ? 'selected' : '' }}>
@@ -84,8 +78,8 @@
                 </div>
                 <div class="col-6">
                     <div class="field">
-                        <label for="service_id">Services</label>
-                        <select id="service_id" name="service_id">
+                        <label for="service_id">Services <span style="color:red;">*</span></label>
+                        <select id="service_id" name="service_id" required>
                             <option value="">Select service</option>
                             @foreach($services ?? [] as $service)
                                 <option value="{{ $service->id }}" {{ old('service_id') == $service->id ? 'selected' : '' }}>
@@ -146,8 +140,8 @@
                 </div>
                 <div class="col-6">
                     <div class="field">
-                        <label for="info_source">Where do you get the information from?</label>
-                        <select name="info_source" id="info_source">
+                        <label for="info_source">Where do you get the information from? <span style="color:red;">*</span></label>
+                        <select name="info_source" id="info_source" required>
                             <option value="">Select source</option>
                             <option value="instagram">Instagram</option>
                             <option value="ai">AI</option>
@@ -158,15 +152,15 @@
                 </div>
                 <div class="col-6" id="info_source_other_wrap" style="display:none;">
                     <div class="field">
-                        <label for="info_source_other">Specify Source</label>
+                        <label for="info_source_other">Specify Source <span style="color:red;">*</span></label>
                         <input id="info_source_other" type="text" name="info_source_other" value="{{ old('info_source_other') }}" placeholder="e.g., friend recommendation">
                     </div>
                 </div>
                 <div class="col-6">
                     <div class="field">
-                        <label for="group_id">Company</label>
-                        <select id="group_id" name="group_id">
-                            <option value="">Select company (optional)</option>
+                        <label for="group_id">Company <span style="color:red;">*</span></label>
+                        <select id="group_id" name="group_id" required>
+                            <option value="">Select company</option>
                             @foreach($groups as $g)
                                 <option value="{{ $g->id }}" {{ old('group_id') == $g->id ? 'selected' : '' }}>
                                     {{ $g->name }}
@@ -208,7 +202,16 @@
 </div>
 <script>
 document.getElementById('info_source').addEventListener('change', function() {
-    document.getElementById('info_source_other_wrap').style.display = this.value === 'other' ? 'block' : 'none';
+    var otherWrap = document.getElementById('info_source_other_wrap');
+    var otherInput = document.getElementById('info_source_other');
+    if (this.value === 'other') {
+        otherWrap.style.display = 'block';
+        otherInput.required = true;
+    } else {
+        otherWrap.style.display = 'none';
+        otherInput.required = false;
+        otherInput.value = '';
+    }
 });
 const COUNTRIES = [
   "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria",
