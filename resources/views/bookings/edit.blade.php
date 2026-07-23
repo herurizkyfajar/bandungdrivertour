@@ -62,8 +62,29 @@
         </div>
         <div class="col-3">
           <div class="field">
-            <label for="pickup_time">Pickup Time (24H) <span style="color:red;">*</span></label>
-            <input id="pickup_time" type="time" name="pickup_time" value="{{ old('pickup_time', \Illuminate\Support\Carbon::parse($booking->pickup_time)->format('H:i')) }}" required>
+            <label for="pickup_time">Pickup Time (12H) <span style="color:red;">*</span></label>
+            <div style="display:flex; gap:.4rem;">
+              <select id="pt_hour" name="pt_hour" required style="flex:1;">
+                <option value="">HH</option>
+                @foreach(range(1,12) as $h)
+                  <option value="{{ $h }}">{{ $h }}</option>
+                @endforeach
+              </select>
+              <span style="display:flex; align-items:center; font-weight:600;">:</span>
+              <select id="pt_min" name="pt_min" required style="flex:1;">
+                <option value="">MM</option>
+                <option value="00">00</option>
+                <option value="15">15</option>
+                <option value="30">30</option>
+                <option value="45">45</option>
+              </select>
+              <select id="pt_ampm" name="pt_ampm" required style="flex:1;">
+                <option value="">AM/PM</option>
+                <option value="AM">AM</option>
+                <option value="PM">PM</option>
+              </select>
+            </div>
+            <input type="hidden" id="pickup_time" name="pickup_time" value="{{ old('pickup_time', \Illuminate\Support\Carbon::parse($booking->pickup_time)->format('H:i')) }}">
           </div>
         </div>
         <div class="col-6">
@@ -328,6 +349,42 @@ document.addEventListener('click', function(e) {
   }
 });
 renderCountryList(filterCountries(countrySearch.value));
+</script>
+<script>
+  (function(){
+    var ptHour = document.getElementById('pt_hour');
+    var ptMin = document.getElementById('pt_min');
+    var ptAmPm = document.getElementById('pt_ampm');
+    var ptHidden = document.getElementById('pickup_time');
+    if (!ptHour || !ptMin || !ptAmPm || !ptHidden) return;
+
+    function to24(h, m, ap) {
+      if (!h || !ap) return '';
+      var hr = parseInt(h, 10);
+      if (ap === 'AM' && hr === 12) hr = 0;
+      else if (ap === 'PM' && hr !== 12) hr += 12;
+      return String(hr).padStart(2,'0') + ':' + (m || '00');
+    }
+    function from24(val) {
+      if (!val) return;
+      var parts = val.split(':');
+      var hr = parseInt(parts[0], 10);
+      var m = parts[1] || '00';
+      var ap = hr >= 12 ? 'PM' : 'AM';
+      var h12 = hr % 12; if (h12 === 0) h12 = 12;
+      ptHour.value = h12;
+      ptMin.value = m;
+      ptAmPm.value = ap;
+    }
+    function sync() {
+      ptHidden.value = to24(ptHour.value, ptMin.value, ptAmPm.value);
+    }
+    ptHour.addEventListener('change', sync);
+    ptMin.addEventListener('change', sync);
+    ptAmPm.addEventListener('change', sync);
+
+    if (ptHidden.value) from24(ptHidden.value);
+  })();
 </script>
 <script>
   (function(){
