@@ -16,13 +16,13 @@
       <div class="form-grid">
         <div class="col-6">
           <div class="field">
-            <label for="customer_name">Customer Name</label>
+            <label for="customer_name">Customer Name <span style="color:red;">*</span></label>
             <input id="customer_name" type="text" name="customer_name" value="{{ old('customer_name', $booking->customer_name) }}" placeholder="Full name" required>
           </div>
         </div>
         <div class="col-6">
           <div class="field">
-            <label for="contact_number">Contact Number</label>
+            <label for="contact_number">Contact Number <span style="color:red;">*</span></label>
             <input id="contact_number" type="text" name="contact_number" value="{{ old('contact_number', $booking->contact_number) }}" placeholder="Phone number" required>
           </div>
         </div>
@@ -44,7 +44,7 @@
         </div>
         <div class="col-4">
           <div class="field">
-            <label for="pickup_location">Pickup Location</label>
+            <label for="pickup_location">Pickup Location <span style="color:red;">*</span></label>
             <input id="pickup_location" type="text" name="pickup_location" value="{{ old('pickup_location', $booking->pickup_location) }}" placeholder="Pickup location" required>
           </div>
         </div>
@@ -56,19 +56,19 @@
         </div>
         <div class="col-3">
           <div class="field">
-            <label for="start_date">Start Date</label>
+            <label for="start_date">Start Date <span style="color:red;">*</span></label>
             <input id="start_date" type="date" name="start_date" value="{{ old('start_date', \Illuminate\Support\Carbon::parse($booking->booking_date)->format('Y-m-d')) }}" required>
           </div>
         </div>
         <div class="col-3">
           <div class="field">
-            <label for="end_date">End Date</label>
+            <label for="end_date">End Date <span style="color:red;">*</span></label>
             <input id="end_date" type="date" name="end_date" value="{{ old('end_date', \Illuminate\Support\Carbon::parse($booking->end_date)->format('Y-m-d')) }}" required>
           </div>
         </div>
         <div class="col-3">
           <div class="field">
-            <label for="pickup_time">Pickup Time (24H)</label>
+            <label for="pickup_time">Pickup Time (24H) <span style="color:red;">*</span></label>
             <input id="pickup_time" type="time" name="pickup_time" value="{{ old('pickup_time', \Illuminate\Support\Carbon::parse($booking->pickup_time)->format('H:i')) }}" required>
           </div>
         </div>
@@ -196,7 +196,7 @@
         </div>
         <div class="col-6">
           <div class="field">
-            <label for="payment_plan">Payment Plan</label>
+            <label for="payment_plan">Payment Plan <span style="color:red;">*</span></label>
             <select id="payment_plan" name="payment_plan" required>
               <option value="down_payment" {{ old('payment_plan', $booking->payment_plan) == 'down_payment' ? 'selected' : '' }}>Down Payment</option>
               <option value="payment_full_transfer" {{ old('payment_plan', $booking->payment_plan) == 'payment_full_transfer' ? 'selected' : '' }}>Payment Full Transfer</option>
