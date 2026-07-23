@@ -207,7 +207,12 @@
         <h2 style="margin:0;">Kelola Booking</h2>
         <div class="kanban-subtitle">Drag card antar kolom atau buka detail untuk pindah status secara manual.</div>
       </div>
-      <a class="btn btn-primary" href="{{ route('bookings.create') }}">Tambah Booking</a>
+      <div style="display:flex; gap:.5rem; align-items:center;">
+        <a class="btn btn-primary" href="{{ route('bookings.create') }}">Tambah Booking</a>
+        <a href="{{ route('bookings.trash') }}" title="Trash Bookings" style="display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; background:#f1f5f9; border:1px solid var(--border); color:#64748b; text-decoration:none; transition:all .15s;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+        </a>
+      </div>
     </div>
 
     <form id="booking-filter-form" method="GET" action="{{ route('bookings.index') }}" class="kanban-filters">
