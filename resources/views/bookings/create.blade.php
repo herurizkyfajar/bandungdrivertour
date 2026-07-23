@@ -68,12 +68,7 @@
                                 @endforeach
                             </select>
                             <span style="font-weight:700; font-size:1.1rem; color:#64748b; flex-shrink:0;">:</span>
-                            <select id="pt_min" name="pt_min" required style="width:65px; padding:.5rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem; appearance:auto; flex-shrink:0;">
-                                <option value="">MM</option>
-                                @foreach(range(0,60) as $m)
-                                    <option value="{{ sprintf('%02d', $m) }}">{{ sprintf('%02d', $m) }}</option>
-                                @endforeach
-                            </select>
+                            <input id="pt_min" name="pt_min" type="text" inputmode="numeric" maxlength="2" placeholder="MM" required style="width:55px; padding:.5rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem; text-align:center; flex-shrink:0;">
                             <div style="display:flex; border:1px solid var(--border); border-radius:8px; overflow:hidden; flex-shrink:0;">
                                 <label for="pt_ampm_am" style="margin:0; cursor:pointer;">
                                     <input type="radio" id="pt_ampm_am" name="pt_ampm" value="AM" required style="display:none;">
@@ -345,7 +340,13 @@ renderCountryList(filterCountries(countrySearch.value));
       ptHidden.value = to24(ptHour.value, ptMin.value, getAmPm());
     }
     ptHour.addEventListener('change', sync);
-    ptMin.addEventListener('change', sync);
+    ptMin.addEventListener('input', function(){
+      this.value = this.value.replace(/\D/g,'');
+      var v = parseInt(this.value, 10);
+      if (v > 60) this.value = '60';
+      if (this.value.length > 2) this.value = this.value.slice(0,2);
+      sync();
+    });
     document.querySelectorAll('input[name="pt_ampm"]').forEach(function(r){
       r.addEventListener('change', sync);
     });
