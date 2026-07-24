@@ -13,6 +13,17 @@ class LaporanKeuanganController extends Controller
             ->withTrashed()
             ->orderBy('created_at', 'desc');
 
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $query->where(function ($qr) use ($q) {
+                $qr->where('customer_name', 'like', "%{$q}%")
+                   ->orWhere('contact_number', 'like', "%{$q}%")
+                   ->orWhereHas('invoice', function ($iq) use ($q) {
+                       $iq->where('invoice_number', 'like', "%{$q}%");
+                   });
+            });
+        }
+
         if ($request->filled('filter_pendapatan') && $request->filter_pendapatan === 'kosong') {
             $query->whereNull('pendapatan')->orWhere('pendapatan', 0);
         }
@@ -24,6 +35,16 @@ class LaporanKeuanganController extends Controller
         $bookings = $query->paginate(25)->appends($request->query());
 
         $summaryQuery = Booking::withoutGlobalScopes();
+        if ($request->filled('q')) {
+            $q = $request->q;
+            $summaryQuery->where(function ($qr) use ($q) {
+                $qr->where('customer_name', 'like', "%{$q}%")
+                   ->orWhere('contact_number', 'like', "%{$q}%")
+                   ->orWhereHas('invoice', function ($iq) use ($q) {
+                       $iq->where('invoice_number', 'like', "%{$q}%");
+                   });
+            });
+        }
         if ($request->filled('filter_pendapatan') && $request->filter_pendapatan === 'kosong') {
             $summaryQuery->where(function ($q) { $q->whereNull('pendapatan')->orWhere('pendapatan', 0); });
         }

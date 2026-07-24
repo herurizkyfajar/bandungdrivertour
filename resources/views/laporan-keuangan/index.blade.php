@@ -19,6 +19,10 @@
     {{-- Filter --}}
     <form method="GET" action="{{ route('laporan-keuangan.index') }}" style="display:flex; gap:.75rem; align-items:flex-end; margin-bottom:1.5rem; flex-wrap:wrap;">
       <div class="field" style="margin:0;">
+        <label for="q" style="font-size:.85rem; font-weight:600;">Pencarian</label>
+        <input id="q" name="q" type="text" value="{{ request('q') }}" placeholder="Nama, no. HP, atau invoice" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem; width:200px;">
+      </div>
+      <div class="field" style="margin:0;">
         <label for="filter_pendapatan" style="font-size:.85rem; font-weight:600;">Pendapatan</label>
         <select id="filter_pendapatan" name="filter_pendapatan" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem;">
           <option value="">Semua</option>
