@@ -9,9 +9,24 @@ class LaporanKeuanganController extends Controller
 {
     public function index(Request $request)
     {
+        $sort = $request->input('sort', 'created_at');
+        $dir = $request->input('dir', 'desc');
+        $allowed = ['invoice_number', 'customer_name', 'status', 'booking_date', 'price', 'pendapatan', 'created_at'];
+        if (!in_array($sort, $allowed)) $sort = 'created_at';
+        $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
+
         $query = Booking::with(['vehicle', 'invoice'])
-            ->withTrashed()
-            ->orderBy('created_at', 'desc');
+            ->withTrashed();
+
+        if ($sort === 'invoice_number') {
+            $query->join('invoices', 'invoices.booking_id', '=', 'bookings.id')
+                  ->orderBy('invoices.invoice_number', $dir)
+                  ->select('bookings.*');
+        } elseif ($sort === 'booking_date') {
+            $query->orderBy('booking_date', $dir);
+        } else {
+            $query->orderBy($sort, $dir);
+        }
 
         if ($request->filled('q')) {
             $q = $request->q;

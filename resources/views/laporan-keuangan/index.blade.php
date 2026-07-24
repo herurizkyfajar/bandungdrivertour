@@ -63,16 +63,37 @@
     </div>
 
     {{-- Table --}}
+    @php
+      $currentSort = request('sort', 'created_at');
+      $currentDir = request('dir', 'desc');
+      $sortParams = ['q' => request('q'), 'filter_pendapatan' => request('filter_pendapatan'), 'filter_status' => request('filter_status')];
+    @endphp
     <div style="overflow-x:auto;">
       <table style="width:100%; border-collapse:collapse; font-size:.88rem;">
         <thead>
           <tr style="border-bottom:2px solid var(--border); text-align:left;">
-            <th style="padding:.6rem .5rem;">No. Invoice</th>
-            <th style="padding:.6rem .5rem;">Customer</th>
-            <th style="padding:.6rem .5rem;">Status</th>
-            <th style="padding:.6rem .5rem;">Tanggal Booking</th>
-            <th style="padding:.6rem .5rem; text-align:right;">Biaya</th>
-            <th style="padding:.6rem .5rem; text-align:right;">Pendapatan</th>
+            @php
+              $columns = [
+                'invoice_number' => 'No. Invoice',
+                'customer_name' => 'Customer',
+                'status' => 'Status',
+                'booking_date' => 'Tanggal Booking',
+                'price' => 'Biaya',
+                'pendapatan' => 'Pendapatan',
+              ];
+            @endphp
+            @foreach($columns as $key => $label)
+              @php
+                $isCurrentSort = $currentSort === $key;
+                $nextDir = ($isCurrentSort && $currentDir === 'asc') ? 'desc' : 'asc';
+                $arrow = $isCurrentSort ? ($currentDir === 'asc' ? ' ▲' : ' ▼') : '';
+              @endphp
+              <th style="padding:.6rem .5rem; {{ in_array($key, ['price','pendapatan']) ? 'text-align:right;' : '' }}">
+                <a href="{{ route('laporan-keuangan.index', array_merge($sortParams, ['sort' => $key, 'dir' => $nextDir])) }}" style="color:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:.2rem; font-weight:600;">
+                  {{ $label }}{{ $arrow }}
+                </a>
+              </th>
+            @endforeach
             <th style="padding:.6rem .5rem; text-align:center;">Aksi</th>
           </tr>
         </thead>
