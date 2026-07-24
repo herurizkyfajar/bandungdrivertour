@@ -58,6 +58,7 @@ class Booking extends Model
         'payment_plan',
         'down_payment_amount',
         'price',
+        'pendapatan',
         'status',
         'created_by',
     ];
@@ -68,6 +69,7 @@ class Booking extends Model
         'pickup_time' => 'datetime:H:i',
         'down_payment_amount' => 'decimal:2',
         'price' => 'decimal:2',
+        'pendapatan' => 'decimal:2',
     ];
 
     public function vehicle()

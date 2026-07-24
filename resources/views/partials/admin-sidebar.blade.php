@@ -15,6 +15,7 @@
     <li><a href="{{ route('booking.create') }}" class="{{ request()->routeIs('booking.create') ? 'active' : '' }}">Booking Form</a></li>
     <li><a href="{{ route('bookings.index') }}" class="{{ request()->routeIs('bookings.*') ? 'active' : '' }}">Manage Bookings</a></li>
     <li><a href="{{ route('booking-data.index') }}" class="{{ request()->routeIs('booking-data.*') ? 'active' : '' }}">Booking Data</a></li>
+    <li><a href="{{ route('laporan-keuangan.index') }}" class="{{ request()->routeIs('laporan-keuangan.*') ? 'active' : '' }}">Laporan Keuangan</a></li>
     <li><a href="{{ route('vehicles.index') }}" class="{{ request()->routeIs('vehicles.*') ? 'active' : '' }}">Manage Vehicles</a></li>
     <li><a href="{{ route('mitras.index') }}" class="{{ request()->routeIs('mitras.*') ? 'active' : '' }}">Manage Mitras</a></li>
     <li><a href="{{ route('services.index') }}" class="{{ request()->routeIs('services.*') ? 'active' : '' }}">Manage Services</a></li>

@@ -24,6 +24,7 @@ use App\Http\Controllers\GroupController;
 use App\Http\Controllers\UserBookingController;
 use App\Http\Controllers\BookingDataController;
 use App\Http\Controllers\TermsController;
+use App\Http\Controllers\LaporanKeuanganController;
 
 Route::redirect('/', '/booking');
 
@@ -111,6 +112,8 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::resource('services', ServiceController::class)->except(['show']);
     Route::resource('groups', GroupController::class)->except(['show']);
     Route::get('/booking-data', [BookingDataController::class, 'index'])->name('booking-data.index');
+    Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
+    Route::put('/bookings/{id}/pendapatan', [LaporanKeuanganController::class, 'updatePendapatan'])->name('bookings.pendapatan.update');
 });
 
 Route::middleware(['auth', 'role:super_admin,user'])->group(function () {
