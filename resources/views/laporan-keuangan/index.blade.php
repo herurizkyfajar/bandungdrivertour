@@ -64,6 +64,7 @@
         <thead>
           <tr style="border-bottom:2px solid var(--border); text-align:left;">
             <th style="padding:.6rem .5rem;">No. Invoice</th>
+            <th style="padding:.6rem .5rem;">Customer</th>
             <th style="padding:.6rem .5rem;">Status</th>
             <th style="padding:.6rem .5rem;">Tanggal Booking</th>
             <th style="padding:.6rem .5rem; text-align:right;">Biaya</th>
@@ -74,7 +75,25 @@
         <tbody>
           @forelse($bookings as $b)
           <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:.6rem .5rem; font-weight:600;">{{ $b->invoice->invoice_number ?? '-' }}</td>
+            <td style="padding:.6rem .5rem; font-weight:600;">
+              @if($b->invoice)
+                <button type="button" class="btn-invoice-detail"
+                  data-invoice_number="{{ $b->invoice->invoice_number }}"
+                  data-customer_name="{{ $b->customer_name }}"
+                  data-contact_number="{{ $b->contact_number }}"
+                  data-price="{{ number_format($b->price ?? 0, 0, ',', '.') }}"
+                  data-down_payment="{{ number_format($b->invoice->down_payment ?? 0, 0, ',', '.') }}"
+                  data-remaining="{{ number_format(($b->price ?? 0) - ($b->invoice->down_payment ?? 0), 0, ',', '.') }}"
+                  data-status="{{ $b->statusLabel() }}"
+                  data-created_at="{{ $b->invoice->created_at ? $b->invoice->created_at->format('d M Y H:i') : '-' }}"
+                  style="color:#3b82f6; text-decoration:underline; cursor:pointer; background:none; border:none; font-weight:600; font-size:.88rem; padding:0;">
+                  {{ $b->invoice->invoice_number }}
+                </button>
+              @else
+                -
+              @endif
+            </td>
+            <td style="padding:.6rem .5rem;">{{ $b->customer_name }}</td>
             <td style="padding:.6rem .5rem;">
               <span style="display:inline-block; padding:.15rem .5rem; border-radius:6px; font-size:.78rem;
                 @if(in_array($b->status, ['baru_masuk'])) background:#e0e7ff; color:#3730a3;
@@ -96,7 +115,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="6" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
+            <td colspan="7" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
           </tr>
           @endforelse
         </tbody>
@@ -128,6 +147,50 @@
   </div>
 </div>
 
+{{-- Modal Detail Invoice --}}
+<div id="invoiceDetailModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.4); align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:12px; padding:1.5rem; width:90%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <h3 style="margin:0; font-size:1.1rem;">Detail Invoice</h3>
+      <button id="closeInvoiceModal" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#64748b;">&times;</button>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:.75rem; font-size:.9rem;">
+      <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:.5rem;">
+        <span style="color:#64748b;">No. Invoice</span>
+        <span style="font-weight:600;" id="inv_number">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:.5rem;">
+        <span style="color:#64748b;">Customer</span>
+        <span style="font-weight:600;" id="inv_customer">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:.5rem;">
+        <span style="color:#64748b;">Kontak</span>
+        <span style="font-weight:600;" id="inv_contact">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:.5rem;">
+        <span style="color:#64748b;">Status</span>
+        <span id="inv_status">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:.5rem;">
+        <span style="color:#64748b;">Total Biaya</span>
+        <span style="font-weight:600;" id="inv_price">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; border-bottom:1px solid #f1f5f9; padding-bottom:.5rem;">
+        <span style="color:#64748b;">Down Payment</span>
+        <span style="font-weight:600; color:#0369a1;" id="inv_dp">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; padding-bottom:.5rem;">
+        <span style="color:#64748b;">Sisa Bayar</span>
+        <span style="font-weight:600; color:#b45309;" id="inv_remaining">-</span>
+      </div>
+      <div style="display:flex; justify-content:space-between;">
+        <span style="color:#64748b;">Dibuat</span>
+        <span style="font-size:.85rem; color:#94a3b8;" id="inv_created">-</span>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function(){
   var modal = document.getElementById('editPendapatanModal');
@@ -156,6 +219,28 @@
   form.addEventListener('submit', function(){
     input.value = input.value.replace(/\D/g,'');
   });
+})();
+
+(function(){
+  var invModal = document.getElementById('invoiceDetailModal');
+  var closeInv = document.getElementById('closeInvoiceModal');
+
+  document.querySelectorAll('.btn-invoice-detail').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.getElementById('inv_number').textContent = this.dataset.invoice_number || '-';
+      document.getElementById('inv_customer').textContent = this.dataset.customer_name || '-';
+      document.getElementById('inv_contact').textContent = this.dataset.contact_number || '-';
+      document.getElementById('inv_status').textContent = this.dataset.status || '-';
+      document.getElementById('inv_price').textContent = 'Rp ' + (this.dataset.price || '0');
+      document.getElementById('inv_dp').textContent = 'Rp ' + (this.dataset.down_payment || '0');
+      document.getElementById('inv_remaining').textContent = 'Rp ' + (this.dataset.remaining || '0');
+      document.getElementById('inv_created').textContent = this.dataset.created_at || '-';
+      invModal.style.display = 'flex';
+    });
+  });
+
+  closeInv.addEventListener('click', function(){ invModal.style.display = 'none'; });
+  invModal.addEventListener('click', function(e){ if(e.target === invModal) invModal.style.display = 'none'; });
 })();
 </script>
 @endsection
