@@ -23,7 +23,19 @@ class LaporanKeuanganController extends Controller
 
         $bookings = $query->paginate(25)->appends($request->query());
 
-        return view('laporan-keuangan.index', compact('bookings'));
+        $summaryQuery = Booking::withoutGlobalScopes();
+        if ($request->filled('filter_pendapatan') && $request->filter_pendapatan === 'kosong') {
+            $summaryQuery->where(function ($q) { $q->whereNull('pendapatan')->orWhere('pendapatan', 0); });
+        }
+        if ($request->filled('filter_status')) {
+            $summaryQuery->where('status', $request->filter_status);
+        }
+
+        $totalBiaya = (clone $summaryQuery)->sum('price');
+        $totalPendapatan = (clone $summaryQuery)->whereNotNull('pendapatan')->where('pendapatan', '>', 0)->sum('pendapatan');
+        $belumDiisi = (clone $summaryQuery)->where(function ($q) { $q->whereNull('pendapatan')->orWhere('pendapatan', 0); })->count();
+
+        return view('laporan-keuangan.index', compact('bookings', 'totalBiaya', 'totalPendapatan', 'belumDiisi'));
     }
 
     public function updatePendapatan(Request $request, $id)

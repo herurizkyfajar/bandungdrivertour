@@ -43,11 +43,6 @@
     </form>
 
     {{-- Summary Cards --}}
-    @php
-      $totalBiaya = $bookings->sum('price');
-      $totalPendapatan = $bookings->where('pendapatan', '!=', null)->sum('pendapatan');
-      $belumDiisi = $bookings->whereNull('pendapatan')->orWhere('pendapatan', 0)->count();
-    @endphp
     <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
       <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:10px; padding:1rem;">
         <div style="font-size:.8rem; color:#0369a1; font-weight:600;">Total Biaya</div>
