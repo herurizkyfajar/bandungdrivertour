@@ -114,6 +114,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/booking-data', [BookingDataController::class, 'index'])->name('booking-data.index');
     Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
     Route::put('/bookings/{id}/pendapatan', [LaporanKeuanganController::class, 'updatePendapatan'])->name('bookings.pendapatan.update');
+    Route::put('/laporan-keuangan/pajak', [LaporanKeuanganController::class, 'updatePajak'])->name('laporan-keuangan.pajak.update');
 });
 
 Route::middleware(['auth', 'role:super_admin,user'])->group(function () {

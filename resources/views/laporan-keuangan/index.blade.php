@@ -1,6 +1,19 @@
 @extends('layouts.app', ['title' => 'Laporan Keuangan'])
 
 @section('content')
+<style>
+  html, body { overflow-x: hidden; }
+  body.admin-shell { overflow-x: hidden; }
+  .dashboard-wrap { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+  .content-card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 1rem; min-width: 0; overflow: hidden; }
+  @media (max-width: 1200px) {
+    .dashboard-wrap { grid-template-columns: 1fr; }
+    .dashboard-sidebar { position: static; max-height: none; overflow: hidden; min-width: 0; }
+  }
+  @media (max-width: 768px) {
+    .content-card { overflow: hidden; }
+  }
+</style>
 <div class="dashboard-wrap">
   @include('partials.admin-sidebar')
 
@@ -10,6 +23,7 @@
         <h1 style="margin:0;">Laporan Keuangan</h1>
         <div class="subtitle">Ringkasan pendapatan dari semua booking.</div>
       </div>
+      <button type="button" id="btnAturPajak" style="padding:.45rem 1rem; font-size:.88rem; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Atur Pajak ({{ (int) $pajakRate }}%)</button>
     </div>
 
     @if(session('success'))
@@ -40,9 +54,18 @@
           @endforeach
         </select>
       </div>
-      <button type="submit" class="btn btn-primary" style="height:38px;">Filter</button>
-      @if(request()->hasAny(['filter_pendapatan', 'filter_status']))
-        <a href="{{ route('laporan-keuangan.index') }}" class="btn" style="height:38px;">Reset</a>
+      <div class="field" style="margin:0;">
+        <label for="filter_group" style="font-size:.85rem; font-weight:600;">Group</label>
+        <select id="filter_group" name="filter_group" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem;">
+          <option value="">Semua</option>
+          @foreach($groups as $g)
+            <option value="{{ $g->id }}" {{ request('filter_group') == $g->id ? 'selected' : '' }}>{{ $g->name }}</option>
+          @endforeach
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary" style="padding:.45rem 1.2rem; height:38px; border-radius:8px; font-size:.9rem;">Filter</button>
+      @if(request()->hasAny(['filter_pendapatan', 'filter_status', 'filter_group']))
+        <a href="{{ route('laporan-keuangan.index') }}" class="btn" style="padding:.45rem 1.2rem; height:38px; border-radius:8px; font-size:.9rem;">Reset</a>
       @endif
     </form>
 
@@ -56,6 +79,10 @@
         <div style="font-size:.8rem; color:#15803d; font-weight:600;">Total Pendapatan</div>
         <div style="font-size:1.3rem; font-weight:700; color:#14532d;">Rp {{ number_format($totalPendapatan, 0, ',', '.') }}</div>
       </div>
+      <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:10px; padding:1rem;">
+        <div style="font-size:.8rem; color:#b45309; font-weight:600;">Total Pajak ({{ (int) $pajakRate }}%)</div>
+        <div style="font-size:1.3rem; font-weight:700; color:#92400e;">Rp {{ number_format($totalPajak, 0, ',', '.') }}</div>
+      </div>
       <div style="background:#fefce8; border:1px solid #fde68a; border-radius:10px; padding:1rem;">
         <div style="font-size:.8rem; color:#a16207; font-weight:600;">Belum Diisi</div>
         <div style="font-size:1.3rem; font-weight:700; color:#713f12;">{{ $belumDiisi }} booking</div>
@@ -66,7 +93,7 @@
     @php
       $currentSort = request('sort', 'created_at');
       $currentDir = request('dir', 'desc');
-      $sortParams = ['q' => request('q'), 'filter_pendapatan' => request('filter_pendapatan'), 'filter_status' => request('filter_status')];
+      $sortParams = ['q' => request('q'), 'filter_pendapatan' => request('filter_pendapatan'), 'filter_status' => request('filter_status'), 'filter_group' => request('filter_group')];
     @endphp
     <div style="overflow-x:auto;">
       <table style="width:100%; border-collapse:collapse; font-size:.88rem;">
@@ -80,21 +107,26 @@
                 'booking_date' => 'Tanggal Booking',
                 'price' => 'Biaya',
                 'pendapatan' => 'Pendapatan',
+                'pajak' => 'Pajak',
               ];
             @endphp
             @foreach($columns as $key => $label)
-              @php
-                $isCurrentSort = $currentSort === $key;
-                $nextDir = ($isCurrentSort && $currentDir === 'asc') ? 'desc' : 'asc';
-                $arrow = $isCurrentSort ? ($currentDir === 'asc' ? ' ▲' : ' ▼') : '';
-              @endphp
-              <th style="padding:.6rem .5rem; {{ in_array($key, ['price','pendapatan']) ? 'text-align:right;' : '' }}">
-                <a href="{{ route('laporan-keuangan.index', array_merge($sortParams, ['sort' => $key, 'dir' => $nextDir])) }}" style="color:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:.2rem; font-weight:600;">
-                  {{ $label }}{{ $arrow }}
-                </a>
-              </th>
+              @if($key === 'pajak')
+                <th style="padding:.6rem .5rem; vertical-align:top; line-height:1.3;">Pajak<br><span style="font-weight:400; font-size:.75rem; color:#94a3b8;">({{ (int) $pajakRate }}%)</span></th>
+              @else
+                @php
+                  $isCurrentSort = $currentSort === $key;
+                  $nextDir = ($isCurrentSort && $currentDir === 'asc') ? 'desc' : 'asc';
+                  $arrow = $isCurrentSort ? ($currentDir === 'asc' ? ' ▲' : ' ▼') : '';
+                @endphp
+                <th style="padding:.6rem .5rem; vertical-align:top; {{ in_array($key, ['price','pendapatan']) ? 'text-align:right;' : '' }}">
+                  <a href="{{ route('laporan-keuangan.index', array_merge($sortParams, ['sort' => $key, 'dir' => $nextDir])) }}" style="color:inherit; text-decoration:none; display:inline-flex; align-items:center; gap:.2rem; font-weight:600;">
+                    {{ $label }}{{ $arrow }}
+                  </a>
+                </th>
+              @endif
             @endforeach
-            <th style="padding:.6rem .5rem; text-align:center;">Aksi</th>
+            <th style="padding:.6rem .5rem; text-align:center; vertical-align:top;">Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -134,13 +166,17 @@
             <td style="padding:.6rem .5rem; text-align:right; font-weight:600; color:{{ $b->pendapatan ? '#15803d' : '#94a3b8' }};">
               {{ $b->pendapatan ? 'Rp ' . number_format($b->pendapatan, 0, ',', '.') : '-' }}
             </td>
+            <td style="padding:.6rem .5rem; text-align:right; font-weight:600; color:{{ ($b->pendapatan ?? 0) > 0 ? '#b45309' : '#94a3b8' }};">
+              @php $pajak = ($b->pendapatan ?? 0) * $pajakRate / 100; @endphp
+              {{ $pajak > 0 ? 'Rp ' . number_format($pajak, 0, ',', '.') : '-' }}
+            </td>
             <td style="padding:.6rem .5rem; text-align:center;">
               <button type="button" class="btn-edit-pendapatan" data-id="{{ $b->id }}" data-value="{{ $b->pendapatan ?? '' }}" style="padding:.3rem .6rem; font-size:.8rem; background:#3b82f6; color:#fff; border:none; border-radius:6px; cursor:pointer;">Edit</button>
             </td>
           </tr>
           @empty
           <tr>
-            <td colspan="7" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
+            <td colspan="8" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
           </tr>
           @endforelse
         </tbody>
@@ -151,6 +187,29 @@
       {{ $bookings->links() }}
     </div>
   </main>
+</div>
+
+{{-- Modal Atur Pajak --}}
+<div id="pajakModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.4); align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:12px; padding:1.5rem; width:90%; max-width:400px; box-shadow:0 20px 60px rgba(0,0,0,.2);">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1rem;">
+      <h3 style="margin:0; font-size:1.1rem;">Pengaturan Pajak</h3>
+      <button id="closePajakModal" style="background:none; border:none; font-size:1.3rem; cursor:pointer; color:#64748b;">&times;</button>
+    </div>
+    <form id="pajakForm" method="POST" action="{{ route('laporan-keuangan.pajak.update') }}" style="display:flex; flex-direction:column; gap:1rem;">
+      @csrf
+      @method('PUT')
+      <div class="field" style="margin:0;">
+        <label for="pajak_rate_input" style="font-size:.85rem; font-weight:600;">Pajak Pendapatan (%)</label>
+        <input id="pajak_rate_input" type="number" name="pajak_rate" min="0" max="100" step="0.5" value="{{ $pajakRate }}" placeholder="Contoh: 11" required style="width:100%; padding:.5rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem;">
+      </div>
+      <p style="margin:0; font-size:.8rem; color:#64748b;">Persentase pajak yang dikenakan pada seluruh pendapatan.</p>
+      <div style="display:flex; gap:.5rem; justify-content:flex-end;">
+        <button type="button" class="btn" id="closePajakBtn" style="padding:.45rem 1rem;">Batal</button>
+        <button type="submit" class="btn btn-primary" style="padding:.45rem 1rem;">Simpan</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 {{-- Modal Edit Pendapatan --}}
@@ -217,6 +276,18 @@
 </div>
 
 <script>
+(function(){
+  var pajakModal = document.getElementById('pajakModal');
+  var btnAturPajak = document.getElementById('btnAturPajak');
+  var closePajakModal = document.getElementById('closePajakModal');
+  var closePajakBtn = document.getElementById('closePajakBtn');
+
+  btnAturPajak.addEventListener('click', function(){ pajakModal.style.display = 'flex'; });
+  closePajakModal.addEventListener('click', function(){ pajakModal.style.display = 'none'; });
+  closePajakBtn.addEventListener('click', function(){ pajakModal.style.display = 'none'; });
+  pajakModal.addEventListener('click', function(e){ if(e.target === pajakModal) pajakModal.style.display = 'none'; });
+})();
+
 (function(){
   var modal = document.getElementById('editPendapatanModal');
   var form = document.getElementById('editPendapatanForm');
