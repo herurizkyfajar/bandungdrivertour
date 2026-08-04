@@ -105,7 +105,7 @@
                 'customer_name' => 'Customer',
                 'country_of_origin' => 'Asal Negara',
                 'status' => 'Status',
-                'booking_date' => 'Tanggal Booking',
+                'booking_date' => 'Tanggal Mulai',
                 'price' => 'Biaya',
                 'pendapatan' => 'Pendapatan',
                 'pajak' => 'Pajak',
