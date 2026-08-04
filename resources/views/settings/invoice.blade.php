@@ -56,6 +56,12 @@
               <input id="nib" type="text" name="nib" value="{{ old('nib', $settings->nib) }}">
             </div>
           </div>
+          <div class="col-6">
+            <div class="field">
+              <label for="ahu_certificate_number">AHU Certificate Number</label>
+              <input id="ahu_certificate_number" type="text" name="ahu_certificate_number" value="{{ old('ahu_certificate_number', $settings->ahu_certificate_number) }}" placeholder="e.g., AHU-0001234-00">
+            </div>
+          </div>
         </div>
       </div>
 

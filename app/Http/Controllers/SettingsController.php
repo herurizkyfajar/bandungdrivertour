@@ -25,6 +25,7 @@ class SettingsController extends Controller
             'company_email' => ['nullable', 'string', 'max:255'],
             'company_website' => ['nullable', 'string', 'max:255'],
             'nib' => ['nullable', 'string', 'max:255'],
+            'ahu_certificate_number' => ['nullable', 'string', 'max:255'],
             'signer_name' => ['required', 'string', 'max:255'],
             'signer_title' => ['nullable', 'string', 'max:255'],
             'signature' => ['nullable', 'image', 'mimes:png,jpg,jpeg', 'max:2048'],

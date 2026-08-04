@@ -21,6 +21,7 @@ class InvoiceSetting extends Model
         'bank_account_name',
         'terms_html',
         'pajak_rate',
+        'ahu_certificate_number',
     ];
 
     public static function instance(): self
