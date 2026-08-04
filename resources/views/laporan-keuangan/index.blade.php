@@ -37,6 +37,14 @@
         <input id="q" name="q" type="text" value="{{ request('q') }}" placeholder="Nama, no. HP, atau invoice" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem; width:200px;">
       </div>
       <div class="field" style="margin:0;">
+        <label for="start_date" style="font-size:.85rem; font-weight:600;">Dari Tanggal</label>
+        <input id="start_date" name="start_date" type="date" value="{{ request('start_date') }}" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem;">
+      </div>
+      <div class="field" style="margin:0;">
+        <label for="end_date" style="font-size:.85rem; font-weight:600;">Sampai Tanggal</label>
+        <input id="end_date" name="end_date" type="date" value="{{ request('end_date') }}" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem;">
+      </div>
+      <div class="field" style="margin:0;">
         <label for="filter_pendapatan" style="font-size:.85rem; font-weight:600;">Pendapatan</label>
         <select id="filter_pendapatan" name="filter_pendapatan" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem;">
           <option value="">Semua</option>
@@ -73,7 +81,7 @@
         </select>
       </div>
       <button type="submit" class="btn btn-primary" style="padding:.45rem 1.2rem; height:38px; border-radius:8px; font-size:.9rem;">Filter</button>
-      @if(request()->hasAny(['filter_pendapatan', 'filter_status', 'filter_group', 'filter_country']))
+      @if(request()->hasAny(['filter_pendapatan', 'filter_status', 'filter_group', 'filter_country', 'start_date', 'end_date']))
         <a href="{{ route('laporan-keuangan.index') }}" class="btn" style="padding:.45rem 1.2rem; height:38px; border-radius:8px; font-size:.9rem;">Reset</a>
       @endif
     </form>

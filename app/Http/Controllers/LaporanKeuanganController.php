@@ -57,6 +57,13 @@ class LaporanKeuanganController extends Controller
             $query->where('country_of_origin', $request->filter_country);
         }
 
+        if ($request->filled('start_date')) {
+            $query->whereDate('booking_date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('booking_date', '<=', $request->end_date);
+        }
+
         $bookings = $query->paginate(25)->appends($request->query());
 
         $summaryQuery = Booking::withoutGlobalScopes();
@@ -81,6 +88,12 @@ class LaporanKeuanganController extends Controller
         }
         if ($request->filled('filter_country')) {
             $summaryQuery->where('country_of_origin', $request->filter_country);
+        }
+        if ($request->filled('start_date')) {
+            $summaryQuery->whereDate('booking_date', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $summaryQuery->whereDate('booking_date', '<=', $request->end_date);
         }
 
         $totalBiaya = (clone $summaryQuery)->sum('price');
