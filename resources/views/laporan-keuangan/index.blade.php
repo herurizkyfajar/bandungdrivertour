@@ -63,8 +63,17 @@
           @endforeach
         </select>
       </div>
+      <div class="field" style="margin:0;">
+        <label for="filter_country" style="font-size:.85rem; font-weight:600;">Asal Negara</label>
+        <select id="filter_country" name="filter_country" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem;">
+          <option value="">Semua</option>
+          @foreach($countries as $c)
+            <option value="{{ $c }}" {{ request('filter_country') === $c ? 'selected' : '' }}>{{ $c }}</option>
+          @endforeach
+        </select>
+      </div>
       <button type="submit" class="btn btn-primary" style="padding:.45rem 1.2rem; height:38px; border-radius:8px; font-size:.9rem;">Filter</button>
-      @if(request()->hasAny(['filter_pendapatan', 'filter_status', 'filter_group']))
+      @if(request()->hasAny(['filter_pendapatan', 'filter_status', 'filter_group', 'filter_country']))
         <a href="{{ route('laporan-keuangan.index') }}" class="btn" style="padding:.45rem 1.2rem; height:38px; border-radius:8px; font-size:.9rem;">Reset</a>
       @endif
     </form>
@@ -93,7 +102,7 @@
     @php
       $currentSort = request('sort', 'created_at');
       $currentDir = request('dir', 'desc');
-      $sortParams = ['q' => request('q'), 'filter_pendapatan' => request('filter_pendapatan'), 'filter_status' => request('filter_status'), 'filter_group' => request('filter_group')];
+      $sortParams = ['q' => request('q'), 'filter_pendapatan' => request('filter_pendapatan'), 'filter_status' => request('filter_status'), 'filter_group' => request('filter_group'), 'filter_country' => request('filter_country')];
     @endphp
     <div style="overflow-x:auto;">
       <table style="width:100%; border-collapse:collapse; font-size:.88rem;">

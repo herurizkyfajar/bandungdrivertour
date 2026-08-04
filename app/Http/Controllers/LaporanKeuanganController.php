@@ -53,6 +53,10 @@ class LaporanKeuanganController extends Controller
             $query->where('group_id', $request->filter_group);
         }
 
+        if ($request->filled('filter_country')) {
+            $query->where('country_of_origin', $request->filter_country);
+        }
+
         $bookings = $query->paginate(25)->appends($request->query());
 
         $summaryQuery = Booking::withoutGlobalScopes();
@@ -75,17 +79,21 @@ class LaporanKeuanganController extends Controller
         if ($request->filled('filter_group')) {
             $summaryQuery->where('group_id', $request->filter_group);
         }
+        if ($request->filled('filter_country')) {
+            $summaryQuery->where('country_of_origin', $request->filter_country);
+        }
 
         $totalBiaya = (clone $summaryQuery)->sum('price');
         $totalPendapatan = (clone $summaryQuery)->whereNotNull('pendapatan')->where('pendapatan', '>', 0)->sum('pendapatan');
         $belumDiisi = (clone $summaryQuery)->where(function ($q) { $q->whereNull('pendapatan')->orWhere('pendapatan', 0); })->count();
 
         $groups = Group::orderBy('name')->get();
+        $countries = Booking::whereNotNull('country_of_origin')->where('country_of_origin', '!=', '')->distinct()->pluck('country_of_origin')->sort()->values();
 
         $pajakRate = InvoiceSetting::instance()->pajak_rate ?? 0;
         $totalPajak = $totalPendapatan * ($pajakRate / 100);
 
-        return view('laporan-keuangan.index', compact('bookings', 'totalBiaya', 'totalPendapatan', 'belumDiisi', 'groups', 'pajakRate', 'totalPajak'));
+        return view('laporan-keuangan.index', compact('bookings', 'totalBiaya', 'totalPendapatan', 'belumDiisi', 'groups', 'countries', 'pajakRate', 'totalPajak'));
     }
 
     public function updatePendapatan(Request $request, $id)
