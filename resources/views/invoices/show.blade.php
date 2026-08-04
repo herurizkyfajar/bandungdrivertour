@@ -351,12 +351,12 @@
     <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:12px; padding:16px 20px; margin-bottom:20px; font-size:.9rem; line-height:1.6; color:#166534;">
       <div style="font-weight:700; font-size:.95rem; margin-bottom:6px;">✔ Registered & Licensed Business</div>
       <p style="margin:0 0 6px;">This business is legally registered and recognized under the Republic of Indonesia's business registration system.</p>
-      <p style="margin:0 0 6px;"><strong>Business Registration Number (NIB):</strong> {{ $invSettings->nib }}</p>
-      <p style="margin:0 0 12px;">This NIB confirms that the company has fulfilled all legal requirements including business licensing, location approval, environmental permits, and building compliance in accordance with Indonesian Government Regulation No. 24 of 2018 concerning Electronic Integrated Business Licensing Services (OSS - Online Single Submission).</p>
       @if(!empty($invSettings->ahu_certificate_number))
       <p style="margin:0 0 6px;"><strong>AHU Registration Number:</strong> {{ $invSettings->ahu_certificate_number }}</p>
-      <p style="margin:0;">This AHU certificate issued by the Ministry of Law and Human Rights of the Republic of Indonesia confirms the official legal entity status of the company.</p>
+      <p style="margin:0 0 12px;">This AHU certificate issued by the Ministry of Law and Human Rights of the Republic of Indonesia confirms the official legal entity status of the company.</p>
       @endif
+      <p style="margin:0 0 6px;"><strong>Business Registration Number (NIB):</strong> {{ $invSettings->nib }}</p>
+      <p style="margin:0;">This NIB confirms that the company has fulfilled all legal requirements including business licensing, location approval, environmental permits, and building compliance in accordance with Indonesian Government Regulation No. 24 of 2018 concerning Electronic Integrated Business Licensing Services (OSS - Online Single Submission).</p>
     </div>
 
     <h3 class="terms-title">Rental Duration & Service Terms</h3>
