@@ -13,7 +13,7 @@ class LaporanKeuanganController extends Controller
     {
         $sort = $request->input('sort', 'created_at');
         $dir = $request->input('dir', 'desc');
-        $allowed = ['invoice_number', 'customer_name', 'status', 'booking_date', 'price', 'pendapatan', 'created_at'];
+        $allowed = ['invoice_number', 'customer_name', 'country_of_origin', 'status', 'booking_date', 'price', 'pendapatan', 'created_at'];
         if (!in_array($sort, $allowed)) $sort = 'created_at';
         $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
 

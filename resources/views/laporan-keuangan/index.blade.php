@@ -103,6 +103,7 @@
               $columns = [
                 'invoice_number' => 'No. Invoice',
                 'customer_name' => 'Customer',
+                'country_of_origin' => 'Asal Negara',
                 'status' => 'Status',
                 'booking_date' => 'Tanggal Booking',
                 'price' => 'Biaya',
@@ -151,6 +152,7 @@
               @endif
             </td>
             <td style="padding:.6rem .5rem;">{{ $b->customer_name }}</td>
+            <td style="padding:.6rem .5rem;">{{ $b->country_of_origin ?? '-' }}</td>
             <td style="padding:.6rem .5rem;">
               <span style="display:inline-block; padding:.15rem .5rem; border-radius:6px; font-size:.78rem;
                 @if(in_array($b->status, ['baru_masuk'])) background:#e0e7ff; color:#3730a3;
@@ -176,7 +178,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="8" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
+            <td colspan="9" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
           </tr>
           @endforelse
         </tbody>
