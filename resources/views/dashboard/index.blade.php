@@ -682,8 +682,8 @@
 
     <div class="dashboard-cards" style="grid-template-columns: repeat(4, 1fr); gap: .4rem;">
       <div class="metric-card" style="background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%); padding: .7rem .5rem;">
-        <h4 style="font-size:.7rem;">Masuk</h4>
-        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_masuk'] ?? 0 }}</div>
+        <h4 style="font-size:.7rem;">Pending</h4>
+        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_pending'] ?? 0 }}</div>
       </div>
       <div class="metric-card" style="background: linear-gradient(135deg, #d97706 0%, #fbbf24 100%); padding: .7rem .5rem;">
         <h4 style="font-size:.7rem;">Proses</h4>
