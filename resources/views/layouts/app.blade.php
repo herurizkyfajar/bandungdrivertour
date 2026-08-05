@@ -11,7 +11,29 @@
         @vite(['resources/css/app.css','resources/js/app.js'])
     @else
         <script src="https://cdn.tailwindcss.com"></script>
-        <script>
+    @if($isAdminShell)
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+        <div class="mobile-bottom-nav-inner">
+            <a href="{{ route('booking.create') }}" class="{{ request()->routeIs('booking.create') ? 'active' : '' }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                Home
+            </a>
+            <a href="{{ route('bookings.index') }}" class="{{ request()->routeIs('bookings.*') ? 'active' : '' }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+                Booking
+            </a>
+            <a href="{{ route('laporan-keuangan.index') }}" class="{{ request()->routeIs('laporan-keuangan.*') ? 'active' : '' }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                Keuangan
+            </a>
+            <a href="{{ route('dashboard.calendar') }}" class="{{ request()->routeIs('dashboard.calendar') ? 'active' : '' }}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                Kalender
+            </a>
+        </div>
+    </nav>
+    @endif
+    <script>
             tailwind.config = { theme: { fontFamily: { sans: ['Instrument Sans','ui-sans-serif','system-ui','sans-serif'] } } }
         </script>
     @endif
@@ -210,6 +232,52 @@
             .sidebar,
             .calendar-side { position: static; top: auto; max-height: none; }
             .content-card { min-width: 0; overflow: hidden; }
+        }
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            z-index: 80;
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            box-shadow: 0 -4px 16px rgba(0,0,0,.06);
+            padding: .4rem 0 env(safe-area-inset-bottom, .4rem);
+        }
+        .mobile-bottom-nav-inner {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 480px;
+            margin: 0 auto;
+        }
+        .mobile-bottom-nav a {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: .2rem;
+            text-decoration: none;
+            color: #94a3b8;
+            font-size: .65rem;
+            font-weight: 600;
+            padding: .35rem .5rem;
+            border-radius: 10px;
+            transition: color .15s ease, background .15s ease;
+            min-width: 60px;
+        }
+        .mobile-bottom-nav a svg {
+            width: 22px;
+            height: 22px;
+            stroke-width: 1.8;
+        }
+        .mobile-bottom-nav a.active {
+            color: #2563eb;
+            background: #eff6ff;
+        }
+        @media (max-width: 768px) {
+            .mobile-bottom-nav { display: block; }
+            body.admin-shell .container { padding-bottom: 4.5rem; }
         }
         @media (max-width: 640px) {
             .container { max-width: 100%; margin: 1rem auto; padding: 0 .75rem; }
