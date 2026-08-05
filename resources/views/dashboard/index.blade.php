@@ -503,10 +503,7 @@
     .metric-value {
       font-size: 1.3rem;
     }
-    .metric-note {
-      font-size: .65rem;
-      margin-top: .1rem;
-    }
+    .metric-note { display: none; }
 
     .schedule-item {
       grid-template-columns: 56px minmax(0, 1fr);
