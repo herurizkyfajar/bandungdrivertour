@@ -512,6 +512,9 @@
     .dashboard-main {
       min-height: auto;
     }
+    .dashboard-shell {
+      gap: .75rem;
+    }
   }
 </style>
 
