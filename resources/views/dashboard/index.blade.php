@@ -495,6 +495,7 @@
     .metric-card {
       padding: .6rem;
       border-radius: 14px;
+      text-align: center;
     }
     .metric-card h4 {
       font-size: .72rem;
