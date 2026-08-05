@@ -265,14 +265,7 @@
             .actions .btn { width: 100%; }
             .table-wrap > table { min-width: 560px; }
         }
-        .wa-float { position: fixed; right: 20px; bottom: 20px; z-index: 60; display: flex; align-items: center; gap: .6rem; background: linear-gradient(135deg, #25D366 0%, #22c35e 100%); color: #ffffff; border-radius: 999px; padding: .7rem 1rem; box-shadow: 0 12px 24px rgba(34, 195, 94, .35); text-decoration: none; transition: transform .2s ease, box-shadow .2s ease; }
-        .wa-float:hover { transform: translateY(-2px); box-shadow: 0 16px 30px rgba(34, 195, 94, .45); }
-        .wa-icon-wrap { width: 28px; height: 28px; border-radius: 999px; background: rgba(255,255,255,.18); display: flex; align-items: center; justify-content: center; }
-        .wa-icon { width: 18px; height: 18px; color: #000000; }
-        .wa-label { font-weight: 700; color: #ffffff; letter-spacing: .2px; }
         @media (max-width: 640px) {
-            .wa-label { display: none; }
-            .wa-float { padding: .6rem; }
             .homepage-header-inner {
                 min-height: 76px;
                 padding: .7rem .75rem;
@@ -284,7 +277,7 @@
     </style>
 </head>
 @php($showHomepageHeader = request()->routeIs('booking.create'))
-@php($isAdminShell = request()->routeIs('dashboard*', 'bookings.*', 'vehicles.*', 'services.*', 'mitras.*', 'groups.*', 'settings.*', 'email-logs.*', 'itineraries.*', 'accounts.*', 'booking-data.*', 'user.bookings.*'))
+@php($isAdminShell = request()->routeIs('dashboard*', 'bookings.*', 'vehicles.*', 'services.*', 'mitras.*', 'groups.*', 'settings.*', 'email-logs.*', 'itineraries.*', 'accounts.*', 'booking-data.*', 'user.bookings.*', 'laporan-keuangan.*', 'spj.*'))
 <body class="{{ $showHomepageHeader ? 'homepage-with-header' : '' }} {{ $isAdminShell ? 'admin-shell' : '' }}">
     @if($showHomepageHeader)
     <header class="homepage-header">
@@ -311,12 +304,6 @@
         @endif
         @yield('content')
     </main>
-    <a class="wa-float" href="https://wa.me/6282129292884?text=I%20need%20assistance%20with%20my%20booking." target="_blank" rel="noopener" aria-label="Contact admin via WhatsApp">
-        <span class="wa-icon-wrap">
-            <svg class="wa-icon" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M19.11 17.93c-.3-.17-1.76-.86-2.03-.96-.27-.1-.47-.17-.66.1-.19.27-.76.96-.93 1.16-.17.2-.34.22-.64.08-.3-.15-1.28-.47-2.43-1.5-.9-.8-1.51-1.79-1.68-2.09-.17-.3-.02-.46.13-.62.13-.13.3-.34.44-.51.15-.17.2-.3.31-.5.1-.2.05-.37-.02-.52-.07-.15-.66-1.59-.91-2.18-.24-.58-.48-.5-.66-.5-.17 0-.37-.02-.57-.02-.2 0-.52.07-.8.37-.27.3-1.05 1.02-1.05 2.49s1.08 2.88 1.23 3.08c.15.2 2.12 3.23 5.14 4.52.72.31 1.28.5 1.72.64.72.23 1.38.2 1.9.12.58-.09 1.76-.72 2.01-1.42.25-.7.25-1.3.17-1.42-.08-.12-.28-.19-.58-.34z"/><path d="M27.2 4.8C24.3 1.9 20.4.2 16.3.3 8.5.4 2.1 6.7 2.1 14.5c0 2.6.7 5.1 2.1 7.3L2 30l8.4-2.2c2.1 1.1 4.5 1.7 6.9 1.7h.1c7.8 0 14.2-6.3 14.3-14.1.1-3.8-1.3-7.3-3.9-10.1zM17.4 27.5h-.1c-2.2 0-4.4-.6-6.3-1.6l-.5-.3-5 1.3 1.4-4.8-.3-.5c-1.4-2.1-2.1-4.6-2.1-7.1 0-6.8 5.5-12.3 12.3-12.3 3.3 0 6.4 1.3 8.8 3.7 2.4 2.4 3.7 5.6 3.6 9-.1 6.8-5.6 12.3-12.5 12.6z"/></svg>
-        </span>
-        <span class="wa-label">Contact Admin</span>
-    </a>
     @if($isAdminShell)
     <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
         <div class="mobile-bottom-nav-inner">
