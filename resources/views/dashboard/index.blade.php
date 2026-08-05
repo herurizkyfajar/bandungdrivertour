@@ -518,7 +518,7 @@
     .dashboard-main {
       min-height: auto;
       padding: 0;
-      gap: .25rem;
+      gap: .15rem;
       background: transparent;
       border: none;
       border-radius: 0;
