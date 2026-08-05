@@ -627,8 +627,8 @@
           <a class="btn btn-primary" href="{{ route('bookings.index') }}">Kelola Booking</a>
         @endif
         <a class="btn" href="{{ route('booking.create') }}">Tambah Booking</a>
+      </div>
     </div>
-    @endif
 
     @if($role === 'super_admin')
     <div class="dashboard-cards">
