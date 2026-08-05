@@ -512,7 +512,7 @@
     .dashboard-main {
       min-height: auto;
       padding: 0;
-      gap: .5rem;
+      gap: .75rem;
       background: transparent;
       border: none;
       border-radius: 0;
@@ -520,8 +520,22 @@
       backdrop-filter: none;
     }
     .dashboard-shell {
-      gap: .5rem;
+      gap: .75rem;
       align-items: start;
+    }
+    .dashboard-right {
+      padding: 0;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      backdrop-filter: none;
+    }
+    .right-card {
+      border-radius: 16px;
+      border: 1px solid #e2e8f0;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,.04);
     }
   }
 </style>
