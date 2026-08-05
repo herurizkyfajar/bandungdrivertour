@@ -511,11 +511,16 @@
     }
     .dashboard-main {
       min-height: auto;
-      padding: .5rem;
-      gap: .35rem;
+      padding: 0;
+      gap: .5rem;
+      background: transparent;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      backdrop-filter: none;
     }
     .dashboard-shell {
-      gap: .35rem;
+      gap: .5rem;
       align-items: start;
     }
   }
