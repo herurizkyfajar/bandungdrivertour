@@ -523,6 +523,9 @@
       gap: .75rem;
       align-items: start;
     }
+    .dashboard-shell > .mobile-grid-menu { order: 1; }
+    .dashboard-shell > .mobile-more-panel { order: 2; }
+    .dashboard-shell > .dashboard-main { order: 0; }
     .dashboard-right {
       padding: 0;
       background: transparent;
