@@ -511,9 +511,12 @@
     }
     .dashboard-main {
       min-height: auto;
+      padding: .6rem;
+      gap: .5rem;
     }
     .dashboard-shell {
-      gap: .75rem;
+      gap: .5rem;
+      align-items: start;
     }
   }
 </style>
