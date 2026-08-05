@@ -509,6 +509,9 @@
     .schedule-item {
       grid-template-columns: 56px minmax(0, 1fr);
     }
+    .dashboard-main {
+      min-height: auto;
+    }
   }
 </style>
 
