@@ -324,6 +324,7 @@
     border-radius: 20px;
     border: 1px solid #e2e8f0;
     box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+    grid-column: 1 / -1;
   }
   .mobile-more-panel { margin-top: .5rem; }
   .mobile-more-panel.show { display: grid; }
@@ -479,8 +480,6 @@
     .dashboard-sidebar,
     .dashboard-hero,
     .summary-card { display: none !important; }
-    .mobile-grid-menu { order: 1; }
-    .mobile-more-panel { order: 2; }
     .modal-header {
       flex-direction: column;
     }
@@ -516,6 +515,103 @@
 <div class="dashboard-shell">
   @include('partials.admin-sidebar')
 
+  @if($role === 'super_admin')
+  <div class="mobile-grid-menu" id="mobileGridMenu">
+    <a href="{{ route('dashboard') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#2563eb,#3b82f6);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      </div>
+      <span class="icon-label">Dashboard</span>
+    </a>
+    <a href="{{ route('bookings.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <span class="icon-label">Bookings</span>
+    </a>
+    <a href="{{ route('booking-data.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#0891b2,#22d3ee);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+      </div>
+      <span class="icon-label">Data Booking</span>
+    </a>
+    <a href="{{ route('laporan-keuangan.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#059669,#34d399);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      </div>
+      <span class="icon-label">Keuangan</span>
+    </a>
+    <a href="{{ route('dashboard.calendar') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#ea580c,#fb923c);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      </div>
+      <span class="icon-label">Kalender</span>
+    </a>
+    <a href="{{ route('vehicles.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#dc2626,#f87171);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+      </div>
+      <span class="icon-label">Kendaraan</span>
+    </a>
+    <a href="{{ route('mitras.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#d946ef,#e879f9);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span class="icon-label">Mitra</span>
+    </a>
+    <a href="javascript:void(0)" onclick="document.getElementById('mobileMorePanel').classList.toggle('show')">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#64748b,#94a3b8);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+      </div>
+      <span class="icon-label">Lainnya</span>
+    </a>
+  </div>
+  <div class="mobile-more-panel" id="mobileMorePanel">
+    <a href="{{ route('booking.create') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#4f46e5,#818cf8);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </div>
+      <span class="icon-label">Tambah Booking</span>
+    </a>
+    <a href="{{ route('services.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#0d9488,#5eead4);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <span class="icon-label">Layanan</span>
+    </a>
+    <a href="{{ route('groups.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#ca8a04,#facc15);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      </div>
+      <span class="icon-label">Groups</span>
+    </a>
+    <a href="{{ route('accounts.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#be185d,#f472b6);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </div>
+      <span class="icon-label">Akun</span>
+    </a>
+    <a href="{{ route('itineraries.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#4338ca,#6366f1);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
+      </div>
+      <span class="icon-label">Itinerary</span>
+    </a>
+    <a href="{{ route('settings.smtp') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#71717a,#a1a1aa);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </div>
+      <span class="icon-label">Pengaturan</span>
+    </a>
+    <a href="{{ route('email-logs.index') }}">
+      <div class="icon-circle" style="background:linear-gradient(135deg,#b45309,#fbbf24);">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      </div>
+      <span class="icon-label">Email Log</span>
+    </a>
+  </div>
+  @endif
+
   <main class="dashboard-main">
     <div class="dashboard-hero">
       <div>
@@ -531,103 +627,6 @@
           <a class="btn btn-primary" href="{{ route('bookings.index') }}">Kelola Booking</a>
         @endif
         <a class="btn" href="{{ route('booking.create') }}">Tambah Booking</a>
-      </div>
-    </div>
-
-    @if($role === 'super_admin')
-    <div class="mobile-grid-menu" id="mobileGridMenu">
-      <a href="{{ route('dashboard') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#2563eb,#3b82f6);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        </div>
-        <span class="icon-label">Dashboard</span>
-      </a>
-      <a href="{{ route('bookings.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        </div>
-        <span class="icon-label">Bookings</span>
-      </a>
-      <a href="{{ route('booking-data.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#0891b2,#22d3ee);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-        </div>
-        <span class="icon-label">Data Booking</span>
-      </a>
-      <a href="{{ route('laporan-keuangan.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#059669,#34d399);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-        </div>
-        <span class="icon-label">Keuangan</span>
-      </a>
-      <a href="{{ route('dashboard.calendar') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#ea580c,#fb923c);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-        </div>
-        <span class="icon-label">Kalender</span>
-      </a>
-      <a href="{{ route('vehicles.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#dc2626,#f87171);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        </div>
-        <span class="icon-label">Kendaraan</span>
-      </a>
-      <a href="{{ route('mitras.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#d946ef,#e879f9);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <span class="icon-label">Mitra</span>
-      </a>
-      <a href="javascript:void(0)" onclick="document.getElementById('mobileMorePanel').classList.toggle('show')">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#64748b,#94a3b8);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
-        </div>
-        <span class="icon-label">Lainnya</span>
-      </a>
-    </div>
-    <div class="mobile-more-panel" id="mobileMorePanel">
-      <a href="{{ route('booking.create') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#4f46e5,#818cf8);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        </div>
-        <span class="icon-label">Tambah Booking</span>
-      </a>
-      <a href="{{ route('services.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#0d9488,#5eead4);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </div>
-        <span class="icon-label">Layanan</span>
-      </a>
-      <a href="{{ route('groups.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#ca8a04,#facc15);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        </div>
-        <span class="icon-label">Groups</span>
-      </a>
-      <a href="{{ route('accounts.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#be185d,#f472b6);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        </div>
-        <span class="icon-label">Akun</span>
-      </a>
-      <a href="{{ route('itineraries.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#4338ca,#6366f1);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-        </div>
-        <span class="icon-label">Itinerary</span>
-      </a>
-      <a href="{{ route('settings.smtp') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#71717a,#a1a1aa);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-        </div>
-        <span class="icon-label">Pengaturan</span>
-      </a>
-      <a href="{{ route('email-logs.index') }}">
-        <div class="icon-circle" style="background:linear-gradient(135deg,#b45309,#fbbf24);">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-        </div>
-        <span class="icon-label">Email Log</span>
-      </a>
     </div>
     @endif
 
