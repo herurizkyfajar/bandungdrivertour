@@ -314,7 +314,8 @@
     color: var(--muted);
   }
 
-  .mobile-grid-menu {
+  .mobile-grid-menu,
+  .mobile-more-panel {
     display: none;
     grid-template-columns: repeat(4, 1fr);
     gap: .6rem;
@@ -324,7 +325,10 @@
     border: 1px solid #e2e8f0;
     box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
   }
-  .mobile-grid-menu a {
+  .mobile-more-panel { margin-top: .5rem; }
+  .mobile-more-panel.show { display: grid; }
+  .mobile-grid-menu a,
+  .mobile-more-panel a {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -335,8 +339,10 @@
     border-radius: 14px;
     transition: background .15s ease;
   }
-  .mobile-grid-menu a:hover { background: #f1f5f9; }
-  .mobile-grid-menu .icon-circle {
+  .mobile-grid-menu a:hover,
+  .mobile-more-panel a:hover { background: #f1f5f9; }
+  .mobile-grid-menu .icon-circle,
+  .mobile-more-panel .icon-circle {
     width: 52px;
     height: 52px;
     border-radius: 16px;
@@ -345,30 +351,20 @@
     justify-content: center;
     box-shadow: 0 4px 12px rgba(0,0,0,.08);
   }
-  .mobile-grid-menu .icon-circle svg {
+  .mobile-grid-menu .icon-circle svg,
+  .mobile-more-panel .icon-circle svg {
     width: 26px;
     height: 26px;
     stroke-width: 1.8;
     color: #fff;
   }
-  .mobile-grid-menu .icon-label {
+  .mobile-grid-menu .icon-label,
+  .mobile-more-panel .icon-label {
     font-size: .68rem;
     font-weight: 600;
     text-align: center;
     line-height: 1.2;
   }
-  .mobile-more-panel {
-    display: none;
-    grid-template-columns: repeat(4, 1fr);
-    gap: .6rem;
-    padding: .75rem;
-    margin-top: .5rem;
-    background: #fff;
-    border-radius: 20px;
-    border: 1px solid #e2e8f0;
-    box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
-  }
-  .mobile-more-panel.show { display: grid; }
   @media (max-width: 768px) {
     .mobile-grid-menu { display: grid; }
   }
