@@ -484,10 +484,28 @@
       flex-direction: column;
     }
 
-    .dashboard-cards,
     .quick-links,
     .modal-grid {
       grid-template-columns: 1fr;
+    }
+    .dashboard-cards {
+      grid-template-columns: repeat(3, 1fr);
+      gap: .5rem;
+    }
+    .metric-card {
+      padding: .6rem;
+      border-radius: 14px;
+    }
+    .metric-card h4 {
+      font-size: .72rem;
+      margin-bottom: .15rem;
+    }
+    .metric-value {
+      font-size: 1.3rem;
+    }
+    .metric-note {
+      font-size: .65rem;
+      margin-top: .1rem;
     }
 
     .schedule-item {
