@@ -147,20 +147,27 @@
 
   .metric-card {
     border-radius: 20px;
-    padding: 1rem;
+    padding: 1.2rem 1rem;
     color: #fff;
-    box-shadow: 0 16px 28px rgba(15, 23, 42, .14);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
   }
 
   .metric-card h4 {
-    margin: 0 0 .3rem;
-    font-size: .98rem;
+    margin: 0 0 .4rem;
+    font-size: .85rem;
+    font-weight: 600;
+    opacity: .9;
   }
 
   .metric-value {
-    font-size: 2rem;
+    font-size: 2.2rem;
     font-weight: 800;
-    letter-spacing: -.04em;
+    letter-spacing: -.03em;
     line-height: 1.1;
   }
 
@@ -489,20 +496,19 @@
       grid-template-columns: 1fr;
     }
     .dashboard-cards {
-      grid-template-columns: repeat(2, 1fr);
-      gap: .5rem;
+      grid-template-columns: 1fr 1.6fr;
+      gap: .6rem;
     }
     .metric-card {
-      padding: .6rem;
-      border-radius: 14px;
-      text-align: center;
+      padding: .8rem .6rem;
+      border-radius: 16px;
     }
     .metric-card h4 {
-      font-size: .72rem;
-      margin-bottom: .15rem;
+      font-size: .75rem;
+      margin-bottom: .2rem;
     }
     .metric-value {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
     }
     .metric-note { display: none; }
 
