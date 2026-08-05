@@ -489,7 +489,7 @@
       grid-template-columns: 1fr;
     }
     .dashboard-cards {
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: .5rem;
     }
     .metric-card {
@@ -663,21 +663,14 @@
     </div>
 
     @if($role === 'super_admin')
-    <div class="dashboard-cards">
-      <div class="metric-card" style="background: linear-gradient(135deg, #6b21a8 0%, #8b5cf6 100%);">
+    <div class="dashboard-cards" style="grid-template-columns: repeat(2, 1fr);">
+      <div class="metric-card" style="background: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);">
         <h4>Total Booking</h4>
         <div class="metric-value">{{ $metrics['bookings'] ?? 0 }}</div>
-        <div class="metric-note">Jumlah semua booking</div>
-      </div>
-      <div class="metric-card" style="background: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);">
-        <h4>Total Kendaraan</h4>
-        <div class="metric-value">{{ $metrics['vehicles'] ?? 0 }}</div>
-        <div class="metric-note">Unit kendaraan terdaftar</div>
       </div>
       <div class="metric-card" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);">
-        <h4>Total Mitra</h4>
-        <div class="metric-value">{{ $metrics['mitras'] ?? 0 }}</div>
-        <div class="metric-note">Mitra aktif di sistem</div>
+        <h4>Pendapatan Kotor</h4>
+        <div class="metric-value">Rp {{ number_format($metrics['gross_revenue'] ?? 0, 0, ',', '.') }}</div>
       </div>
     </div>
 

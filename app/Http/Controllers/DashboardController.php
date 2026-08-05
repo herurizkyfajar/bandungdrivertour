@@ -23,8 +23,7 @@ class DashboardController extends Controller
         if ($role === 'super_admin') {
             $metrics = [
                 'bookings' => Booking::count(),
-                'vehicles' => Vehicle::count(),
-                'mitras' => Mitra::count(),
+                'gross_revenue' => (float) Booking::sum('price'),
             ];
         } else {
             $userId = Auth::id();
