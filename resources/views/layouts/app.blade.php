@@ -304,7 +304,7 @@
         @endif
         @yield('content')
     </main>
-    @if($isAdminShell)
+    @if($isAdminShell && auth()->user()?->role === 'super_admin')
     <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
         <div class="mobile-bottom-nav-inner">
             <a href="{{ route('dashboard') }}" class="{{ request()->routeIs('dashboard') ? 'active' : '' }}">

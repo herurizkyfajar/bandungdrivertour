@@ -484,7 +484,9 @@
   }
 
   @media (max-width: 768px) {
-    .dashboard-sidebar,
+    @if(auth()->user()?->role === 'super_admin')
+    .dashboard-sidebar { display: none !important; }
+    @endif
     .dashboard-hero,
     .summary-card { display: none !important; }
     .modal-header {
