@@ -502,7 +502,7 @@
       margin-bottom: .15rem;
     }
     .metric-value {
-      font-size: 2rem;
+      font-size: 1.4rem;
     }
     .metric-note { display: none; }
 
