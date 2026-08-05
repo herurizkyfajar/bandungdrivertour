@@ -680,6 +680,25 @@
       </div>
     </div>
 
+    <div class="dashboard-cards" style="grid-template-columns: repeat(4, 1fr);">
+      <div class="metric-card" style="background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%); padding: .7rem .5rem;">
+        <h4 style="font-size:.7rem;">Masuk</h4>
+        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_masuk'] ?? 0 }}</div>
+      </div>
+      <div class="metric-card" style="background: linear-gradient(135deg, #d97706 0%, #fbbf24 100%); padding: .7rem .5rem;">
+        <h4 style="font-size:.7rem;">Proses</h4>
+        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_proses'] ?? 0 }}</div>
+      </div>
+      <div class="metric-card" style="background: linear-gradient(135deg, #059669 0%, #34d399 100%); padding: .7rem .5rem;">
+        <h4 style="font-size:.7rem;">Selesai</h4>
+        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_selesai'] ?? 0 }}</div>
+      </div>
+      <div class="metric-card" style="background: linear-gradient(135deg, #dc2626 0%, #f87171 100%); padding: .7rem .5rem;">
+        <h4 style="font-size:.7rem;">Cancel</h4>
+        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_cancel'] ?? 0 }}</div>
+      </div>
+    </div>
+
     <div class="summary-card">
       <div class="summary-head">
         <div>

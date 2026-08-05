@@ -24,6 +24,10 @@ class DashboardController extends Controller
             $metrics = [
                 'bookings' => Booking::count(),
                 'gross_revenue' => (float) Booking::sum('price'),
+                'booking_masuk' => Booking::whereIn('status', ['baru_masuk'])->count(),
+                'booking_proses' => Booking::whereIn('status', ['konfirmasi', 'dijadwalkan'])->count(),
+                'booking_selesai' => Booking::whereIn('status', ['selesai_pelayanan', 'selesai_administrasi_fee'])->count(),
+                'booking_cancel' => Booking::whereIn('status', ['cancelled', 'cancel', 'batal'])->count(),
             ];
         } else {
             $userId = Auth::id();
