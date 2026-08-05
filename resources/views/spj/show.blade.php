@@ -103,6 +103,7 @@
   </div>
   <div class="section">
     <div class="grid-2">
+      <div class="label">Nama Supir</div><div>{{ $b->mitra?->full_name ?? '-' }}</div>
       <div class="label">Nama Pelanggan</div><div>{{ $b->customer_name }}</div>
       <div class="label">Nomor Kontak</div><div>{{ $b->contact_number }}</div>
       <div class="label">Negara Asal</div><div>{{ $b->country_of_origin ?? '-' }}</div>
