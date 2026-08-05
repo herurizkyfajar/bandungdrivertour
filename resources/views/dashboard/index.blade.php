@@ -476,6 +476,7 @@
   }
 
   @media (max-width: 768px) {
+    .dashboard-sidebar { display: none !important; }
     .dashboard-hero,
     .modal-header {
       flex-direction: column;
