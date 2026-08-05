@@ -478,6 +478,8 @@
   @media (max-width: 768px) {
     .dashboard-sidebar,
     .dashboard-hero { display: none !important; }
+    .mobile-grid-menu { order: 1; }
+    .mobile-more-panel { order: 2; }
     .modal-header {
       flex-direction: column;
     }
