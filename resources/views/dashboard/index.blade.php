@@ -496,8 +496,8 @@
       grid-template-columns: 1fr;
     }
     .dashboard-cards {
-      grid-template-columns: 30% 70%;
-      gap: .6rem;
+      grid-template-columns: minmax(0, 30%) minmax(0, 70%);
+      gap: .4rem;
     }
     .metric-card {
       padding: .8rem .6rem;
@@ -518,7 +518,7 @@
     .dashboard-main {
       min-height: auto;
       padding: 0;
-      gap: .75rem;
+      gap: .4rem;
       background: transparent;
       border: none;
       border-radius: 0;
@@ -526,7 +526,7 @@
       backdrop-filter: none;
     }
     .dashboard-shell {
-      gap: .75rem;
+      gap: .4rem;
       align-items: start;
     }
     .dashboard-shell > .mobile-grid-menu { order: 1; }
@@ -669,7 +669,7 @@
     </div>
 
     @if($role === 'super_admin')
-    <div class="dashboard-cards" style="grid-template-columns: 30% 70%;">
+    <div class="dashboard-cards" style="grid-template-columns: minmax(0, 30%) minmax(0, 70%); gap: .4rem;">
       <div class="metric-card" style="background: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);">
         <h4>Total Booking</h4>
         <div class="metric-value">{{ $metrics['bookings'] ?? 0 }}</div>
@@ -680,7 +680,7 @@
       </div>
     </div>
 
-    <div class="dashboard-cards" style="grid-template-columns: repeat(4, 1fr);">
+    <div class="dashboard-cards" style="grid-template-columns: repeat(4, 1fr); gap: .4rem;">
       <div class="metric-card" style="background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%); padding: .7rem .5rem;">
         <h4 style="font-size:.7rem;">Masuk</h4>
         <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_masuk'] ?? 0 }}</div>
