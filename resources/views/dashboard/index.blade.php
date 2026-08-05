@@ -496,7 +496,7 @@
       grid-template-columns: 1fr;
     }
     .dashboard-cards {
-      grid-template-columns: 1fr 1.6fr;
+      grid-template-columns: 30% 70%;
       gap: .6rem;
     }
     .metric-card {
@@ -669,7 +669,7 @@
     </div>
 
     @if($role === 'super_admin')
-    <div class="dashboard-cards" style="grid-template-columns: repeat(2, 1fr);">
+    <div class="dashboard-cards" style="grid-template-columns: 30% 70%;">
       <div class="metric-card" style="background: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);">
         <h4>Total Booking</h4>
         <div class="metric-value">{{ $metrics['bookings'] ?? 0 }}</div>
