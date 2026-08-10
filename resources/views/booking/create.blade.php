@@ -209,8 +209,8 @@
                     </div>
                 </div>
             </div>
-            <div class="actions">
-                <button type="submit" class="btn btn-primary">Submit Booking</button>
+            <div class="actions" style="justify-content:center;">
+                <button type="submit" class="btn btn-primary" style="width:100%; text-align:center;">Submit Booking</button>
             </div>
         </form>
     </div>
