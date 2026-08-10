@@ -122,29 +122,6 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-6">
-                    <div class="field">
-                        <label for="itinerary_id">Itinerary</label>
-                        @auth
-                            <div style="display:flex; gap:.5rem; align-items:center;">
-                                <select id="itinerary_id" name="itinerary_id" style="flex:1;">
-                                    <option value="">No itinerary (optional)</option>
-                                    @foreach($itineraries as $it)
-                                        <option value="{{ $it->id }}" {{ old('itinerary_id') == $it->id ? 'selected' : '' }}>
-                                            {{ $it->title }} ({{ $it->start_date->format('d M Y') }} - {{ $it->end_date->format('d M Y') }})
-                                        </option>
-                                    @endforeach
-                                </select>
-                                <a href="{{ route('itineraries.create') }}" class="btn" style="white-space:nowrap; font-size:.85rem;" target="_blank">+ Create Itinerary</a>
-                            </div>
-                        @else
-                            <div style="display:flex; gap:.5rem; align-items:center;">
-                                <input type="text" disabled placeholder="Login to select itinerary" style="flex:1; opacity:.6;">
-                                <a href="{{ route('login') }}" class="btn btn-primary" style="white-space:nowrap; font-size:.85rem;">Login</a>
-                            </div>
-                        @endauth
-                    </div>
-                </div>
                 <div class="col-12">
                     <div class="field">
                         <label for="travel_plans_editor">Travel Plans</label>
