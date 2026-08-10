@@ -281,17 +281,10 @@
 <body class="{{ $showHomepageHeader ? 'homepage-with-header' : '' }} {{ $isAdminShell ? 'admin-shell' : '' }}">
     @if($showHomepageHeader)
     <header class="homepage-header">
-        <div class="homepage-header-inner">
+        <div class="homepage-header-inner" style="justify-content:center;">
             <a href="{{ url('/') }}" class="homepage-brand" aria-label="BDT Rental home">
                 <img src="{{ asset('Logo-Bandung-Driver-Tour.webp') }}" alt="Bandung Driver Tour">
             </a>
-            <nav class="homepage-nav" aria-label="Primary">
-                @auth
-                    <a href="{{ route('dashboard') }}" class="active">Dashboard</a>
-                @else
-                    <a href="{{ route('login') }}" class="active">Login</a>
-                @endauth
-            </nav>
         </div>
     </header>
     @endif
