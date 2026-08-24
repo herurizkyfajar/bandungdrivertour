@@ -130,7 +130,7 @@
     background: #fff;
     border-radius: 22px;
     border: 1px solid #e2e8f0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .calendar-shell .fc {
