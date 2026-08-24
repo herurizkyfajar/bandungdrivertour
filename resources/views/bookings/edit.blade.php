@@ -106,15 +106,15 @@
         </div>
         <div class="col-6">
           <div class="field">
-            <label for="service_id">Services <span style="color:red;">*</span></label>
-            <select id="service_id" name="service_id" required>
-              <option value="">Select service</option>
+            <label for="service_ids">Services <span style="color:red;">*</span></label>
+            <select id="service_ids" name="service_ids[]" multiple style="min-height:80px;">
               @foreach($services as $service)
-                <option value="{{ $service->id }}" {{ old('service_id', $booking->service_id) == $service->id ? 'selected' : '' }}>
+                <option value="{{ $service->id }}" {{ in_array($service->id, old('service_ids', $booking->services->pluck('id')->toArray())) ? 'selected' : '' }}>
                   {{ $service->name }}
                 </option>
               @endforeach
             </select>
+            <small style="color:var(--muted);font-size:.75rem;">Tahan Ctrl/Cmd untuk pilih lebih dari satu</small>
           </div>
         </div>
         <div class="col-6">

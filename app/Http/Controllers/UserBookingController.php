@@ -11,7 +11,7 @@ class UserBookingController extends Controller
     public function index()
     {
         $bookings = Booking::where('created_by', Auth::id())
-            ->with('vehicle', 'service', 'invoice')
+            ->with('vehicle', 'service', 'services', 'invoice')
             ->latest()
             ->paginate(10);
 

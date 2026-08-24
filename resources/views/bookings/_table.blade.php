@@ -95,7 +95,7 @@
         <td data-label="Date Range">{{ \Illuminate\Support\Carbon::parse($b->booking_date)->format('Y-m-d') }} – {{ \Illuminate\Support\Carbon::parse($b->end_date)->format('Y-m-d') }}</td>
         <td data-label="Pickup Time">{{ \Illuminate\Support\Carbon::parse($b->pickup_time)->format('H:i') }}</td>
         <td data-label="Vehicle">{{ $b->vehicle?->make }} {{ $b->vehicle?->model }}</td>
-        <td data-label="Service">{{ $b->service?->name ?? '-' }}</td>
+        <td data-label="Service">{{ $b->services->pluck('name')->implode(', ') ?: ($b->service?->name ?? '-') }}</td>
         <td data-label="Status">
           @php
             $statusValue = $b->status ?? 'baru_masuk';

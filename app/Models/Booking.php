@@ -87,6 +87,11 @@ class Booking extends Model
         return $this->belongsTo(Service::class);
     }
 
+    public function services()
+    {
+        return $this->belongsToMany(Service::class, 'booking_service');
+    }
+
     public function itinerary()
     {
         return $this->belongsTo(Itinerary::class);

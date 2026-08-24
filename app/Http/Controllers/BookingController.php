@@ -55,7 +55,8 @@ class BookingController extends Controller
             'end_date' => ['required', 'date', 'after_or_equal:start_date'],
             'pickup_time' => ['required', 'date_format:H:i'],
             'vehicle_id' => ['nullable', 'exists:vehicles,id'],
-            'service_id' => ['nullable', 'exists:services,id'],
+            'service_ids' => ['nullable', 'array'],
+            'service_ids.*' => ['exists:services,id'],
             'itinerary_id' => ['nullable', 'exists:itineraries,id'],
             'group_id' => ['nullable', 'exists:groups,id'],
             'travel_plans' => ['nullable', 'string'],
@@ -76,7 +77,7 @@ class BookingController extends Controller
             'end_date' => $data['end_date'],
             'pickup_time' => $data['pickup_time'],
             'vehicle_id' => $data['vehicle_id'] ?? null,
-            'service_id' => $data['service_id'] ?? null,
+            'service_id' => null,
             'itinerary_id' => $data['itinerary_id'] ?? null,
             'group_id' => $data['group_id'] ?? null,
             'travel_plans' => $data['travel_plans'] ?? null,
@@ -90,6 +91,7 @@ class BookingController extends Controller
         ];
 
         $booking = Booking::create($bookingData);
+        $booking->services()->sync($data['service_ids'] ?? []);
         $invoiceNumber = $this->generateInvoiceNumber();
         $invoice = Invoice::create([
             'booking_id' => $booking->id,

@@ -12,7 +12,7 @@ class BookingDataController extends Controller
 {
     public function index()
     {
-        $bookings = Booking::with(['invoice', 'vehicle', 'mitra', 'service', 'group'])
+        $bookings = Booking::with(['invoice', 'vehicle', 'mitra', 'service', 'services', 'group'])
             ->latest()
             ->get();
 

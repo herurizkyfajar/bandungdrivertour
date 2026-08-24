@@ -39,7 +39,7 @@
       }
 
       $vehicleName = trim((string) (($booking->vehicle?->make ?? '') . ' ' . ($booking->vehicle?->model ?? '')));
-      $serviceName = (string) ($booking->service?->name ?? '-');
+      $serviceName = $booking->services->pluck('name')->implode(', ') ?: ($booking->service?->name ?? '-');
       $invoiceNumber = $booking->invoice?->invoice_number;
       $invoiceShowUrl = $booking->invoice ? route('invoice.show', $booking->invoice) : null;
       $invoiceDownloadUrl = $booking->invoice ? route('invoice.show', $booking->invoice) . '?download=1' : null;
