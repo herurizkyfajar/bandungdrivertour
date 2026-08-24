@@ -70,7 +70,6 @@
   .content-card {
     padding: 1.15rem;
     min-width: 0;
-    overflow: hidden;
   }
 
   .calendar-hero {
