@@ -104,7 +104,7 @@ class BookingController extends Controller
         // ==================== TAMBAHAN LOGIKA WEBHOOK N8N ====================
         try {
             // Memuat relasi kendaraan, layanan, dan group/company jika dipilih oleh kustomer
-            $booking->load(['vehicle', 'service', 'group']);
+            $booking->load(['vehicle', 'services', 'group']);
 
             // Menggabungkan info_source dan info_source_other jika diisi kustom
             $infoSourceResult = $booking->info_source;
@@ -122,7 +122,7 @@ class BookingController extends Controller
                 'booking_date'         => date('d-m-Y', strtotime($booking->booking_date)),
                 'pickup_time'          => $booking->pickup_time,
                 'vehicle_name'         => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
-                'service_name'         => $booking->service ? $booking->service->name : 'Tidak Ada',
+                'service_name'         => $booking->services->pluck('name')->implode(', ') ?: 'Tidak Ada',
                 'invoice_number'       => $invoice->invoice_number,
                 'info_source'          => $infoSourceResult ?? '-',
                 'booking_url'          => route('invoice.show', $invoice), // Tautan menuju detail invoice kustomer

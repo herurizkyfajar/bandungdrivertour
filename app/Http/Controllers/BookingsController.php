@@ -170,7 +170,7 @@ class BookingsController extends Controller
         // ==================== TAMBAHAN LOGIKA WEBHOOK N8N ====================
         try {
             // Memuat relasi kendaraan dan layanan jika dipilih oleh admin
-            $booking->load(['vehicle', 'service']);
+            $booking->load(['vehicle', 'services']);
 
             $webhookData = [
                 'customer_name'  => $booking->customer_name,
@@ -179,7 +179,7 @@ class BookingsController extends Controller
                 'booking_date'   => date('d-m-Y', strtotime($booking->booking_date)),
                 'pickup_time'    => $booking->pickup_time,
                 'vehicle_name'   => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
-                'service_name'   => $booking->service ? $booking->service->name : 'Tidak Ada',
+                'service_name'   => $booking->services->pluck('name')->implode(', ') ?: 'Tidak Ada',
                 'price'          => number_format($booking->price ?? 0, 0, ',', '.'),
                 'invoice_number' => $invoice->invoice_number,
                 'booking_url'    => route('invoice.show', $invoice), // Tautan menuju detail invoice
