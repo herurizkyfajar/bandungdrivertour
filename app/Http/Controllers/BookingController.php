@@ -22,7 +22,7 @@ class BookingController extends Controller
 {
     public function create()
     {
-        $rawVehicles = Vehicle::select('id', 'make', 'model')->orderBy('make')->orderBy('model')->get();
+        $rawVehicles = Vehicle::select('id', 'make', 'model', 'sort_order')->orderBy('sort_order')->get();
         $vehicles = $rawVehicles->groupBy(function ($v) {
             return strtolower(trim($v->make)) . '|' . strtolower(trim($v->model));
         })->map(function ($group) {

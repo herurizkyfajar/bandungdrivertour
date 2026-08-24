@@ -108,6 +108,8 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::get('/bookings-trash', [BookingsController::class, 'trash'])->name('bookings.trash');
     Route::post('/bookings/{id}/restore', [BookingsController::class, 'restore'])->name('bookings.restore');
     Route::delete('/bookings/{id}/force-delete', [BookingsController::class, 'forceDelete'])->name('bookings.force-delete');
+    Route::get('vehicles/all', [VehiclesController::class, 'all'])->name('vehicles.all');
+    Route::post('vehicles/reorder', [VehiclesController::class, 'reorder'])->name('vehicles.reorder');
     Route::resource('vehicles', VehiclesController::class)->except(['show']);
     Route::resource('services', ServiceController::class)->except(['show']);
     Route::resource('groups', GroupController::class)->except(['show']);

@@ -11,8 +11,28 @@ class VehicleController extends Controller
 {
     public function index()
     {
-        $vehicles = Vehicle::with('mitras')->latest()->paginate(10);
+        $vehicles = Vehicle::with('mitras')->orderBy('sort_order')->latest()->paginate(10);
         return view('vehicles.index', compact('vehicles'));
+    }
+
+    public function all()
+    {
+        $vehicles = Vehicle::with('mitras')->orderBy('sort_order')->get();
+        return response()->json($vehicles);
+    }
+
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'ids' => 'required|array',
+            'ids.*' => 'exists:vehicles,id',
+        ]);
+
+        foreach ($request->ids as $index => $id) {
+            Vehicle::where('id', $id)->update(['sort_order' => $index]);
+        }
+
+        return response()->json(['success' => true]);
     }
 
     public function create()
@@ -39,6 +59,7 @@ class VehicleController extends Controller
         }
         $ppd = preg_replace('/\D+/', '', (string)($data['price_per_day'] ?? ''));
         $ppdVal = $ppd !== '' ? (float) $ppd : null;
+        $maxSort = Vehicle::max('sort_order');
         $vehicle = Vehicle::create([
             'plate_number' => $data['plate_number'],
             'make' => $data['make'] ?? null,
@@ -47,6 +68,7 @@ class VehicleController extends Controller
             'photo_path' => $photoPath,
             'mitra_id' => $data['mitra_ids'][0],
             'price_per_day' => $ppdVal,
+            'sort_order' => ($maxSort ?? 0) + 1,
         ]);
         $vehicle->mitras()->sync($data['mitra_ids']);
         return redirect()->route('vehicles.index')->with('success', 'Kendaraan berhasil dibuat.');

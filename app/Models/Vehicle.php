@@ -17,6 +17,7 @@ class Vehicle extends Model
         'photo_path',
         'mitra_id',
         'price_per_day',
+        'sort_order',
     ];
     protected $casts = [
         'price_per_day' => 'decimal:2',

@@ -94,7 +94,7 @@ class BookingsController extends Controller
 
     public function create()
     {
-        $raw = Vehicle::select('id', 'make', 'model')->orderBy('make')->orderBy('model')->get();
+        $raw = Vehicle::select('id', 'make', 'model', 'sort_order')->orderBy('sort_order')->get();
         $vehicles = $raw->groupBy(function ($v) {
             return strtolower(trim($v->make)) . '|' . strtolower(trim($v->model));
         })->map(function ($group) {
@@ -253,7 +253,7 @@ class BookingsController extends Controller
 
     public function edit(Booking $booking)
     {
-        $raw = Vehicle::select('id', 'make', 'model', 'mitra_id')->orderBy('make')->orderBy('model')->get();
+        $raw = Vehicle::select('id', 'make', 'model', 'mitra_id', 'sort_order')->orderBy('sort_order')->get();
         $vehicles = $raw->groupBy(function ($v) {
             return strtolower(trim($v->make)) . '|' . strtolower(trim($v->model));
         })->map(function ($group) {
