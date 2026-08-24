@@ -111,15 +111,16 @@
                 </div>
                 <div class="col-6">
                     <div class="field">
-                        <label for="service_ids">Services <span style="color:red;">*</span></label>
-                        <select id="service_ids" name="service_ids[]" multiple style="min-height:80px;">
-                            @foreach($services ?? [] as $service)
-                                <option value="{{ $service->id }}" {{ in_array($service->id, old('service_ids', [])) ? 'selected' : '' }}>
-                                    {{ $service->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        <small style="color:var(--muted);font-size:.75rem;">Tahan Ctrl/Cmd untuk pilih lebih dari satu</small>
+                        <label>Services <span style="color:red;">*</span></label>
+                        <div class="service-picker" data-name="service_ids[]">
+                            <select class="service-select" style="width:100%;padding:.55rem .75rem;border:1px solid var(--border);border-radius:10px;font-size:.9rem;background:#fff;">
+                                <option value="">Pilih service...</option>
+                                @foreach($services ?? [] as $service)
+                                    <option value="{{ $service->id }}" data-name="{{ $service->name }}">{{ $service->name }}</option>
+                                @endforeach
+                            </select>
+                            <div class="service-tags" style="display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.5rem;"></div>
+                        </div>
                     </div>
                 </div>
                 <div class="col-12">
@@ -442,5 +443,51 @@ renderCountryList(filterCountries(countrySearch.value));
       f.addEventListener('submit', function(){ el.value = unfmt(el.value); });
     }
   })();
+</script>
+<script>
+document.querySelectorAll('.service-picker').forEach(function(picker){
+  var select = picker.querySelector('.service-select');
+  var tagsContainer = picker.querySelector('.service-tags');
+  var inputName = picker.dataset.name;
+
+  function refreshOptions(){
+    var selected = Array.from(tagsContainer.querySelectorAll('.service-tag')).map(function(t){ return t.dataset.id; });
+    Array.from(select.options).forEach(function(opt){
+      if(!opt.value) return;
+      opt.disabled = selected.indexOf(opt.value) !== -1;
+    });
+  }
+
+  select.addEventListener('change', function(){
+    var opt = this.options[this.selectedIndex];
+    if(!opt || !opt.value) return;
+    var id = opt.value;
+    var name = opt.dataset.name || opt.text;
+    if(tagsContainer.querySelector('[data-id="'+id+'"]')){ this.value=''; return; }
+
+    var tag = document.createElement('span');
+    tag.className = 'service-tag';
+    tag.dataset.id = id;
+    tag.style.cssText = 'display:inline-flex;align-items:center;gap:.3rem;background:#e0e7ff;color:#2563eb;padding:.25rem .6rem;border-radius:8px;font-size:.82rem;font-weight:600;';
+    tag.innerHTML = name + ' <button type="button" class="service-tag-remove" style="background:none;border:none;color:#2563eb;font-size:1rem;line-height:1;padding:0;cursor:pointer;">&times;</button>';
+    tagsContainer.appendChild(tag);
+
+    var hidden = document.createElement('input');
+    hidden.type = 'hidden';
+    hidden.name = inputName;
+    hidden.value = id;
+    tag.appendChild(hidden);
+
+    tag.querySelector('.service-tag-remove').addEventListener('click', function(){
+      tag.remove();
+      refreshOptions();
+    });
+
+    this.value = '';
+    refreshOptions();
+  });
+
+  refreshOptions();
+});
 </script>
 @endsection
