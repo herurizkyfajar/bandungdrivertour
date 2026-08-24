@@ -15,7 +15,7 @@ class NewInvoiceNotificationMail extends Mailable
 
     public function __construct(public Invoice $invoice)
     {
-        $this->invoice->loadMissing(['booking.service', 'booking.vehicle', 'booking.mitra']);
+        $this->invoice->loadMissing(['booking.service', 'booking.services', 'booking.vehicle', 'booking.mitra']);
     }
 
     public function envelope(): Envelope

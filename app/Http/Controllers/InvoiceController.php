@@ -12,11 +12,13 @@ class InvoiceController extends Controller
 {
     public function show(Invoice $invoice)
     {
+        $invoice->load('booking.services', 'booking.vehicle', 'booking.mitra');
         return view('invoices.show', compact('invoice'));
     }
 
     public function sendWhatsapp(Request $request, Invoice $invoice)
     {
+        $invoice->load('booking.services', 'booking.vehicle', 'booking.mitra');
         $booking = $invoice->booking;
         $rawPhone = (string) ($booking->contact_number ?? '');
         $phone = preg_replace('/\D/', '', $rawPhone);

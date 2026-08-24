@@ -12,7 +12,7 @@
   $pickupTime = $booking->pickup_time ? \Carbon\Carbon::parse($booking->pickup_time)->format('H:i') : '';
   $vehicle = $booking->vehicle;
   $mitraName = optional($booking->mitra)->full_name;
-  $serviceName = optional($booking->service)->name;
+  $serviceName = $booking->services->pluck('name')->implode(', ') ?: optional($booking->service)->name;
   $paymentStatus = match($booking->payment_plan) {
     'down_payment' => 'Down Payment',
     'payment_full_transfer' => 'Payment Full Transfer',

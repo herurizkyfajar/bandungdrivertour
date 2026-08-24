@@ -16,7 +16,7 @@
     <tr><td><strong>Invoice</strong></td><td>: {{ $invoice->invoice_number }}</td></tr>
     <tr><td><strong>Customer</strong></td><td>: {{ $booking?->customer_name ?? '-' }}</td></tr>
     <tr><td><strong>Contact</strong></td><td>: {{ $booking?->contact_number ?? '-' }}</td></tr>
-    <tr><td><strong>Service</strong></td><td>: {{ $booking?->service?->name ?? '-' }}</td></tr>
+    <tr><td><strong>Service</strong></td><td>: {{ $booking->services->pluck('name')->implode(', ') ?: ($booking?->service?->name ?? '-') }}</td></tr>
     <tr><td><strong>Driver</strong></td><td>: {{ $booking?->mitra?->full_name ?? '-' }}</td></tr>
     <tr><td><strong>Vehicle</strong></td><td>: {{ trim(($booking?->vehicle?->make ?? '') . ' ' . ($booking?->vehicle?->model ?? '')) ?: '-' }}</td></tr>
     <tr><td><strong>Pickup</strong></td><td>: {{ $booking?->pickup_location ?? '-' }}</td></tr>
