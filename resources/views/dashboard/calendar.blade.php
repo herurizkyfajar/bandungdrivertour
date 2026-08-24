@@ -144,14 +144,6 @@
 
   .calendar-shell .fc .fc-scrollgrid {
     border-collapse: collapse;
-    table-layout: fixed;
-    width: 100% !important;
-  }
-
-  .calendar-shell .fc .fc-scrollgrid td,
-  .calendar-shell .fc .fc-scrollgrid th {
-    overflow: hidden;
-    min-width: 0;
   }
 
   .calendar-shell .fc .fc-toolbar {
@@ -198,8 +190,6 @@
     padding: .15rem .3rem;
     box-shadow: 0 4px 8px rgba(15, 23, 42, .1);
     cursor: pointer;
-    max-width: 100%;
-    overflow: hidden;
   }
 
   .calendar-shell .fc-event-main {
@@ -209,12 +199,6 @@
 
   .calendar-shell .fc .fc-daygrid-event {
     white-space: normal;
-    max-width: 100%;
-  }
-
-  .calendar-shell .fc .fc-daygrid-day-frame {
-    overflow: hidden;
-    max-width: 100%;
   }
 
   .modal-backdrop {
