@@ -817,7 +817,10 @@ document.addEventListener('DOMContentLoaded', function () {
       meta.style.whiteSpace = 'nowrap';
       const raw = arg.event.extendedProps.raw || {};
       const time = normalizeTime(raw.pickup_time);
-      meta.textContent = `${time} · ${statusLabel(arg.event.extendedProps.status)}`;
+      const mitraName = (raw.mitra && raw.mitra.full_name) ? raw.mitra.full_name : '';
+      meta.textContent = mitraName
+        ? `${time} · ${mitraName} · ${statusLabel(arg.event.extendedProps.status)}`
+        : `${time} · ${statusLabel(arg.event.extendedProps.status)}`;
       wrap.appendChild(title);
       wrap.appendChild(meta);
       return { domNodes: [wrap] };
