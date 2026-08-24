@@ -732,7 +732,11 @@ document.addEventListener('DOMContentLoaded', function () {
         vehicle: vehicle,
         status: booking.status,
         start: date || null,
-        end: endDate ? (endDate + 'T23:59:59') : null,
+        end: endDate ? (function() {
+          const d = new Date(endDate + 'T00:00:00');
+          d.setDate(d.getDate() + 1);
+          return d.toISOString().substring(0, 10);
+        })() : null,
         backgroundColor: colors.background,
         borderColor: colors.border,
         textColor: colors.text,
