@@ -799,7 +799,7 @@ document.addEventListener('DOMContentLoaded', function () {
     eventContent: function (arg) {
       const wrap = document.createElement('div');
       wrap.style.display = 'grid';
-      wrap.style.gap = '.1rem';
+      wrap.style.gap = '.15rem';
       wrap.style.overflow = 'hidden';
       const title = document.createElement('div');
       title.style.fontWeight = '800';
@@ -817,12 +817,25 @@ document.addEventListener('DOMContentLoaded', function () {
       meta.style.whiteSpace = 'nowrap';
       const raw = arg.event.extendedProps.raw || {};
       const time = normalizeTime(raw.pickup_time);
-      const mitraName = (raw.mitra && raw.mitra.full_name) ? raw.mitra.full_name : '';
-      meta.textContent = mitraName
-        ? `${time} · ${mitraName} · ${statusLabel(arg.event.extendedProps.status)}`
-        : `${time} · ${statusLabel(arg.event.extendedProps.status)}`;
+      meta.textContent = `${time} · ${statusLabel(arg.event.extendedProps.status)}`;
       wrap.appendChild(title);
       wrap.appendChild(meta);
+      const mitraName = (raw.mitra && raw.mitra.full_name) ? raw.mitra.full_name : '';
+      if (mitraName) {
+        const mitraBadge = document.createElement('div');
+        mitraBadge.style.fontSize = '.6rem';
+        mitraBadge.style.fontWeight = '600';
+        mitraBadge.style.padding = '.1rem .35rem';
+        mitraBadge.style.borderRadius = '.25rem';
+        mitraBadge.style.background = 'rgba(255,255,255,.25)';
+        mitraBadge.style.display = 'inline-block';
+        mitraBadge.style.width = 'fit-content';
+        mitraBadge.style.overflow = 'hidden';
+        mitraBadge.style.textOverflow = 'ellipsis';
+        mitraBadge.style.whiteSpace = 'nowrap';
+        mitraBadge.textContent = mitraName;
+        wrap.appendChild(mitraBadge);
+      }
       return { domNodes: [wrap] };
     },
     eventClick: async function (info) {
