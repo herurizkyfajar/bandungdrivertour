@@ -70,7 +70,7 @@
   .content-card {
     padding: 1.15rem;
     min-width: 0;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .calendar-hero {
@@ -130,7 +130,7 @@
     background: #fff;
     border-radius: 22px;
     border: 1px solid #e2e8f0;
-    overflow: visible;
+    overflow: hidden;
   }
 
   .calendar-shell .fc {
@@ -139,6 +139,13 @@
     --fc-neutral-bg-color: #f8fafc;
     --fc-list-event-hover-bg-color: #f8fafc;
     --fc-today-bg-color: rgba(59, 130, 246, .08);
+    width: 100%;
+  }
+
+  .calendar-shell .fc .fc-scrollgrid {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100% !important;
   }
 
   .calendar-shell .fc .fc-toolbar {
