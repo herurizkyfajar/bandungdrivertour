@@ -827,7 +827,8 @@ document.addEventListener('DOMContentLoaded', function () {
         mitraBadge.style.fontWeight = '600';
         mitraBadge.style.padding = '.1rem .35rem';
         mitraBadge.style.borderRadius = '.25rem';
-        mitraBadge.style.background = 'rgba(255,255,255,.25)';
+        mitraBadge.style.background = 'rgba(0,0,0,.15)';
+        mitraBadge.style.color = 'rgba(0,0,0,.7)';
         mitraBadge.style.display = 'inline-block';
         mitraBadge.style.width = 'fit-content';
         mitraBadge.style.overflow = 'hidden';
