@@ -6,13 +6,12 @@
   body.admin-shell { overflow-x: hidden; }
   .dashboard-wrap {
     display: grid;
-    grid-template-columns: 250px minmax(0, 1fr) 320px;
+    grid-template-columns: 250px minmax(0, 1fr);
     gap: 1.25rem;
     align-items: start;
   }
 
   .sidebar,
-  .calendar-side,
   .content-card {
     background: rgba(255,255,255,.88);
     border: 1px solid rgba(226,232,240,.95);
@@ -29,7 +28,6 @@
   }
 
   .sidebar h3,
-  .calendar-side h2,
   .content-card h2 {
     margin: 0;
     letter-spacing: -.02em;
@@ -197,88 +195,6 @@
     white-space: normal;
   }
 
-  .calendar-side {
-    padding: 1rem;
-    position: sticky;
-    top: 76px;
-    height: fit-content;
-  }
-
-  .agenda-list {
-    display: grid;
-    gap: .75rem;
-    margin-top: 1rem;
-  }
-
-  .agenda-item {
-    display: grid;
-    grid-template-columns: 64px minmax(0, 1fr);
-    gap: .75rem;
-    padding: .85rem;
-    border-radius: 18px;
-    border: 1px solid #e2e8f0;
-    background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    cursor: pointer;
-    transition: transform .15s ease, box-shadow .15s ease;
-  }
-
-  .agenda-item:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 14px 24px rgba(15, 23, 42, .08);
-  }
-
-  .agenda-time {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-    color: #fff;
-    min-height: 66px;
-    text-align: center;
-    padding: .35rem;
-  }
-
-  .agenda-time strong {
-    font-size: 1rem;
-    line-height: 1.1;
-  }
-
-  .agenda-time span {
-    font-size: .78rem;
-    opacity: .9;
-  }
-
-  .agenda-title {
-    font-weight: 800;
-    color: #0f172a;
-    margin-bottom: .2rem;
-    letter-spacing: -.01em;
-  }
-
-  .agenda-meta {
-    color: var(--muted);
-    font-size: .9rem;
-    line-height: 1.45;
-  }
-
-  .status-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: .35rem;
-    padding: .3rem .65rem;
-    border-radius: 999px;
-    font-size: .82rem;
-    font-weight: 700;
-    margin-top: .45rem;
-  }
-
-  .status-pill--masuk { background: #eff6ff; color: #1d4ed8; }
-  .status-pill--proses { background: #fef3c7; color: #92400e; }
-  .status-pill--cancel { background: #fee2e2; color: #b91c1c; }
-  .status-pill--selesai { background: #dcfce7; color: #166534; }
-
   .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -380,7 +296,6 @@
   @media (max-width: 1200px) {
     .dashboard-wrap { grid-template-columns: 1fr; }
     .sidebar { position: static; overflow: hidden; min-width: 0; }
-    .calendar-side { display: none !important; }
   }
 
   @media (max-width: 768px) {
@@ -484,17 +399,6 @@
       </div>
     </div>
   </main>
-
-  <aside class="calendar-side">
-    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:.75rem;">
-      <div>
-        <h2>Recent Agenda</h2>
-        <div class="subtitle" style="margin-top:.25rem;">Latest incoming bookings.</div>
-      </div>
-      <button type="button" class="btn" id="refreshAgendaBtn" style="padding:.55rem .8rem;">Refresh</button>
-    </div>
-    <div class="agenda-list" id="schedule_list"></div>
-  </aside>
 </div>
 
 <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
@@ -507,11 +411,9 @@ document.addEventListener('DOMContentLoaded', function () {
   const modalTitle = document.getElementById('calendar_booking_modal_title');
   const modalEdit = document.getElementById('calendar_booking_modal_edit');
   const modalTravel = document.getElementById('calendar_booking_modal_travel_content');
-  const scheduleEl = document.getElementById('schedule_list');
   const statTotal = document.getElementById('statTotal');
   const statToday = document.getElementById('statToday');
   const statUpcoming = document.getElementById('statUpcoming');
-  const refreshAgendaBtn = document.getElementById('refreshAgendaBtn');
 
   let bookingCache = [];
 
@@ -527,14 +429,6 @@ document.addEventListener('DOMContentLoaded', function () {
   function normalizeTime(value) {
     if (!value) return '-';
     return value.toString().substring(0, 5);
-  }
-
-  function statusBadgeClass(status) {
-    const value = (status || '').toLowerCase();
-    if (['cancelled', 'cancel', 'batal'].includes(value)) return 'status-pill status-pill--cancel';
-    if (['selesai_pelayanan', 'selesai_administrasi_fee', 'completed'].includes(value)) return 'status-pill status-pill--selesai';
-    if (['konfirmasi', 'dijadwalkan'].includes(value)) return 'status-pill status-pill--proses';
-    return 'status-pill status-pill--masuk';
   }
 
   function statusLabel(status) {
@@ -645,55 +539,6 @@ document.addEventListener('DOMContentLoaded', function () {
     if (modalTravel) modalTravel.innerHTML = '';
   }
 
-  function renderAgenda(items) {
-    if (!items.length) {
-      scheduleEl.innerHTML = '<div class="subtitle" style="padding:.5rem 0;">No bookings.</div>';
-      return;
-    }
-
-    scheduleEl.innerHTML = '';
-    items.forEach(function (item) {
-      const colors = colorForStatus(item.status);
-      const card = document.createElement('div');
-      card.className = 'agenda-item';
-      card.style.borderColor = colors.border;
-
-      const timeBox = document.createElement('div');
-      timeBox.className = 'agenda-time';
-      timeBox.style.background = `linear-gradient(135deg, ${colors.text} 0%, ${colors.background} 140%)`;
-      timeBox.style.color = colors.text === '#92400e' ? '#92400e' : '#fff';
-
-      const timeStrong = document.createElement('strong');
-      timeStrong.textContent = item.time;
-      const timeSpan = document.createElement('span');
-      timeSpan.textContent = item.displayDate;
-      timeBox.appendChild(timeStrong);
-      timeBox.appendChild(timeSpan);
-
-      const info = document.createElement('div');
-      const title = document.createElement('div');
-      title.className = 'agenda-title';
-      title.textContent = item.title;
-      const meta = document.createElement('div');
-      meta.className = 'agenda-meta';
-      meta.textContent = (item.meta || '-') + (item.vehicle ? (' · ' + item.vehicle) : '');
-      const status = document.createElement('span');
-      status.className = statusBadgeClass(item.status);
-      status.textContent = statusLabel(item.status);
-
-      info.appendChild(title);
-      info.appendChild(meta);
-      info.appendChild(status);
-
-      card.appendChild(timeBox);
-      card.appendChild(info);
-      card.addEventListener('click', function () {
-        openBookingModal(item.raw);
-      });
-      scheduleEl.appendChild(card);
-    });
-  }
-
   function updateStats(items) {
     const today = new Date();
     const todayStr = today.toISOString().substring(0, 10);
@@ -770,10 +615,6 @@ document.addEventListener('DOMContentLoaded', function () {
       try {
         const items = await loadBookings();
         updateStats(items);
-        const todayStr = new Date().toISOString().substring(0, 10);
-        renderAgenda(items.filter(function (item) {
-          return !item.endDate || item.endDate >= todayStr;
-        }).slice(0, 10));
         success(items.map(function (item) {
           return {
             id: item.id,
@@ -857,9 +698,6 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   calendar.render();
-  refreshAgendaBtn?.addEventListener('click', function () {
-    calendar.refetchEvents();
-  });
 
   document.getElementById('calendar_booking_modal_close').addEventListener('click', closeBookingModal);
   document.getElementById('calendar_booking_modal').addEventListener('click', function (e) {
