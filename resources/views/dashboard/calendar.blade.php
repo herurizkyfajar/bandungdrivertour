@@ -733,8 +733,8 @@ document.addEventListener('DOMContentLoaded', function () {
         status: booking.status,
         start: date || null,
         end: endDate ? (function() {
-          const d = new Date(endDate + 'T00:00:00');
-          d.setDate(d.getDate() + 1);
+          const parts = endDate.split('-');
+          const d = new Date(Date.UTC(+parts[0], +parts[1] - 1, +parts[2] + 1));
           return d.toISOString().substring(0, 10);
         })() : null,
         backgroundColor: colors.background,
