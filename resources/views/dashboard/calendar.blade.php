@@ -4,6 +4,7 @@
 <style>
   html, body { overflow-x: hidden; }
   body.admin-shell { overflow-x: hidden; }
+  main { overflow: visible; }
   .dashboard-wrap {
     display: grid;
     grid-template-columns: 250px minmax(0, 1fr);
@@ -69,7 +70,7 @@
   .content-card {
     padding: 1.15rem;
     min-width: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .calendar-hero {
