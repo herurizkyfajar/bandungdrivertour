@@ -106,7 +106,7 @@
         </div>
         <div class="col-6">
           <div class="field">
-            <label>Services <span style="color:red;">*</span></label>
+            <label>Services <span style="color:red;">*</span> <small style="color:var(--muted);font-weight:400;">(can select multiple)</small></label>
             <div class="service-picker" data-name="service_ids[]">
               <select class="service-select" style="width:100%;padding:.55rem .75rem;border:1px solid var(--border);border-radius:10px;font-size:.9rem;background:#fff;">
                 <option value="">Pilih service...</option>
