@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Booking;
 use App\Models\Group;
 use App\Models\InvoiceSetting;
+use App\Services\GoogleSheetsService;
 use Illuminate\Http\Request;
 
 class LaporanKeuanganController extends Controller
@@ -134,5 +135,19 @@ class LaporanKeuanganController extends Controller
 
         return redirect()->route('laporan-keuangan.index')
             ->with('success', 'Pajak berhasil diperbarui.');
+    }
+
+    public function syncToSheet()
+    {
+        try {
+            $sheets = app(GoogleSheetsService::class);
+            $count = $sheets->syncAllData();
+
+            return redirect()->route('laporan-keuangan.index')
+                ->with('success', "Berhasil sinkronisasi {$count} data ke Google Spreadsheet.");
+        } catch (\Exception $e) {
+            return redirect()->route('laporan-keuangan.index')
+                ->with('error', 'Gagal sinkronisasi ke Google Spreadsheet: ' . $e->getMessage());
+        }
     }
 }

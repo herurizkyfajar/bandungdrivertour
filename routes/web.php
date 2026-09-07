@@ -115,6 +115,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::resource('groups', GroupController::class)->except(['show']);
     Route::get('/booking-data', [BookingDataController::class, 'index'])->name('booking-data.index');
     Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
+    Route::post('/laporan-keuangan/sync', [LaporanKeuanganController::class, 'syncToSheet'])->name('laporan-keuangan.sync');
     Route::put('/bookings/{id}/pendapatan', [LaporanKeuanganController::class, 'updatePendapatan'])->name('bookings.pendapatan.update');
     Route::put('/laporan-keuangan/pajak', [LaporanKeuanganController::class, 'updatePajak'])->name('laporan-keuangan.pajak.update');
 });

@@ -23,11 +23,21 @@
         <h1 style="margin:0;">Laporan Keuangan</h1>
         <div class="subtitle">Ringkasan pendapatan dari semua booking.</div>
       </div>
-      <button type="button" id="btnAturPajak" style="padding:.45rem 1rem; font-size:.88rem; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Atur Pajak ({{ (int) $pajakRate }}%)</button>
+      <div style="display:flex; gap:.5rem; flex-wrap:wrap;">
+        <form method="POST" action="{{ route('laporan-keuangan.sync') }}" onsubmit="return confirm('Sync semua data ke Google Spreadsheet?')">
+          @csrf
+          <button type="submit" style="padding:.45rem 1rem; font-size:.88rem; background:#2563eb; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Sync ke Spreadsheet</button>
+        </form>
+        <button type="button" id="btnAturPajak" style="padding:.45rem 1rem; font-size:.88rem; background:#f59e0b; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600;">Atur Pajak ({{ (int) $pajakRate }}%)</button>
+      </div>
     </div>
 
     @if(session('success'))
         <div style="padding:.75rem 1rem; border-radius:8px; background:#d1fae5; color:#065f46; margin-bottom:1rem;">{{ session('success') }}</div>
+    @endif
+
+    @if(session('error'))
+        <div style="padding:.75rem 1rem; border-radius:8px; background:#fee2e2; color:#991b1b; margin-bottom:1rem;">{{ session('error') }}</div>
     @endif
 
     {{-- Filter --}}
