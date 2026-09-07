@@ -177,12 +177,13 @@ class BookingsController extends Controller
                 'contact_number' => $booking->contact_number,
                 'pickup_location'=> $booking->pickup_location,
                 'booking_date'   => date('d-m-Y', strtotime($booking->booking_date)),
-                'pickup_time'    => $booking->pickup_time,
+                'end_date'       => $booking->end_date ? date('d-m-Y', strtotime($booking->end_date)) : '-',
+                'pickup_time'    => $booking->pickup_time ? date('H.i A', strtotime($booking->pickup_time)) : '-',
                 'vehicle_name'   => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
                 'service_name'   => $booking->services->pluck('name')->implode(', ') ?: 'Tidak Ada',
                 'price'          => number_format($booking->price ?? 0, 0, ',', '.'),
                 'invoice_number' => $invoice->invoice_number,
-                'booking_url'    => route('invoice.show', $invoice), // Tautan menuju detail invoice
+                'booking_url'    => route('invoice.show', $invoice),
             ];
 
             // Mengirim data ke n8n Production URL (Otomatis berjalan tanpa perlu diklik manual)
