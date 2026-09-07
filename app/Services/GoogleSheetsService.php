@@ -155,6 +155,7 @@ class GoogleSheetsService
             'Asal Negara',
             'Status',
             'Tanggal Mulai',
+            'Tanggal Akhir',
             'Biaya',
             'Pendapatan',
             'Pajak',
@@ -173,6 +174,7 @@ class GoogleSheetsService
             $booking->country_of_origin ?? '-',
             $booking->statusLabel(),
             $booking->booking_date ? $booking->booking_date->format('d M Y') : '-',
+            $booking->end_date ? $booking->end_date->format('d M Y') : '-',
             $booking->price ? 'Rp ' . number_format($booking->price, 0, ',', '.') : '-',
             $pendapatan > 0 ? 'Rp ' . number_format($pendapatan, 0, ',', '.') : '-',
             $pajak > 0 ? 'Rp ' . number_format($pajak, 0, ',', '.') : '-',
@@ -182,11 +184,11 @@ class GoogleSheetsService
     public function ensureHeaderExists(): void
     {
         try {
-            $response = $this->apiGet("{$this->sheetName}!A1:H1");
+            $response = $this->apiGet("{$this->sheetName}!A1:I1");
             $values = $response['values'] ?? [];
 
             if (empty($values) || $values[0] !== $this->getHeaderRow()) {
-                $this->apiUpdate("{$this->sheetName}!A1:H1", [
+                $this->apiUpdate("{$this->sheetName}!A1:I1", [
                     'values' => [$this->getHeaderRow()],
                 ]);
             }
@@ -198,7 +200,7 @@ class GoogleSheetsService
     public function syncAllData(): int
     {
         try {
-            $this->apiClear("{$this->sheetName}!A2:H");
+            $this->apiClear("{$this->sheetName}!A2:I");
             $this->ensureHeaderExists();
 
             $bookings = Booking::with(['invoice'])
@@ -213,7 +215,7 @@ class GoogleSheetsService
             $rows = $bookings->map(fn (Booking $b) => $this->formatBookingRow($b))->toArray();
 
             $lastRow = 1 + count($rows);
-            $this->apiUpdate("{$this->sheetName}!A2:H{$lastRow}", [
+            $this->apiUpdate("{$this->sheetName}!A2:I{$lastRow}", [
                 'values' => $rows,
             ]);
 
@@ -230,7 +232,7 @@ class GoogleSheetsService
             $this->ensureHeaderExists();
             $row = $this->formatBookingRow($booking);
 
-            $this->apiAppend("{$this->sheetName}!A:H", [
+            $this->apiAppend("{$this->sheetName}!A:I", [
                 'values' => [$row],
             ]);
         } catch (\Exception $e) {
@@ -260,7 +262,7 @@ class GoogleSheetsService
             }
 
             $rowData = $this->formatBookingRow($booking);
-            $this->apiUpdate("{$this->sheetName}!A{$rowIndex}:H{$rowIndex}", [
+            $this->apiUpdate("{$this->sheetName}!A{$rowIndex}:I{$rowIndex}", [
                 'values' => [$rowData],
             ]);
         } catch (\Exception $e) {

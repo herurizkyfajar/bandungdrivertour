@@ -133,13 +133,14 @@
                 'country_of_origin' => 'Asal Negara',
                 'status' => 'Status',
                 'booking_date' => 'Tanggal Mulai',
+                'end_date' => 'Tanggal Akhir',
                 'price' => 'Biaya',
                 'pendapatan' => 'Pendapatan',
                 'pajak' => 'Pajak',
               ];
             @endphp
             @foreach($columns as $key => $label)
-              @if($key === 'pajak')
+              @if($key === 'pajak' || $key === 'end_date')
                 <th style="padding:.6rem .5rem; vertical-align:top; line-height:1.3;">Pajak<br><span style="font-weight:400; font-size:.75rem; color:#94a3b8;">({{ (int) $pajakRate }}%)</span></th>
               @else
                 @php
@@ -191,6 +192,7 @@
               ">{{ $b->statusLabel() }}</span>
             </td>
             <td style="padding:.6rem .5rem;">{{ $b->booking_date ? $b->booking_date->format('d M Y') : '-' }}</td>
+            <td style="padding:.6rem .5rem;">{{ $b->end_date ? $b->end_date->format('d M Y') : '-' }}</td>
             <td style="padding:.6rem .5rem; text-align:right;">{{ $b->price ? 'Rp ' . number_format($b->price, 0, ',', '.') : '-' }}</td>
             <td style="padding:.6rem .5rem; text-align:right; font-weight:600; color:{{ $b->pendapatan ? '#15803d' : '#94a3b8' }};">
               {{ $b->pendapatan ? 'Rp ' . number_format($b->pendapatan, 0, ',', '.') : '-' }}
@@ -205,7 +207,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="9" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
+            <td colspan="10" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
           </tr>
           @endforelse
         </tbody>
