@@ -211,9 +211,16 @@
                 </div>
             </div>
             <div class="actions" style="justify-content:center;">
-                <button type="submit" class="btn btn-primary" style="width:100%; text-align:center;">Submit Booking</button>
+                <button type="submit" id="submit_btn" class="btn btn-primary" style="width:100%; text-align:center;">Submit Booking</button>
             </div>
         </form>
+        <script>
+          document.getElementById('submit_btn').closest('form').addEventListener('submit', function() {
+            var btn = document.getElementById('submit_btn');
+            btn.disabled = true;
+            btn.textContent = 'Submitting...';
+          });
+        </script>
     </div>
 </div>
 @php($groups = \App\Models\Group::whereNotNull('logo_path')->orderBy('name')->get())
