@@ -22,6 +22,7 @@
     <li><a href="{{ route('groups.index') }}" class="{{ request()->routeIs('groups.*') ? 'active' : '' }}">Manage Groups</a></li>
     <li><a href="{{ route('accounts.index') }}" class="{{ request()->routeIs('accounts.*') ? 'active' : '' }}">Manage Accounts</a></li>
     <li><a href="{{ route('itineraries.index') }}" class="{{ request()->routeIs('itineraries.*') ? 'active' : '' }}">Manage Itineraries</a></li>
+    <li><a href="{{ route('spj-manuals.index') }}" class="{{ request()->routeIs('spj-manuals.*') ? 'active' : '' }}">SPJ Manual</a></li>
   </ul>
 
   <div class="dashboard-section-label">Settings</div>

@@ -25,6 +25,7 @@ use App\Http\Controllers\UserBookingController;
 use App\Http\Controllers\BookingDataController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\LaporanKeuanganController;
+use App\Http\Controllers\SpjManualController;
 
 Route::redirect('/', '/booking');
 
@@ -113,6 +114,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::resource('vehicles', VehiclesController::class)->except(['show']);
     Route::resource('services', ServiceController::class)->except(['show']);
     Route::resource('groups', GroupController::class)->except(['show']);
+    Route::resource('spj-manuals', SpjManualController::class);
     Route::get('/booking-data', [BookingDataController::class, 'index'])->name('booking-data.index');
     Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
     Route::post('/laporan-keuangan/sync', [LaporanKeuanganController::class, 'syncToSheet'])->name('laporan-keuangan.sync');
