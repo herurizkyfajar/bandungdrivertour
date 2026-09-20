@@ -101,78 +101,76 @@ class BookingController extends Controller
             'issued_at' => now(),
         ]);
 
-        // ==================== TAMBAHAN LOGIKA WEBHOOK N8N ====================
-        try {
-            // Memuat relasi kendaraan, layanan, dan group/company jika dipilih oleh kustomer
-            $booking->load(['vehicle', 'services', 'group']);
-
-            // Menggabungkan info_source dan info_source_other jika diisi kustom
-            $infoSourceResult = $booking->info_source;
-            if ($booking->info_source_other) {
-                $infoSourceResult .= ' (' . $booking->info_source_other . ')';
-            }
-
-            $webhookData = [
-                'company'              => $booking->group ? $booking->group->name : 'Personal / Umum',
-                'customer_name'        => $booking->customer_name,
-                'contact_number'       => $booking->contact_number,
-                'number_of_passengers' => $booking->number_of_passengers ?? '-',
-                'country_of_origin'    => $booking->country_of_origin ?? '-',
-                'pickup_location'      => $booking->pickup_location,
-                'booking_date'         => date('d-m-Y', strtotime($booking->booking_date)),
-                'end_date'             => $booking->end_date ? date('d-m-Y', strtotime($booking->end_date)) : '-',
-                'pickup_time'          => $booking->pickup_time ? date('H.i A', strtotime($booking->pickup_time)) : '-',
-                'vehicle_name'         => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
-                'service_name'         => $booking->services->pluck('name')->implode(', ') ?: 'Tidak Ada',
-                'invoice_number'       => $invoice->invoice_number,
-                'info_source'          => $infoSourceResult ?? '-',
-                'booking_url'          => route('invoice.show', $invoice),
-            ];
-
-            // Mengirim data ke n8n Production URL (Otomatis berjalan tanpa perlu diklik manual)
-            Http::post('https://n8n-krkduh4jiei1.jkt6.sumopod.my.id/webhook/61bdb245-2610-4f6f-929c-281f2036b78e', $webhookData);
-        } catch (\Throwable $e) {
-            // Mencegah aplikasi utama crash apabila server n8n sedang overload atau lambat merespons
-            Log::warning('Gagal mengirim data booking kustomer ke n8n: ' . $e->getMessage());
-        }
-        // =====================================================================
-
-        app(WebPushService::class)->sendInvoiceCreated([
-            'title' => 'Invoice Baru Masuk',
-            'body' => $invoice->invoice_number . ' - ' . ($booking->customer_name ?? 'Customer'),
-            'url' => route('invoice.show', $invoice),
-            'invoice_id' => $invoice->id,
-        ]);
-        $notifyTo = (string) config('mail.invoice_notify_to', '');
-        if ($notifyTo !== '') {
-            $subject = 'Invoice Baru: ' . ($invoice->invoice_number ?? ('#' . $invoice->id)) . ' - ' . ($booking->customer_name ?? 'Customer');
+        // Operasi lambat dijalankan setelah response dikirim
+        dispatch_after_response(function () use ($booking, $invoice) {
+            // Webhook n8n
             try {
-                Mail::to($notifyTo)->send(new NewInvoiceNotificationMail($invoice));
-                EmailLog::create([
-                    'type' => 'invoice_notification',
-                    'to_email' => $notifyTo,
-                    'subject' => $subject,
-                    'status' => 'sent',
-                    'invoice_id' => $invoice->id,
-                    'booking_id' => $booking->id,
-                    'sent_at' => now(),
-                ]);
+                $booking->load(['vehicle', 'services', 'group']);
+                $infoSourceResult = $booking->info_source;
+                if ($booking->info_source_other) {
+                    $infoSourceResult .= ' (' . $booking->info_source_other . ')';
+                }
+                $webhookData = [
+                    'company'              => $booking->group ? $booking->group->name : 'Personal / Umum',
+                    'customer_name'        => $booking->customer_name,
+                    'contact_number'       => $booking->contact_number,
+                    'number_of_passengers' => $booking->number_of_passengers ?? '-',
+                    'country_of_origin'    => $booking->country_of_origin ?? '-',
+                    'pickup_location'      => $booking->pickup_location,
+                    'booking_date'         => date('d-m-Y', strtotime($booking->booking_date)),
+                    'end_date'             => $booking->end_date ? date('d-m-Y', strtotime($booking->end_date)) : '-',
+                    'pickup_time'          => $booking->pickup_time ? date('H.i A', strtotime($booking->pickup_time)) : '-',
+                    'vehicle_name'         => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
+                    'service_name'         => $booking->services->pluck('name')->implode(', ') ?: 'Tidak Ada',
+                    'invoice_number'       => $invoice->invoice_number,
+                    'info_source'          => $infoSourceResult ?? '-',
+                    'booking_url'          => route('invoice.show', $invoice),
+                ];
+                Http::post('https://n8n-krkduh4jiei1.jkt6.sumopod.my.id/webhook/61bdb245-2610-4f6f-929c-281f2036b78e', $webhookData);
             } catch (\Throwable $e) {
-                EmailLog::create([
-                    'type' => 'invoice_notification',
-                    'to_email' => $notifyTo,
-                    'subject' => $subject,
-                    'status' => 'failed',
-                    'invoice_id' => $invoice->id,
-                    'booking_id' => $booking->id,
-                    'error_message' => $e->getMessage(),
-                ]);
-                Log::warning('Failed to send new invoice email notification', [
-                    'invoice_id' => $invoice->id,
-                    'message' => $e->getMessage(),
-                ]);
+                Log::warning('Gagal mengirim data booking kustomer ke n8n: ' . $e->getMessage());
             }
-        }
+
+            // WebPush
+            app(WebPushService::class)->sendInvoiceCreated([
+                'title' => 'Invoice Baru Masuk',
+                'body' => $invoice->invoice_number . ' - ' . ($booking->customer_name ?? 'Customer'),
+                'url' => route('invoice.show', $invoice),
+                'invoice_id' => $invoice->id,
+            ]);
+
+            // Email notification
+            $notifyTo = (string) config('mail.invoice_notify_to', '');
+            if ($notifyTo !== '') {
+                $subject = 'Invoice Baru: ' . ($invoice->invoice_number ?? ('#' . $invoice->id)) . ' - ' . ($booking->customer_name ?? 'Customer');
+                try {
+                    Mail::to($notifyTo)->send(new NewInvoiceNotificationMail($invoice));
+                    EmailLog::create([
+                        'type' => 'invoice_notification',
+                        'to_email' => $notifyTo,
+                        'subject' => $subject,
+                        'status' => 'sent',
+                        'invoice_id' => $invoice->id,
+                        'booking_id' => $booking->id,
+                        'sent_at' => now(),
+                    ]);
+                } catch (\Throwable $e) {
+                    EmailLog::create([
+                        'type' => 'invoice_notification',
+                        'to_email' => $notifyTo,
+                        'subject' => $subject,
+                        'status' => 'failed',
+                        'invoice_id' => $invoice->id,
+                        'booking_id' => $booking->id,
+                        'error_message' => $e->getMessage(),
+                    ]);
+                    Log::warning('Failed to send new invoice email notification', [
+                        'invoice_id' => $invoice->id,
+                        'message' => $e->getMessage(),
+                    ]);
+                }
+            }
+        });
         return redirect()->route('booking.create')->with('success', 'Your booking has been submitted successfully. Our admin will issue your invoice shortly via the WhatsApp number you provided.');
     }
 
