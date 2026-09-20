@@ -102,7 +102,7 @@ class BookingController extends Controller
         ]);
 
         // Operasi lambat dijalankan setelah response dikirim
-        \dispatch_after_response(function () use ($booking, $invoice) {
+        app()->terminating(function () use ($booking, $invoice) {
             // Webhook n8n
             try {
                 $booking->load(['vehicle', 'services', 'group']);
