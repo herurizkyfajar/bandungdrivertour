@@ -11,26 +11,37 @@ use Firebase\JWT\Key;
 
 class GoogleSheetsService
 {
-    protected string $spreadsheetId;
-    protected string $sheetName;
-    protected string $serviceAccountEmail;
+    protected ?string $spreadsheetId = null;
+    protected string $sheetName = 'Sheet1';
+    protected ?string $serviceAccountEmail = null;
     protected ?string $privateKey = null;
 
     public function __construct()
     {
-        $this->spreadsheetId = config('google.spreadsheet_id');
-        $this->sheetName = config('google.sheet_name', 'Sheet1');
+        $this->spreadsheetId = config('google.spreadsheet_id') ?: null;
+        $this->sheetName = config('google.sheet_name') ?: 'Sheet1';
 
         $keyFile = config('google.service_account_path');
-        if (file_exists($keyFile)) {
+        if ($keyFile && file_exists($keyFile)) {
             $sa = json_decode(file_get_contents($keyFile), true);
-            $this->serviceAccountEmail = $sa['client_email'] ?? '';
-            $this->privateKey = $sa['private_key'] ?? '';
+            $this->serviceAccountEmail = $sa['client_email'] ?? null;
+            $this->privateKey = $sa['private_key'] ?? null;
         }
+    }
+
+    public function isConfigured(): bool
+    {
+        return !empty($this->spreadsheetId)
+            && !empty($this->serviceAccountEmail)
+            && !empty($this->privateKey);
     }
 
     protected function getAccessToken(): string
     {
+        if (!$this->isConfigured()) {
+            throw new \RuntimeException('Google Sheets is not configured (missing spreadsheet_id or service account).');
+        }
+
         $now = time();
         $jwtPayload = [
             'iss' => $this->serviceAccountEmail,
@@ -183,6 +194,9 @@ class GoogleSheetsService
 
     public function ensureHeaderExists(): void
     {
+        if (!$this->isConfigured()) {
+            return;
+        }
         try {
             $response = $this->apiGet("{$this->sheetName}!A1:I1");
             $values = $response['values'] ?? [];
@@ -199,6 +213,10 @@ class GoogleSheetsService
 
     public function syncAllData(): int
     {
+        if (!$this->isConfigured()) {
+            Log::warning('Google Sheets: sync skipped, service not configured.');
+            return 0;
+        }
         try {
             $this->apiClear("{$this->sheetName}!A2:I");
             $this->ensureHeaderExists();
@@ -228,6 +246,9 @@ class GoogleSheetsService
 
     public function addRow(Booking $booking): void
     {
+        if (!$this->isConfigured()) {
+            return;
+        }
         try {
             $this->ensureHeaderExists();
             $row = $this->formatBookingRow($booking);
@@ -242,6 +263,9 @@ class GoogleSheetsService
 
     public function updateRow(Booking $booking): void
     {
+        if (!$this->isConfigured()) {
+            return;
+        }
         try {
             $response = $this->apiGet("{$this->sheetName}!A2:A");
             $values = $response['values'] ?? [];
@@ -272,6 +296,9 @@ class GoogleSheetsService
 
     public function deleteRow(Booking $booking): void
     {
+        if (!$this->isConfigured()) {
+            return;
+        }
         try {
             $response = $this->apiGet("{$this->sheetName}!A2:A");
             $values = $response['values'] ?? [];
