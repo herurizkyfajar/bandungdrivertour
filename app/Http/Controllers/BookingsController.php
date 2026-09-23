@@ -164,6 +164,7 @@ class BookingsController extends Controller
             'invoice_number' => $invoiceNumber,
             'amount' => (float) ($price ?? 0),
             'status' => 'unpaid',
+            'show_stamp' => false,
             'issued_at' => now(),
         ]);
 
@@ -297,6 +298,8 @@ class BookingsController extends Controller
             'status' => ['nullable', 'in:baru_masuk,konfirmasi,dijadwalkan,cancelled,cancel,batal,selesai_pelayanan,selesai_administrasi_fee'],
             'price' => ['nullable', 'numeric', 'min:0'],
             'manual_invoice_file' => ['nullable', 'file', 'mimes:pdf', 'max:5120'],
+            'invoice_status' => ['nullable', 'in:unpaid,paid'],
+            'show_stamp' => ['nullable', 'boolean'],
         ]);
         $isSuperAdmin = (Auth::user()?->role === 'super_admin');
         $booking->customer_name = $data['customer_name'];
@@ -329,6 +332,13 @@ class BookingsController extends Controller
         $invoice = $booking->invoice;
         if ($invoice) {
             $invoice->amount = (float) ($booking->price ?? 0);
+
+            if ($isSuperAdmin) {
+                if (isset($data['invoice_status'])) {
+                    $invoice->status = $data['invoice_status'];
+                }
+                $invoice->show_stamp = $request->boolean('show_stamp');
+            }
 
             if ($isSuperAdmin && $request->hasFile('manual_invoice_file')) {
                 if (!empty($invoice->manual_invoice_path) && Storage::disk('public')->exists($invoice->manual_invoice_path)) {

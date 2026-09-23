@@ -14,6 +14,7 @@ class Invoice extends Model
         'invoice_number',
         'amount',
         'status',
+        'show_stamp',
         'issued_at',
         'due_date',
         'manual_invoice_path',
@@ -22,6 +23,7 @@ class Invoice extends Model
     protected $casts = [
         'issued_at' => 'datetime',
         'due_date' => 'date',
+        'show_stamp' => 'boolean',
     ];
 
     public function booking()

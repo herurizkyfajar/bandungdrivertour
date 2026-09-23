@@ -98,6 +98,7 @@ class BookingController extends Controller
             'invoice_number' => $invoiceNumber,
             'amount' => 0,
             'status' => 'unpaid',
+            'show_stamp' => false,
             'issued_at' => now(),
         ]);
 

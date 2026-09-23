@@ -260,6 +260,24 @@
         @if(auth()->user()?->role === 'super_admin')
         <div class="col-6">
           <div class="field">
+            <label for="invoice_status">Invoice Status</label>
+            <select id="invoice_status" name="invoice_status">
+              <option value="unpaid" {{ old('invoice_status', $booking->invoice?->status ?? 'unpaid') === 'unpaid' ? 'selected' : '' }}>Unpaid</option>
+              <option value="paid" {{ old('invoice_status', $booking->invoice?->status ?? 'unpaid') === 'paid' ? 'selected' : '' }}>Paid</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
+            <label for="show_stamp">Show Stamp (PAID / UNPAID)</label>
+            <select id="show_stamp" name="show_stamp">
+              <option value="0" {{ old('show_stamp', $booking->invoice?->show_stamp ? '1' : '0') === '0' ? 'selected' : '' }}>No</option>
+              <option value="1" {{ old('show_stamp', $booking->invoice?->show_stamp ? '1' : '0') === '1' ? 'selected' : '' }}>Yes</option>
+            </select>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="field">
             <label for="manual_invoice_file">Upload Invoice Manual (PDF)</label>
             <input id="manual_invoice_file" type="file" name="manual_invoice_file" accept="application/pdf">
             @if($booking->invoice?->manual_invoice_path)

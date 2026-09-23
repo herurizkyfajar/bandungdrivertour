@@ -110,6 +110,29 @@
     position: relative;
     z-index: 1;
   }
+  .inv-stamp {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-12deg);
+    z-index: 5;
+    font-size: 3.4rem;
+    font-weight: 900;
+    letter-spacing: 6px;
+    padding: .35rem 1.6rem;
+    border: 7px solid;
+    border-radius: 14px;
+    opacity: 0.5;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    line-height: 1.2;
+  }
+  .inv-stamp.stamp-paid { color: #16a34a; border-color: #16a34a; }
+  .inv-stamp.stamp-unpaid { color: #dc2626; border-color: #dc2626; }
+  @media print {
+    .inv-stamp { opacity: 0.5; }
+  }
   .inv-header { display:grid; grid-template-columns: 1fr 200px; align-items:start; gap: 12px; }
   .inv-brand h2 { margin:0; font-size: 1.25rem; font-weight: 800; }
   .muted { color:#6b7280; }
@@ -224,6 +247,11 @@
 <div class="inv-pages">
   {{-- PAGE 1: Invoice (Service instead of Description) --}}
   <div class="inv-wrap page-break">
+    @if($invoice->show_stamp)
+      <div class="inv-stamp {{ $invoice->status === 'paid' ? 'stamp-paid' : 'stamp-unpaid' }}">
+        {{ $invoice->status === 'paid' ? 'PAID' : 'UNPAID' }}
+      </div>
+    @endif
     <div class="inv-header">
       <div class="inv-brand">
         @php($groups = \App\Models\Group::whereNotNull('logo_path')->orderBy('name')->get())
