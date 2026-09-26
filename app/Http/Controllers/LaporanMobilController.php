@@ -23,14 +23,15 @@ class LaporanMobilController extends Controller
         [$rangeStart, $rangeEnd, $rangeLabel] = $this->resolveRange($period, $request);
 
         $statusFilter = (string) $request->input('status_filter', '');
+        if ($statusFilter === 'all' || in_array($statusFilter, self::CANCEL_STATUSES, true)) {
+            $statusFilter = '';
+        }
 
-        $query = Booking::query()->whereNotNull('vehicle_id');
+        $query = Booking::query()
+            ->whereNotNull('vehicle_id')
+            ->whereNotIn('status', self::CANCEL_STATUSES);
 
-        if ($statusFilter === 'all') {
-            // tanpa filter status
-        } elseif ($statusFilter === '') {
-            $query->whereNotIn('status', self::CANCEL_STATUSES);
-        } else {
+        if ($statusFilter !== '') {
             $query->where('status', $statusFilter);
         }
 
@@ -123,7 +124,10 @@ class LaporanMobilController extends Controller
             ->values();
 
         $statuses = [];
-        foreach (Booking::KANBAN_PHASES as $phase) {
+        foreach (Booking::KANBAN_PHASES as $phaseKey => $phase) {
+            if ($phaseKey === 'cancel') {
+                continue;
+            }
             foreach ($phase['statuses'] as $status) {
                 $statuses[$status] = ucfirst(str_replace('_', ' ', $status));
             }

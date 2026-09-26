@@ -61,8 +61,7 @@
       <div class="field" style="margin:0;">
         <label for="status_filter" style="font-size:.85rem; font-weight:600;">Status</label>
         <select id="status_filter" name="status_filter" style="padding:.45rem .6rem; border:1px solid var(--border); border-radius:8px; font-size:.9rem;">
-          <option value="" {{ $statusFilter === '' ? 'selected' : '' }}>Selain Batal</option>
-          <option value="all" {{ $statusFilter === 'all' ? 'selected' : '' }}>Semua Status</option>
+          <option value="" {{ $statusFilter === '' ? 'selected' : '' }}>Semua (tanpa cancel)</option>
           @foreach($statuses as $value => $label)
             <option value="{{ $value }}" {{ $statusFilter === $value ? 'selected' : '' }}>{{ $label }}</option>
           @endforeach
@@ -81,7 +80,10 @@
       @if($rangeDays)
         &middot; {{ $rangeDays }} hari
       @endif
-      &middot; data booking belum dihapus, {{ $statusFilter === '' ? 'status dibatalkan dikecualikan' : ($statusFilter === 'all' ? 'semua status' : 'status: ' . ($statuses[$statusFilter] ?? $statusFilter)) }}
+      &middot; booking belum dihapus &middot; status Booking Cancel tidak dihitung
+      @if($statusFilter !== '')
+        &middot; difilter: {{ $statuses[$statusFilter] ?? $statusFilter }}
+      @endif
     </div>
 
     {{-- Summary --}}
