@@ -277,7 +277,7 @@
     </style>
 </head>
 @php($showHomepageHeader = request()->routeIs('booking.create'))
-@php($isAdminShell = request()->routeIs('dashboard*', 'bookings.*', 'vehicles.*', 'services.*', 'mitras.*', 'groups.*', 'settings.*', 'email-logs.*', 'itineraries.*', 'accounts.*', 'booking-data.*', 'user.bookings.*', 'laporan-keuangan.*', 'spj.*'))
+@php($isAdminShell = request()->routeIs('dashboard*', 'bookings.*', 'vehicles.*', 'services.*', 'mitras.*', 'groups.*', 'settings.*', 'email-logs.*', 'itineraries.*', 'accounts.*', 'booking-data.*', 'user.bookings.*', 'laporan-keuangan.*', 'laporan-mobil.*', 'spj.*'))
 <body class="{{ $showHomepageHeader ? 'homepage-with-header' : '' }} {{ $isAdminShell ? 'admin-shell' : '' }}">
     @if($showHomepageHeader)
     <header class="homepage-header">

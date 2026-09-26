@@ -25,6 +25,7 @@ use App\Http\Controllers\UserBookingController;
 use App\Http\Controllers\BookingDataController;
 use App\Http\Controllers\TermsController;
 use App\Http\Controllers\LaporanKeuanganController;
+use App\Http\Controllers\LaporanMobilController;
 use App\Http\Controllers\SpjManualController;
 
 Route::redirect('/', '/booking');
@@ -117,6 +118,7 @@ Route::middleware(['auth', 'role:super_admin'])->group(function () {
     Route::resource('spj-manuals', SpjManualController::class);
     Route::get('/booking-data', [BookingDataController::class, 'index'])->name('booking-data.index');
     Route::get('/laporan-keuangan', [LaporanKeuanganController::class, 'index'])->name('laporan-keuangan.index');
+    Route::get('/laporan-mobil', [LaporanMobilController::class, 'index'])->name('laporan-mobil.index');
     Route::post('/laporan-keuangan/sync', [LaporanKeuanganController::class, 'syncToSheet'])->name('laporan-keuangan.sync');
     Route::put('/bookings/{id}/pendapatan', [LaporanKeuanganController::class, 'updatePendapatan'])->name('bookings.pendapatan.update');
     Route::put('/laporan-keuangan/pajak', [LaporanKeuanganController::class, 'updatePajak'])->name('laporan-keuangan.pajak.update');
