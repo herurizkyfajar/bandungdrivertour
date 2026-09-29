@@ -29,10 +29,10 @@ class InvoicePdfService
         $invoice->loadMissing('booking.services', 'booking.vehicle', 'booking.mitra');
 
         $filename = $this->safeFilename($invoice);
-        $path = 'invoices/' . $filename;
+        $path = 'invoices/v2/' . $filename;
 
         if (!Storage::disk('public')->exists($path)) {
-            $html = view('invoices.show', ['invoice' => $invoice])->render();
+            $html = view('invoices.pdf', ['invoice' => $invoice])->render();
             $dompdf = new \Dompdf\Dompdf([
                 'isRemoteEnabled' => true,
             ]);
