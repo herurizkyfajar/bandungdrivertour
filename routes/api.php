@@ -2,6 +2,10 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Models\Booking;
+use App\Http\Controllers\TelegramWebhookController;
+
+Route::post('/webhook/telegram', [TelegramWebhookController::class, 'handle'])
+    ->name('telegram.webhook');
 
 Route::get('/bookings', function () {
     $bookings = Booking::with(['vehicle','service','mitra','invoice'])->latest()->take(100)->get();

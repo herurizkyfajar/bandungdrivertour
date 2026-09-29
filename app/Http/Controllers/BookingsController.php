@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use App\Services\WebPushService;
+use App\Services\TelegramNotificationService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewInvoiceNotificationMail;
@@ -194,6 +195,11 @@ class BookingsController extends Controller
             Log::warning('Gagal mengirim data booking baru (Admin) ke n8n: ' . $e->getMessage());
         }
         // =====================================================================
+
+        // Notifikasi Telegram (setelah response, terpisah dari n8n)
+        app()->terminating(function () use ($booking, $invoice) {
+            app(TelegramNotificationService::class)->send($booking, $invoice);
+        });
 
         app(WebPushService::class)->sendInvoiceCreated([
             'title' => 'Invoice Baru Masuk',

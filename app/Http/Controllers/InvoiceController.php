@@ -28,36 +28,16 @@ class InvoiceController extends Controller
         if (str_starts_with($phone, '0')) {
             $phone = '62' . substr($phone, 1);
         }
-        $safeInvoiceNumber = preg_replace('/[\\\\\/:*?"<>|]+/', '', (string) $invoice->invoice_number);
-        $safeInvoiceNumber = trim(preg_replace('/\s+/', ' ', $safeInvoiceNumber));
-        if ($safeInvoiceNumber === '') {
-            $safeInvoiceNumber = 'invoice';
+
+        try {
+            $generated = app(\App\Services\InvoicePdfService::class)->generate($invoice);
+        } catch (\Throwable $e) {
+            Log::error('Generate PDF gagal: ' . $e->getMessage());
+            return back()->with('error', 'Gagal membuat PDF invoice. Pastikan paket dompdf terinstall.');
         }
 
-        $bookingName = trim(preg_replace('/[\\\\\/:*?"<>|]+/', '', (string) ($booking->customer_name ?? 'Customer')));
-        $bookingName = preg_replace('/\s+/', ' ', $bookingName);
-        if ($bookingName === '') {
-            $bookingName = 'Customer';
-        }
-
-        $filename = $safeInvoiceNumber . '_' . $bookingName . '.pdf';
-        $path = 'invoices/' . $filename;
-        if (!Storage::disk('public')->exists($path)) {
-            try {
-                $html = view('invoices.show', ['invoice' => $invoice])->render();
-                $dompdf = new \Dompdf\Dompdf([
-                    'isRemoteEnabled' => true,
-                ]);
-                $dompdf->loadHtml($html);
-                $dompdf->setPaper('A4', 'portrait');
-                $dompdf->render();
-                $pdf = $dompdf->output();
-                Storage::disk('public')->put($path, $pdf);
-            } catch (\Throwable $e) {
-                Log::error('Generate PDF gagal: ' . $e->getMessage());
-                return back()->with('error', 'Gagal membuat PDF invoice. Pastikan paket dompdf terinstall.');
-            }
-        }
+        $path = $generated['path'];
+        $filename = $generated['filename'];
         $url = Storage::disk('public')->url($path);
 
         $token = env('WHATSAPP_TOKEN');

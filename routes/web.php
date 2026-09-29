@@ -15,6 +15,7 @@ use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\InvoiceNotificationController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmtpSettingsController;
+use App\Http\Controllers\TelegramSettingsController;
 use App\Http\Controllers\NotificationSoundSettingsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\EmailLogController;
@@ -69,6 +70,21 @@ Route::get('/settings/notification-sound', [NotificationSoundSettingsController:
     ->middleware(['auth', 'role:super_admin']);
 Route::put('/settings/notification-sound', [NotificationSoundSettingsController::class, 'update'])
     ->name('settings.notification-sound.update')
+    ->middleware(['auth', 'role:super_admin']);
+Route::get('/settings/telegram', [TelegramSettingsController::class, 'index'])
+    ->name('settings.telegram')
+    ->middleware(['auth', 'role:super_admin']);
+Route::put('/settings/telegram', [TelegramSettingsController::class, 'update'])
+    ->name('settings.telegram.update')
+    ->middleware(['auth', 'role:super_admin']);
+Route::post('/settings/telegram/test', [TelegramSettingsController::class, 'test'])
+    ->name('settings.telegram.test')
+    ->middleware(['auth', 'role:super_admin']);
+Route::post('/settings/telegram/webhook', [TelegramSettingsController::class, 'webhookActivate'])
+    ->name('settings.telegram.webhook')
+    ->middleware(['auth', 'role:super_admin']);
+Route::delete('/settings/telegram/webhook', [TelegramSettingsController::class, 'webhookDelete'])
+    ->name('settings.telegram.webhook.delete')
     ->middleware(['auth', 'role:super_admin']);
 Route::get('/settings/invoice', [SettingsController::class, 'edit'])
     ->name('settings.invoice.edit')

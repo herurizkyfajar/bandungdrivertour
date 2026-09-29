@@ -32,6 +32,7 @@
       <li><a href="{{ route('settings.terms.edit') }}" class="{{ request()->routeIs('settings.terms*') ? 'active' : '' }}">Terms & Conditions</a></li>
       <li><a href="{{ route('settings.notification-sound') }}" class="{{ request()->routeIs('settings.notification-sound*') ? 'active' : '' }}">Sound Settings</a></li>
       <li><a href="{{ route('settings.smtp') }}" class="{{ request()->routeIs('settings.smtp*') ? 'active' : '' }}">SMTP Settings</a></li>
+      <li><a href="{{ route('settings.telegram') }}" class="{{ request()->routeIs('settings.telegram*') ? 'active' : '' }}">Telegram Settings</a></li>
     <li><a href="{{ route('email-logs.index') }}" class="{{ request()->routeIs('email-logs.*') ? 'active' : '' }}">Log Email</a></li>
   </ul>
 
