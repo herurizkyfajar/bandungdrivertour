@@ -7,6 +7,9 @@ use App\Http\Controllers\TelegramWebhookController;
 Route::post('/webhook/telegram', [TelegramWebhookController::class, 'handle'])
     ->name('telegram.webhook');
 
+Route::post('/webhook/telegram-jadwal', [TelegramWebhookController::class, 'handleJadwal'])
+    ->name('telegram.webhook.jadwal');
+
 Route::get('/bookings', function () {
     $bookings = Booking::with(['vehicle','service','mitra','invoice'])->latest()->take(100)->get();
     return response()->json($bookings);

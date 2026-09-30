@@ -16,6 +16,7 @@ use App\Http\Controllers\InvoiceNotificationController;
 use App\Http\Controllers\PushSubscriptionController;
 use App\Http\Controllers\SmtpSettingsController;
 use App\Http\Controllers\TelegramSettingsController;
+use App\Http\Controllers\TelegramJadwalSettingsController;
 use App\Http\Controllers\NotificationSoundSettingsController;
 use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\EmailLogController;
@@ -85,6 +86,21 @@ Route::post('/settings/telegram/webhook', [TelegramSettingsController::class, 'w
     ->middleware(['auth', 'role:super_admin']);
 Route::delete('/settings/telegram/webhook', [TelegramSettingsController::class, 'webhookDelete'])
     ->name('settings.telegram.webhook.delete')
+    ->middleware(['auth', 'role:super_admin']);
+Route::get('/settings/tele-jadwal', [TelegramJadwalSettingsController::class, 'index'])
+    ->name('settings.tele-jadwal')
+    ->middleware(['auth', 'role:super_admin']);
+Route::put('/settings/tele-jadwal', [TelegramJadwalSettingsController::class, 'update'])
+    ->name('settings.tele-jadwal.update')
+    ->middleware(['auth', 'role:super_admin']);
+Route::post('/settings/tele-jadwal/test', [TelegramJadwalSettingsController::class, 'test'])
+    ->name('settings.tele-jadwal.test')
+    ->middleware(['auth', 'role:super_admin']);
+Route::post('/settings/tele-jadwal/webhook', [TelegramJadwalSettingsController::class, 'webhookActivate'])
+    ->name('settings.tele-jadwal.webhook')
+    ->middleware(['auth', 'role:super_admin']);
+Route::delete('/settings/tele-jadwal/webhook', [TelegramJadwalSettingsController::class, 'webhookDelete'])
+    ->name('settings.tele-jadwal.webhook.delete')
     ->middleware(['auth', 'role:super_admin']);
 Route::get('/settings/invoice', [SettingsController::class, 'edit'])
     ->name('settings.invoice.edit')
