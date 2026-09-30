@@ -24,6 +24,20 @@ class InvoicePdfService
         return $invoiceNumber . '_' . $customer . '.pdf';
     }
 
+    public function pathFor(Invoice $invoice): string
+    {
+        return 'invoices/v2/' . $this->safeFilename($invoice);
+    }
+
+    public function purge(Invoice $invoice): void
+    {
+        $path = $this->pathFor($invoice);
+
+        if (Storage::disk('public')->exists($path)) {
+            Storage::disk('public')->delete($path);
+        }
+    }
+
     public function generate(Invoice $invoice): array
     {
         $invoice->loadMissing('booking.services', 'booking.vehicle', 'booking.mitra');

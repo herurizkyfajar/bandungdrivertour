@@ -5,6 +5,8 @@ namespace App\Services;
 use App\Models\Booking;
 use App\Models\Invoice;
 use App\Models\TelegramMessage;
+use App\Support\EnvFile;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
 
 class TelegramBotService
@@ -23,12 +25,20 @@ class TelegramBotService
         }
 
         $text = trim((string) ($message['text'] ?? ''));
-        if ($text === '') {
-            return;
-        }
 
         $chatId = (string) ($message['chat']['id'] ?? '');
         $messageId = (int) ($message['message_id'] ?? 0);
+
+        $migrateTo = (string) ($message['migrate_to_chat_id'] ?? '');
+        if ($migrateTo !== '') {
+            $this->handleChatMigration($chatId, $migrateTo);
+
+            return;
+        }
+
+        if ($text === '') {
+            return;
+        }
 
         if ($chatId === '' || !in_array($chatId, $this->notify->chatIds(), true)) {
             Log::info('Telegram webhook: chat tidak terdaftar, pesan diabaikan.', [
@@ -82,6 +92,36 @@ class TelegramBotService
             'download' => $this->handleDownload($invoice, $chatId, $messageId),
             default => $this->handleUpdatePrice($invoice, $action, $chatId, $messageId),
         };
+    }
+
+    protected function handleChatMigration(string $oldId, string $newId): void
+    {
+        $ids = $this->notify->chatIds();
+
+        if ($oldId === '' || $newId === '' || !in_array($oldId, $ids, true) || $oldId === $newId) {
+            Log::info('Telegram: pesan migrasi chat diabaikan.', ['old' => $oldId, 'new' => $newId]);
+
+            return;
+        }
+
+        $newIds = array_values(array_map(
+            static fn ($id) => $id === $oldId ? $newId : $id,
+            $ids
+        ));
+
+        if (!EnvFile::set(['TELEGRAM_CHAT_ID' => implode(',', $newIds)])) {
+            Log::warning('Telegram: gagal menyimpan chat ID hasil migrasi.');
+
+            return;
+        }
+
+        Artisan::call('optimize:clear');
+        Log::info('Telegram: chat ID dimigrasi otomatis.', ['old' => $oldId, 'new' => $newId]);
+
+        $this->notify->sendToChat(
+            $newId,
+            '✅ Chat ID diperbarui otomatis ke <code>' . $newId . '</code>. Notifikasi dan perintah aktif kembali.'
+        );
     }
 
     protected function normalizeCommandText(string $text): string
@@ -213,9 +253,13 @@ class TelegramBotService
 
         $old = (float) ($booking->price ?? 0);
         $booking->price = $amount;
+        $invoice->amount = $amount;
 
         try {
-            $booking->save();
+            \DB::transaction(function () use ($booking, $invoice) {
+                $booking->save();
+                $invoice->save();
+            });
         } catch (\Throwable $e) {
             Log::warning('Telegram bot: gagal update harga booking: ' . $e->getMessage());
             $this->reply('⚠️ Gagal menyimpan perubahan: ' . $this->notify->escape($e->getMessage()), $chatId, $messageId, $invoice);
@@ -223,8 +267,14 @@ class TelegramBotService
             return;
         }
 
+        try {
+            $this->pdf->purge($invoice);
+        } catch (\Throwable $e) {
+            Log::warning('Telegram bot: gagal hapus cache PDF invoice: ' . $e->getMessage());
+        }
+
         $this->reply(
-            "✅ <b>Harga booking diperbarui</b>\n"
+            "✅ <b>Harga booking & invoice diperbarui</b>\n"
             . "📄 " . $this->notify->escape($invoice->invoice_number) . "\n"
             . "👤 " . $this->notify->escape((string) $booking->customer_name) . "\n"
             . "💰 " . $this->formatAmount($old) . " → <b>" . $this->formatAmount($amount) . "</b>",

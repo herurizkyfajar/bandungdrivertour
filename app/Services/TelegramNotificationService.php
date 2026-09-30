@@ -328,6 +328,13 @@ class TelegramNotificationService
         return $sent;
     }
 
+    public function sendToChat(string $chatId, string $text): bool
+    {
+        $this->lastError = null;
+
+        return $this->request('sendMessage', ['text' => $text] + $this->parseModePayload(), $chatId);
+    }
+
     public function sendMessage(
         string $text,
         ?Invoice $invoice = null,

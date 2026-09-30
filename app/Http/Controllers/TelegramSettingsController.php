@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\TelegramNotificationService;
+use App\Support\EnvFile;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Artisan;
@@ -77,7 +78,13 @@ class TelegramSettingsController extends Controller
             return back()->with('success', 'Pesan test berhasil dikirim ke Telegram.');
         }
 
-        return back()->with('error', 'Gagal mengirim pesan test: ' . ($this->telegram->lastError() ?? 'unknown error'));
+        $error = (string) $this->telegram->lastError();
+
+        if (str_contains($error, 'upgraded to a supergroup')) {
+            $error .= ' — grup sudah menjadi supergroup: ambil Chat ID baru (format -100...) dari getUpdates lalu perbarui di halaman ini.';
+        }
+
+        return back()->with('error', 'Gagal mengirim pesan test: ' . ($error !== '' ? $error : 'unknown error'));
     }
 
     public function webhookActivate(): RedirectResponse
@@ -177,30 +184,15 @@ class TelegramSettingsController extends Controller
 
     protected function writeEnv(array $data): bool
     {
-        $envPath = base_path('.env');
-        if (!file_exists($envPath) || !is_writable($envPath)) {
-            return false;
-        }
-
-        $env = file_get_contents($envPath);
         $unquotedKeys = ['TELEGRAM_ENABLED', 'TELEGRAM_COMMANDS_ENABLED'];
 
+        $normalized = [];
         foreach ($data as $key => $value) {
-            $normalizedValue = in_array($key, $unquotedKeys, true)
+            $normalized[$key] = in_array($key, $unquotedKeys, true)
                 ? (filter_var($value, FILTER_VALIDATE_BOOL) ? 'true' : 'false')
                 : (string) $value;
-
-            $line = in_array($key, $unquotedKeys, true)
-                ? $key . '=' . $normalizedValue
-                : $key . '="' . str_replace('"', '\\"', $normalizedValue) . '"';
-
-            if (preg_match('/^' . preg_quote($key, '/') . '=.*/m', $env)) {
-                $env = preg_replace('/^' . preg_quote($key, '/') . '=.*/m', $line, $env);
-            } else {
-                $env .= PHP_EOL . $line;
-            }
         }
 
-        return file_put_contents($envPath, $env) !== false;
+        return EnvFile::set($normalized, $unquotedKeys);
     }
 }

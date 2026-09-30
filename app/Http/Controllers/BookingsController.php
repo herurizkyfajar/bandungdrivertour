@@ -355,6 +355,12 @@ class BookingsController extends Controller
             }
 
             $invoice->save();
+
+            try {
+                app(\App\Services\InvoicePdfService::class)->purge($invoice);
+            } catch (\Throwable $e) {
+                Log::warning('Gagal hapus cache PDF invoice: ' . $e->getMessage());
+            }
         }
         return redirect()->route('bookings.index')->with('success', 'Booking updated.');
     }
