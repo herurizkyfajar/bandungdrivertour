@@ -37,6 +37,16 @@ Route::get('/bookings', function (Request $request) {
     return response()->json($bookings);
 });
 
+Route::get('/bookings/stats', function () {
+    $today = now()->toDateString();
+
+    return response()->json([
+        'total' => Booking::count(),
+        'today' => Booking::whereDate('booking_date', $today)->count(),
+        'upcoming' => Booking::whereDate('booking_date', '>=', $today)->count(),
+    ]);
+});
+
 Route::get('/bookings/{booking}', function (Booking $booking) {
     return response()->json($booking->load(['vehicle','service','mitra','invoice']));
 });

@@ -544,20 +544,16 @@ document.addEventListener('DOMContentLoaded', function () {
     if (modalTravel) modalTravel.innerHTML = '';
   }
 
-  function updateStats(items) {
-    const today = new Date();
-    const todayStr = today.toISOString().substring(0, 10);
-    const upcomingCount = items.filter(function (item) {
-      return item.date && item.date >= todayStr;
-    }).length;
-    const todayCount = items.filter(function (item) {
-      return item.date === todayStr;
-    }).length;
-
-    statTotal.textContent = items.length.toString();
-    statToday.textContent = todayCount.toString();
-    statUpcoming.textContent = upcomingCount.toString();
+  async function loadStats() {
+    const res = await fetch('/api/bookings/stats', { headers: { 'Accept': 'application/json' } });
+    if (!res.ok) return;
+    const stats = await res.json();
+    statTotal.textContent = Number(stats.total || 0).toString();
+    statToday.textContent = Number(stats.today || 0).toString();
+    statUpcoming.textContent = Number(stats.upcoming || 0).toString();
   }
+
+  loadStats();
 
   async function loadBookings(range) {
     const params = new URLSearchParams();
@@ -625,7 +621,6 @@ document.addEventListener('DOMContentLoaded', function () {
     events: async function (fetchInfo, success, failure) {
       try {
         const items = await loadBookings(fetchInfo);
-        updateStats(items);
         success(items.map(function (item) {
           return {
             id: item.id,
