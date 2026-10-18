@@ -162,6 +162,7 @@ class GoogleSheetsService
     {
         return [
             'No. Invoice',
+            'Group',
             'Customer',
             'Asal Negara',
             'Status',
@@ -173,14 +174,33 @@ class GoogleSheetsService
         ];
     }
 
+    protected function lastColumnLetter(): string
+    {
+        $count = count($this->getHeaderRow());
+        $letter = '';
+
+        while ($count > 0) {
+            $count--;
+            $letter = chr(65 + ($count % 26)) . $letter;
+            $count = intdiv($count, 26);
+        }
+
+        return $letter;
+    }
+
     protected function formatBookingRow(Booking $booking): array
     {
+        if ($booking->exists) {
+            $booking->loadMissing(['invoice', 'group']);
+        }
+
         $pajakRate = InvoiceSetting::instance()->pajak_rate ?? 0;
         $pendapatan = $booking->pendapatan ?? 0;
         $pajak = $pendapatan > 0 ? $pendapatan * $pajakRate / 100 : 0;
 
         return [
             $booking->invoice->invoice_number ?? '-',
+            $booking->group->name ?? '-',
             $booking->customer_name ?? '-',
             $booking->country_of_origin ?? '-',
             $booking->statusLabel(),
@@ -197,12 +217,13 @@ class GoogleSheetsService
         if (!$this->isConfigured()) {
             return;
         }
+        $lastCol = $this->lastColumnLetter();
         try {
-            $response = $this->apiGet("{$this->sheetName}!A1:I1");
+            $response = $this->apiGet("{$this->sheetName}!A1:{$lastCol}1");
             $values = $response['values'] ?? [];
 
             if (empty($values) || $values[0] !== $this->getHeaderRow()) {
-                $this->apiUpdate("{$this->sheetName}!A1:I1", [
+                $this->apiUpdate("{$this->sheetName}!A1:{$lastCol}1", [
                     'values' => [$this->getHeaderRow()],
                 ]);
             }
@@ -217,11 +238,12 @@ class GoogleSheetsService
             Log::warning('Google Sheets: sync skipped, service not configured.');
             return 0;
         }
+        $lastCol = $this->lastColumnLetter();
         try {
-            $this->apiClear("{$this->sheetName}!A2:I");
+            $this->apiClear("{$this->sheetName}!A2:{$lastCol}");
             $this->ensureHeaderExists();
 
-            $bookings = Booking::with(['invoice'])
+            $bookings = Booking::with(['invoice', 'group'])
                 ->withTrashed()
                 ->orderBy('created_at', 'asc')
                 ->get();
@@ -233,7 +255,7 @@ class GoogleSheetsService
             $rows = $bookings->map(fn (Booking $b) => $this->formatBookingRow($b))->toArray();
 
             $lastRow = 1 + count($rows);
-            $this->apiUpdate("{$this->sheetName}!A2:I{$lastRow}", [
+            $this->apiUpdate("{$this->sheetName}!A2:{$lastCol}{$lastRow}", [
                 'values' => $rows,
             ]);
 
@@ -249,11 +271,12 @@ class GoogleSheetsService
         if (!$this->isConfigured()) {
             return;
         }
+        $lastCol = $this->lastColumnLetter();
         try {
             $this->ensureHeaderExists();
             $row = $this->formatBookingRow($booking);
 
-            $this->apiAppend("{$this->sheetName}!A:I", [
+            $this->apiAppend("{$this->sheetName}!A:{$lastCol}", [
                 'values' => [$row],
             ]);
         } catch (\Exception $e) {
@@ -266,6 +289,7 @@ class GoogleSheetsService
         if (!$this->isConfigured()) {
             return;
         }
+        $lastCol = $this->lastColumnLetter();
         try {
             $response = $this->apiGet("{$this->sheetName}!A2:A");
             $values = $response['values'] ?? [];
@@ -286,7 +310,7 @@ class GoogleSheetsService
             }
 
             $rowData = $this->formatBookingRow($booking);
-            $this->apiUpdate("{$this->sheetName}!A{$rowIndex}:I{$rowIndex}", [
+            $this->apiUpdate("{$this->sheetName}!A{$rowIndex}:{$lastCol}{$rowIndex}", [
                 'values' => [$rowData],
             ]);
         } catch (\Exception $e) {
