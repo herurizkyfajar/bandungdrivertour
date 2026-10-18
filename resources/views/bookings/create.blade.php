@@ -291,19 +291,26 @@ function filterCountries(q) {
   if (!query) return COUNTRIES.slice();
   return COUNTRIES.filter(c => c.toLowerCase().includes(query));
 }
+function syncCountry() {
+  countryHidden.value = (countrySearch.value || '').trim();
+}
 countrySearch.addEventListener('focus', function() {
   countrySelect.classList.add('open');
   renderCountryList(filterCountries(countrySearch.value));
 });
 countrySearch.addEventListener('input', function() {
+  syncCountry();
   countrySelect.classList.add('open');
   renderCountryList(filterCountries(countrySearch.value));
 });
+countrySearch.addEventListener('change', syncCountry);
+countrySearch.addEventListener('blur', syncCountry);
 document.addEventListener('click', function(e) {
   if (!countrySelect.contains(e.target)) {
     countrySelect.classList.remove('open');
   }
 });
+countrySearch.closest('form').addEventListener('submit', syncCountry);
 renderCountryList(filterCountries(countrySearch.value));
 </script>
 <script>
