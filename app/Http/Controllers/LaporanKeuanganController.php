@@ -14,16 +14,20 @@ class LaporanKeuanganController extends Controller
     {
         $sort = $request->input('sort', 'created_at');
         $dir = $request->input('dir', 'desc');
-        $allowed = ['invoice_number', 'customer_name', 'country_of_origin', 'status', 'booking_date', 'price', 'pendapatan', 'created_at'];
+        $allowed = ['invoice_number', 'group', 'customer_name', 'country_of_origin', 'status', 'booking_date', 'price', 'pendapatan', 'created_at'];
         if (!in_array($sort, $allowed)) $sort = 'created_at';
         $dir = strtolower($dir) === 'asc' ? 'asc' : 'desc';
 
-        $query = Booking::with(['vehicle', 'invoice'])
+        $query = Booking::with(['vehicle', 'invoice', 'group'])
             ->withTrashed();
 
         if ($sort === 'invoice_number') {
             $query->join('invoices', 'invoices.booking_id', '=', 'bookings.id')
                   ->orderBy('invoices.invoice_number', $dir)
+                  ->select('bookings.*');
+        } elseif ($sort === 'group') {
+            $query->leftJoin('groups', 'groups.id', '=', 'bookings.group_id')
+                  ->orderByRaw('`groups`.`name` IS NULL, `groups`.`name` ' . strtoupper($dir))
                   ->select('bookings.*');
         } elseif ($sort === 'booking_date') {
             $query->orderBy('booking_date', $dir);

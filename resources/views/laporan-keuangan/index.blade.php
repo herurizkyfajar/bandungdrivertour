@@ -129,6 +129,7 @@
             @php
               $columns = [
                 'invoice_number' => 'No. Invoice',
+                'group' => 'Group',
                 'customer_name' => 'Customer',
                 'country_of_origin' => 'Asal Negara',
                 'status' => 'Status',
@@ -140,8 +141,10 @@
               ];
             @endphp
             @foreach($columns as $key => $label)
-              @if($key === 'pajak' || $key === 'end_date')
+              @if($key === 'pajak')
                 <th style="padding:.6rem .5rem; vertical-align:top; line-height:1.3;">Pajak<br><span style="font-weight:400; font-size:.75rem; color:#94a3b8;">({{ (int) $pajakRate }}%)</span></th>
+              @elseif($key === 'end_date')
+                <th style="padding:.6rem .5rem; vertical-align:top; line-height:1.3;">{{ $label }}</th>
               @else
                 @php
                   $isCurrentSort = $currentSort === $key;
@@ -179,6 +182,7 @@
                 -
               @endif
             </td>
+            <td style="padding:.6rem .5rem;">{{ $b->group->name ?? '-' }}</td>
             <td style="padding:.6rem .5rem;">{{ $b->customer_name }}</td>
             <td style="padding:.6rem .5rem;">{{ $b->country_of_origin ?? '-' }}</td>
             <td style="padding:.6rem .5rem;">
@@ -207,7 +211,7 @@
           </tr>
           @empty
           <tr>
-            <td colspan="10" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
+            <td colspan="11" style="padding:2rem; text-align:center; color:#94a3b8;">Tidak ada data ditemukan.</td>
           </tr>
           @endforelse
         </tbody>
