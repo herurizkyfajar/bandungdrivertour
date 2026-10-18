@@ -215,11 +215,22 @@
   .modal-card {
     width: 760px;
     max-width: 96vw;
+    max-height: calc(100vh - 2rem);
+    display: flex;
+    flex-direction: column;
     padding: 1.2rem;
     border-radius: 24px;
     background: rgba(255,255,255,.96);
     border: 1px solid rgba(226,232,240,.95);
     box-shadow: 0 30px 60px rgba(15, 23, 42, .25);
+  }
+
+  .modal-scroll {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: .3rem;
   }
 
   .modal-header {
@@ -228,6 +239,7 @@
     justify-content: space-between;
     gap: 1rem;
     margin-bottom: .9rem;
+    flex-shrink: 0;
   }
 
   .modal-title {
@@ -296,6 +308,7 @@
     justify-content: flex-end;
     gap: .5rem;
     margin-top: 1rem;
+    flex-shrink: 0;
   }
 
   @media (max-width: 1200px) {
@@ -722,12 +735,14 @@ document.addEventListener('DOMContentLoaded', function () {
       <button id="calendar_booking_modal_close" class="modal-close">Close</button>
     </div>
 
-    <div id="calendar_booking_modal_body" class="modal-grid"></div>
+    <div class="modal-scroll">
+      <div id="calendar_booking_modal_body" class="modal-grid"></div>
 
-    <div class="modal-section">
-      <div class="subtitle" style="margin-bottom:.35rem; font-weight:700;">Travel Plans</div>
-      <div id="calendar_booking_modal_travel" class="wysiwyg-view">
-        <div id="calendar_booking_modal_travel_content" class="w-content"></div>
+      <div class="modal-section">
+        <div class="subtitle" style="margin-bottom:.35rem; font-weight:700;">Travel Plans</div>
+        <div id="calendar_booking_modal_travel" class="wysiwyg-view">
+          <div id="calendar_booking_modal_travel_content" class="w-content"></div>
+        </div>
       </div>
     </div>
 
