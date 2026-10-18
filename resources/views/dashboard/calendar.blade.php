@@ -559,8 +559,14 @@ document.addEventListener('DOMContentLoaded', function () {
     statUpcoming.textContent = upcomingCount.toString();
   }
 
-  async function loadBookings() {
-    const res = await fetch('/api/bookings', { headers: { 'Accept': 'application/json' } });
+  async function loadBookings(range) {
+    const params = new URLSearchParams();
+    if (range && range.startStr && range.endStr) {
+      params.set('start', range.startStr.substring(0, 10));
+      params.set('end', range.endStr.substring(0, 10));
+    }
+    const query = params.toString() ? ('?' + params.toString()) : '';
+    const res = await fetch('/api/bookings' + query, { headers: { 'Accept': 'application/json' } });
     if (!res.ok) throw new Error('Failed to load bookings');
     const data = await res.json();
     bookingCache = data.map(function (booking) {
@@ -618,7 +624,7 @@ document.addEventListener('DOMContentLoaded', function () {
     },
     events: async function (fetchInfo, success, failure) {
       try {
-        const items = await loadBookings();
+        const items = await loadBookings(fetchInfo);
         updateStats(items);
         success(items.map(function (item) {
           return {
