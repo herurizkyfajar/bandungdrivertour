@@ -21,7 +21,7 @@
     <div style="margin-bottom:1rem; display:flex; align-items:center; justify-content:space-between;">
       <div>
         <h1>Pengaturan Notifikasi Telegram</h1>
-        <div class="subtitle">Booking baru (form publik & admin) otomatis dikirim ke Telegram. Webhook n8n tetap berjalan seperti biasa.</div>
+        <div class="subtitle">Booking baru (form publik & admin) otomatis dikirim ke Telegram.</div>
       </div>
       <div><a class="btn" href="{{ route('dashboard') }}">Kembali</a></div>
     </div>

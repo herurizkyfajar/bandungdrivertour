@@ -13,10 +13,10 @@ use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rule;
 use App\Services\WebPushService;
 use App\Services\TelegramNotificationService;
+use App\Services\FonnteNotificationService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewInvoiceNotificationMail;
@@ -169,35 +169,14 @@ class BookingsController extends Controller
             'issued_at' => now(),
         ]);
 
-        // ==================== TAMBAHAN LOGIKA WEBHOOK N8N ====================
-        try {
-            // Memuat relasi kendaraan dan layanan jika dipilih oleh admin
-            $booking->load(['vehicle', 'services']);
-
-            $webhookData = [
-                'customer_name'  => $booking->customer_name,
-                'contact_number' => $booking->contact_number,
-                'pickup_location'=> $booking->pickup_location,
-                'booking_date'   => date('d-m-Y', strtotime($booking->booking_date)),
-                'end_date'       => $booking->end_date ? date('d-m-Y', strtotime($booking->end_date)) : '-',
-                'pickup_time'    => $booking->pickup_time ? date('H.i A', strtotime($booking->pickup_time)) : '-',
-                'vehicle_name'   => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
-                'service_name'   => $booking->services->pluck('name')->implode(', ') ?: 'Tidak Ada',
-                'price'          => number_format($booking->price ?? 0, 0, ',', '.'),
-                'invoice_number' => $invoice->invoice_number,
-                'booking_url'    => route('invoice.show', $invoice),
-            ];
-
-            // Mengirim data ke n8n Production URL (Otomatis berjalan tanpa perlu diklik manual)
-            Http::post('https://n8n-krkduh4jiei1.jkt6.sumopod.my.id/webhook/61bdb245-2610-4f6f-929c-281f2036b78e', $webhookData);
-        } catch (\Throwable $e) {
-            // Mencegah aplikasi utama crash apabila server n8n sedang overload atau lambat merespons
-            Log::warning('Gagal mengirim data booking baru (Admin) ke n8n: ' . $e->getMessage());
-        }
-        // =====================================================================
-
-        // Notifikasi Telegram (setelah response, terpisah dari n8n)
+        // Notifikasi WhatsApp (Fonnte) & Telegram (setelah response, pengganti webhook n8n)
         app()->terminating(function () use ($booking, $invoice) {
+            try {
+                app(FonnteNotificationService::class)->send($booking, $invoice);
+            } catch (\Throwable $e) {
+                Log::warning('Gagal mengirim notifikasi WhatsApp (Fonnte) booking admin: ' . $e->getMessage());
+            }
+
             app(TelegramNotificationService::class)->send($booking, $invoice);
         });
 

@@ -10,9 +10,9 @@ use App\Models\Itinerary;
 use App\Models\Group;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http;
 use App\Services\WebPushService;
 use App\Services\TelegramNotificationService;
+use App\Services\FonnteNotificationService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\NewInvoiceNotificationMail;
@@ -105,35 +105,14 @@ class BookingController extends Controller
 
         // Operasi lambat dijalankan setelah response dikirim
         app()->terminating(function () use ($booking, $invoice) {
-            // Webhook n8n
+            // Notifikasi WhatsApp (Fonnte) — pengganti webhook n8n
             try {
-                $booking->load(['vehicle', 'services', 'group']);
-                $infoSourceResult = $booking->info_source;
-                if ($booking->info_source_other) {
-                    $infoSourceResult .= ' (' . $booking->info_source_other . ')';
-                }
-                $webhookData = [
-                    'company'              => $booking->group ? $booking->group->name : 'Personal / Umum',
-                    'customer_name'        => $booking->customer_name,
-                    'contact_number'       => $booking->contact_number,
-                    'number_of_passengers' => $booking->number_of_passengers ?? '-',
-                    'country_of_origin'    => $booking->country_of_origin ?? '-',
-                    'pickup_location'      => $booking->pickup_location,
-                    'booking_date'         => date('d-m-Y', strtotime($booking->booking_date)),
-                    'end_date'             => $booking->end_date ? date('d-m-Y', strtotime($booking->end_date)) : '-',
-                    'pickup_time'          => $booking->pickup_time ? date('H.i A', strtotime($booking->pickup_time)) : '-',
-                    'vehicle_name'         => $booking->vehicle ? ($booking->vehicle->make . ' ' . $booking->vehicle->model) : 'Tidak Ada',
-                    'service_name'         => $booking->services->pluck('name')->implode(', ') ?: 'Tidak Ada',
-                    'invoice_number'       => $invoice->invoice_number,
-                    'info_source'          => $infoSourceResult ?? '-',
-                    'booking_url'          => route('invoice.show', $invoice),
-                ];
-                Http::post('https://n8n-krkduh4jiei1.jkt6.sumopod.my.id/webhook/61bdb245-2610-4f6f-929c-281f2036b78e', $webhookData);
+                app(FonnteNotificationService::class)->send($booking, $invoice);
             } catch (\Throwable $e) {
-                Log::warning('Gagal mengirim data booking kustomer ke n8n: ' . $e->getMessage());
+                Log::warning('Gagal mengirim notifikasi WhatsApp (Fonnte) booking kustomer: ' . $e->getMessage());
             }
 
-            // Notifikasi Telegram (terpisah dari n8n, gagal tidak mempengaruhi proses lain)
+            // Notifikasi Telegram (terpisah dari WhatsApp, gagal tidak mempengaruhi proses lain)
             app(TelegramNotificationService::class)->send($booking, $invoice);
 
             // WebPush
