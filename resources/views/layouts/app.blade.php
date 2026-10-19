@@ -188,6 +188,31 @@
             padding-left: 1rem;
             padding-right: 1rem;
         }
+        .site-footer {
+            margin-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            background: #ffffff;
+            padding: 1rem;
+            text-align: center;
+            font-size: .85rem;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+        .site-footer-inner {
+            max-width: 980px;
+            margin: 0 auto;
+        }
+        body.admin-shell .site-footer-inner {
+            max-width: 100%;
+        }
+        .site-footer a {
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .site-footer a:hover {
+            text-decoration: underline;
+        }
         .sidebar-toggle-btn { position: fixed; left: 16px; bottom: 20px; z-index: 70; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; border: 1px solid #e2e8f0; background: #ffffff; color: #64748b; border-radius: 12px; padding: .5rem .75rem; font-size: .82rem; font-weight: 600; box-shadow: 0 4px 12px rgba(15, 23, 42, .08); cursor: pointer; transition: all .2s ease; }
         .sidebar-toggle-btn:hover { background: #f1f5f9; color: #334155; border-color: #cbd5e1; box-shadow: 0 6px 16px rgba(15, 23, 42, .12); }
         .sidebar-toggle-btn svg { width: 14px; height: 14px; }
@@ -255,7 +280,7 @@
         }
         @media (max-width: 768px) {
             .mobile-bottom-nav { display: block; }
-            body.admin-shell .container { padding-bottom: 4.5rem; }
+            body.admin-shell .site-footer { padding-bottom: 4.5rem; }
         }
         @media (max-width: 640px) {
             .container { max-width: 100%; margin: 1rem auto; padding: 0 .75rem; }
@@ -297,6 +322,7 @@
         @endif
         @yield('content')
     </main>
+    @include('partials.site-footer')
     @if($isAdminShell && auth()->user()?->role === 'super_admin')
     <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
         <div class="mobile-bottom-nav-inner">
