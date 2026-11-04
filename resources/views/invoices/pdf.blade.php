@@ -18,7 +18,9 @@
   .wm {
     position: absolute;
     left: 0; top: 0; right: 0; bottom: 0;
-    background-image: url('{{ asset('Logo-Bandung-Driver-Tour.webp') }}');
+    @if(!empty($watermarkSrc))
+    background-image: url('{{ $watermarkSrc }}');
+    @endif
     background-repeat: repeat;
     background-size: 110px auto;
     opacity: 0.06;
@@ -125,11 +127,12 @@
     <table class="hdr">
       <tr>
         <td class="brand">
-          @php($groups = \App\Models\Group::whereNotNull('logo_path')->orderBy('name')->get())
-          @if($groups->count())
+          @if(!empty($groupLogos) && count($groupLogos))
           <div class="logos">
-            @foreach($groups as $g)
-              <img src="{{ asset('storage/' . $g->logo_path) }}" alt="{{ $g->name }}">
+            @foreach($groupLogos as $g)
+              @if($g['src'])
+              <img src="{{ $g['src'] }}" alt="{{ $g['name'] }}">
+              @endif
             @endforeach
           </div>
           @endif
@@ -223,10 +226,8 @@
         <td>
           <div class="signature">
             <div class="muted">Best regards</div>
-            @if($invSettings->signature_path)
-              <img src="{{ asset('storage/' . $invSettings->signature_path) }}" alt="Signature">
-            @else
-              <img src="{{ asset('ttd_aldi.png') }}" alt="Signature">
+            @if(!empty($signatureSrc))
+              <img src="{{ $signatureSrc }}" alt="Signature">
             @endif
             <div class="sig-name">{{ $invSettings->signer_name }}</div>
             <div class="muted">{{ $invSettings->signer_title }}</div>
