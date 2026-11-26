@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title ?? 'BDT Rental' }}</title>
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="icon" href="{{ asset('favicon.ico') }}" sizes="any">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -90,6 +91,15 @@
             color: #94a3b8;
             letter-spacing: .04em;
             text-transform: uppercase;
+        }
+        .nav-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.35rem;
+            flex: 0 0 auto;
+            font-size: 1rem;
+            line-height: 1;
         }
         .dashboard-menu,
         .side-menu {

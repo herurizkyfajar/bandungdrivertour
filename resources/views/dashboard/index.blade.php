@@ -1,6 +1,17 @@
 @extends('layouts.app', ['title' => 'Dashboard'])
 
 @section('content')
+@php
+    // Format persentase pertumbuhan: 12.0 -> "+12%", -3.4 -> "-3,4%"
+    $fmtGrowth = function ($value) {
+        if ($value === null) {
+            return null;
+        }
+        $decimals = fmod($value, 1) == 0 ? 0 : 1;
+
+        return ($value > 0 ? '+' : '') . number_format($value, $decimals, ',', '') . '%';
+    };
+@endphp
 <style>
   .container {
     max-width: 100% !important;
@@ -13,23 +24,32 @@
 
   .dashboard-shell {
     display: grid;
-    grid-template-columns: 250px minmax(0, 1fr) 320px;
+    grid-template-columns: 260px minmax(0, 1fr) 340px;
     gap: 1.25rem;
     align-items: start;
     min-height: calc(100vh - 7rem);
   }
 
-  .dashboard-sidebar,
-  .dashboard-main,
-  .dashboard-right {
-    background: rgba(255,255,255,.9);
-    border: 1px solid rgba(226,232,240,.95);
-    border-radius: 24px;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, .08);
-    backdrop-filter: blur(10px);
+  .dashboard-sidebar {
+    background: #0b3d91;
+    color: #fff;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 1.25rem 1rem;
+    position: sticky;
+    top: 5.75rem;
+    max-height: calc(100vh - 7.25rem);
+    overflow-y: auto;
   }
 
-  .dashboard-sidebar,
+  .dashboard-main,
+  .dashboard-right {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 24px;
+    box-shadow: 0 8px 20px rgba(0,0,0,.06);
+  }
+
   .dashboard-right {
     padding: 1rem;
     position: sticky;
@@ -40,35 +60,73 @@
 
   .dashboard-brand {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: .75rem;
+    text-align: center;
+    gap: .55rem;
     padding-bottom: .95rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid rgba(255,255,255,.15);
   }
 
   .dashboard-brand img {
-    width: 44px;
-    height: 44px;
+    width: 68px;
+    height: 68px;
     object-fit: contain;
   }
 
   .dashboard-brand h3 {
     margin: 0;
-    font-size: 1rem;
+    font-size: 1.15rem;
     font-weight: 800;
     letter-spacing: -.02em;
+    color: #fff;
   }
 
   .dashboard-brand .subtitle {
     font-size: .85rem;
+    color: rgba(255,255,255,.85);
+  }
+
+  /* Menu Settings ikut tema gelap sidebar */
+  .dashboard-sidebar .side-menu a,
+  .dashboard-sidebar .side-menu button {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.14);
+    color: rgba(255,255,255,.9);
+  }
+
+  .dashboard-sidebar .side-menu a:hover,
+  .dashboard-sidebar .side-menu button:hover {
+    background: rgba(255,255,255,.1);
+    border-color: rgba(255,255,255,.28);
+    color: #fff;
+    box-shadow: none;
+    transform: none;
+  }
+
+  .dashboard-sidebar .side-menu a.active {
+    background: #ffffff;
+    color: #0b3d91;
+    border-color: transparent;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+  }
+
+  .dashboard-section-label {
+    margin-top: 1rem;
+    margin-bottom: .5rem;
+    font-size: .8rem;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,.7);
   }
 
   .dashboard-menu {
     list-style: none;
-    margin: 1rem 0 0;
+    margin: 0;
     padding: 0;
     display: grid;
-    gap: .45rem;
+    gap: .3rem;
   }
 
   .dashboard-menu a,
@@ -77,65 +135,655 @@
     align-items: center;
     gap: .7rem;
     width: 100%;
-    padding: .76rem .9rem;
-    border-radius: 14px;
+    padding: .65rem .9rem;
+    border-radius: 12px;
     text-decoration: none;
-    color: var(--text);
-    border: 1px solid #e2e8f0;
-    background: #fff;
+    color: rgba(255,255,255,.9);
+    background: transparent;
     font-weight: 600;
-    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
+    font-size: .9rem;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    transition: background .15s ease;
   }
 
   .dashboard-menu a:hover,
   .dashboard-menu button:hover {
-    transform: translateY(-1px);
-    border-color: #c7d2fe;
-    box-shadow: 0 10px 18px rgba(15, 23, 42, .06);
-    background: #f8fafc;
+    background: rgba(255,255,255,.1);
+    color: #fff;
   }
 
   .dashboard-menu a.active {
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
-    color: #fff;
-    border-color: transparent;
-    box-shadow: 0 12px 24px rgba(37, 99, 235, .25);
+    background: #ffffff;
+    color: #0b3d91;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
   }
 
   .dashboard-main {
-    padding: 1.15rem;
+    padding: 1.5rem 2rem;
     min-height: calc(100vh - 7rem);
     display: grid;
-    gap: 1rem;
+    gap: 1.5rem;
     align-content: start;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .dashboard-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .9rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
+    background: #ffffff;
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    border-radius: 24px 24px 0 0;
+  }
+
+  .topbar-left {
+    display: flex;
+    align-items: center;
+    gap: .9rem;
+    min-width: 0;
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+
+  .topbar-menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    background: #f8fafc;
+    color: #0b3d91;
+    cursor: pointer;
+  }
+
+  .topbar-search {
+    position: relative;
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 420px;
+  }
+
+  .topbar-search i {
+    position: absolute;
+    left: .85rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: .95rem;
+  }
+
+  .topbar-search input {
+    width: 100%;
+    padding: .68rem 1rem .68rem 2.5rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #f8fafc;
+    font-size: .92rem;
+    color: #0d2b52;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+
+  .topbar-search input:focus {
+    background: #fff;
+    border-color: #1565c0;
+    box-shadow: 0 0 0 4px rgba(21, 101, 192, .12);
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    min-width: 0;
+    flex: 0 1 auto;
+  }
+
+  .topbar-icon-btn {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+    background: #fff;
+    color: #475569;
+    font-size: 1.05rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+
+  .topbar-icon-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+    color: #0b3d91;
+  }
+
+  .topbar-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 999px;
+    background: #dc2626;
+    color: #fff;
+    font-size: .65rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+  }
+
+  .topbar-user {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .35rem .85rem .35rem .35rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .topbar-user:hover {
+    border-color: #cbd5e1;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, .07);
+  }
+
+  .topbar-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #0b3d91, #1976d2);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: .9rem;
+    letter-spacing: .02em;
+    flex-shrink: 0;
+  }
+
+  .topbar-user-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .topbar-user-meta strong {
+    font-size: .85rem;
+    font-weight: 800;
+    color: #0d2b52;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 140px;
+  }
+
+  .topbar-user-meta span {
+    font-size: .72rem;
+    color: #64748b;
+    text-transform: capitalize;
+  }
+
+  .topbar-user > i {
+    color: #94a3b8;
+    font-size: .8rem;
   }
 
   .dashboard-hero {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
+    gap: 1.5rem;
     align-items: flex-start;
-    padding: 1rem 1.1rem;
-    border-radius: 22px;
-    background: linear-gradient(135deg, rgba(37,99,235,.08), rgba(99,102,241,.08));
-    border: 1px solid rgba(191,219,254,.8);
+    padding: 1.75rem 2rem;
+    border-radius: 24px;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(115deg, #f3f8ff 0%, #e9f2ff 45%, #f9fcff 100%);
+    border: 1px solid #dcebfb;
+    box-shadow: 0 12px 28px rgba(13, 43, 82, .06);
+  }
+
+  .dashboard-hero .hero-photo {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 46%;
+    z-index: 1;
+    background: url('{{ asset('assets/img/gedung-sate-drive.png') }}') 64% 58% / cover no-repeat;
+    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,.3) 28%, rgba(0,0,0,.8) 62%, #000 100%);
+    mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,.3) 28%, rgba(0,0,0,.8) 62%, #000 100%);
+    pointer-events: none;
+  }
+
+  .dashboard-hero > div {
+    position: relative;
+    z-index: 2;
+  }
+
+  .dashboard-hero .hero-content {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .dashboard-hero .hero-eyebrow {
+    font-size: .76rem;
+    font-weight: 800;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #1565c0;
+    margin-bottom: .4rem;
   }
 
   .dashboard-hero h2 {
     margin: 0;
-    font-size: 1.45rem;
+    font-size: 2.05rem;
     letter-spacing: -.03em;
+    color: #0b2545;
+    font-weight: 800;
   }
 
   .dashboard-hero .subtitle {
-    margin-top: .3rem;
-    max-width: 60ch;
+    margin-top: .5rem;
+    max-width: 50ch;
+    color: #475569;
+    font-size: .98rem;
   }
 
   .hero-actions {
     display: flex;
+    gap: .75rem;
+    flex-wrap: nowrap;
+    flex: 0 0 auto;
+    position: relative;
+    z-index: 2;
+  }
+
+  .dashboard-hero .btn {
+    display: inline-flex;
+    align-items: center;
     gap: .5rem;
+    padding: .68rem 1.1rem;
+    border-radius: 14px;
+    font-size: .9rem;
+    font-weight: 700;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    box-shadow: 0 8px 18px rgba(11, 61, 145, .16);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+
+  .dashboard-hero .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(11, 61, 145, .22);
+  }
+
+  .dashboard-hero .btn-primary {
+    background: #1565c0;
+    color: #ffffff;
+  }
+
+  .dashboard-hero .btn-primary:hover {
+    background: #0f52a3;
+  }
+
+  .dashboard-hero .btn:not(.btn-primary) {
+    background: #ffffff;
+    color: #0b3d91;
+    border-color: #cbd5e1;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, .08);
+  }
+
+  .dashboard-hero .btn:not(.btn-primary):hover {
+    background: #f8fafc;
+  }
+
+  /* Kartu metrik utama (Total Booking / Pendapatan Kotor) */
+  .metrics-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+    gap: 1rem;
+  }
+
+  .metric-card.metric-wide {
+    flex-direction: row;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 1.35rem 1.5rem;
+    min-height: 120px;
+  }
+
+  .metric-icon {
+    flex: 0 0 auto;
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    background: rgba(255,255,255,.22);
+    color: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.28);
+  }
+
+  .metric-card.metric-card--light {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .06);
+    color: #0f172a;
+  }
+
+  .metric-card--light .metric-icon {
+    background: #e7f7ee;
+    color: #059669;
+    box-shadow: none;
+  }
+
+  .metric-body {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .metric-body h4 {
+    margin: 0 0 .3rem;
+    font-size: .88rem;
+    font-weight: 700;
+    opacity: .92;
+  }
+
+  .metric-row {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
     flex-wrap: wrap;
+  }
+
+  .metric-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .2rem;
+    padding: .18rem .5rem;
+    border-radius: 999px;
+    font-size: .74rem;
+    font-weight: 800;
+    background: #dcfce7;
+    color: #15803d;
+    line-height: 1.4;
+  }
+
+  .metric-badge.down {
+    background: #fee2e2;
+    color: #b91c1c;
+  }
+
+  .metric-badge.neutral {
+    background: #e2e8f0;
+    color: #475569;
+  }
+
+  .metric-card--light .metric-value {
+    color: #0f172a;
+  }
+
+  .metric-watermark {
+    position: absolute;
+    right: 1rem;
+    bottom: -.6rem;
+    font-size: 6.5rem;
+    line-height: 1;
+    color: rgba(255,255,255,.14);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .metric-bars {
+    display: flex;
+    align-items: flex-end;
+    gap: .4rem;
+    height: 62px;
+    flex: 0 0 auto;
+    z-index: 0;
+  }
+
+  .metric-bars span {
+    width: 13px;
+    border-radius: 6px 6px 3px 3px;
+    background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+    display: block;
+  }
+
+  /* Kartu status (Masuk / Proses / Selesai / Cancel) */
+  .status-cards {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: .9rem;
+  }
+
+  .status-card {
+    display: flex;
+    align-items: center;
+    gap: .8rem;
+    padding: .95rem 1rem;
+    border-radius: 18px;
+    border: 1px solid transparent;
+  }
+
+  .status-icon {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(15, 23, 42, .08);
+  }
+
+  .status-label {
+    font-size: .84rem;
+    font-weight: 700;
+    color: #334155;
+  }
+
+  .status-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #0f172a;
+    line-height: 1.15;
+  }
+
+  .status-card--blue { background: #eff6ff; border-color: #dbeafe; }
+  .status-card--blue .status-icon { color: #2563eb; }
+  .status-card--amber { background: #fffbeb; border-color: #fef3c7; }
+  .status-card--amber .status-icon { color: #d97706; }
+  .status-card--green { background: #f0fdf4; border-color: #dcfce7; }
+  .status-card--green .status-icon { color: #16a34a; }
+  .status-card--red { background: #fef2f2; border-color: #fee2e2; }
+  .status-card--red .status-icon { color: #dc2626; }
+
+  /* Chart */
+  .charts-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: stretch;
+  }
+
+  .chart-card {
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 20px;
+    padding: 1.1rem 1.25rem 1.25rem;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .chart-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: .75rem;
+    margin-bottom: .9rem;
+  }
+
+  .chart-title {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -.02em;
+    color: #0f172a;
+  }
+
+  .chart-badge {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .95rem;
+    color: #ffffff;
+    flex: 0 0 auto;
+  }
+
+  .chart-badge--green { background: #16a34a; }
+  .chart-badge--blue { background: #2563eb; }
+
+  .chart-sub {
+    margin-top: .2rem;
+    font-size: .82rem;
+    color: #64748b;
+  }
+
+  .chart-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .7rem;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    background: #f8fafc;
+    font-size: .78rem;
+    font-weight: 700;
+    color: #475569;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+
+  .chart-body {
+    position: relative;
+    height: 210px;
+    min-width: 0;
+  }
+
+  .donut-wrap {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: 1 1 auto;
+    min-width: 0;
+    flex-wrap: wrap;
+  }
+
+  .donut-canvas {
+    position: relative;
+    width: 168px;
+    height: 168px;
+    flex: 0 0 auto;
+  }
+
+  .donut-center {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+  }
+
+  .donut-center strong {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.1;
+  }
+
+  .donut-center span {
+    font-size: .74rem;
+    font-weight: 700;
+    color: #64748b;
+  }
+
+  .donut-legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .55rem;
+    flex: 1 1 130px;
+    min-width: 0;
+  }
+
+  .donut-legend li {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: .5rem;
+    font-size: .84rem;
+    color: #334155;
+  }
+
+  .donut-legend .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+
+  .donut-legend .lg-count {
+    font-weight: 800;
+    color: #0f172a;
+    text-align: right;
+    min-width: 2.4rem;
+  }
+
+  .donut-legend .lg-pct {
+    font-weight: 700;
+    color: #64748b;
+    text-align: right;
+    min-width: 3.4rem;
   }
 
   .dashboard-cards {
@@ -152,13 +800,15 @@
     box-shadow: 0 8px 20px rgba(0, 0, 0, .12);
     display: flex;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
+    align-items: flex-start;
+    justify-content: space-between;
+    text-align: left;
+    position: relative;
+    overflow: hidden;
   }
 
-  .metric-card h4 {
-    margin: 0 0 .4rem;
+  .metric-card:not(.metric-wide) h4 {
+    margin: 0 0 .2rem;
     font-size: .85rem;
     font-weight: 600;
     opacity: .9;
@@ -178,16 +828,16 @@
   }
 
   .summary-card {
-    margin-top: 1rem;
-    border-radius: 22px;
-    border: 1px solid #e2e8f0;
+    margin-top: 0;
+    border-radius: 24px;
+    border: 1px solid #e5e7eb;
     background: #fff;
     overflow: hidden;
   }
 
   .summary-card .summary-head {
-    padding: 1rem 1.1rem;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -196,12 +846,13 @@
 
   .summary-card .summary-head h3 {
     margin: 0;
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     letter-spacing: -.02em;
+    color: #0f172a;
   }
 
   .summary-card .summary-body {
-    padding: 1.1rem;
+    padding: 1.25rem;
   }
 
   .quick-links {
@@ -215,18 +866,81 @@
     align-items: center;
     justify-content: space-between;
     gap: .5rem;
-    padding: .9rem 1rem;
-    border-radius: 18px;
-    border: 1px solid #e2e8f0;
+    padding: 1rem;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
     background: linear-gradient(180deg, #fff 0%, #f8fafc 100%);
     text-decoration: none;
-    color: var(--text);
+    color: #0f172a;
     font-weight: 700;
+    font-size: .95rem;
   }
 
   .quick-link:hover {
     border-color: #c7d2fe;
     box-shadow: 0 12px 20px rgba(15, 23, 42, .06);
+    background: #f8fafc;
+  }
+
+  .quick-links--4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .quick-link .ql-icon {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    background: #dbeafe;
+    color: #1d4ed8;
+  }
+
+  .quick-link .ql-icon.ql-icon--green {
+    background: #dcfce7;
+    color: #15803d;
+  }
+
+  .quick-link .ql-text {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .quick-link .ql-arrow {
+    flex: 0 0 auto;
+    color: #64748b;
+    font-weight: 700;
+    transition: transform .15s ease, color .15s ease;
+  }
+
+  .quick-link:hover .ql-arrow {
+    transform: translateX(3px);
+    color: #1565c0;
+  }
+
+  .summary-title-row {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+  }
+
+  .summary-icon {
+    flex: 0 0 auto;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f172a;
+    color: #facc15;
+    font-size: 1rem;
   }
 
   .dashboard-right {
@@ -235,15 +949,15 @@
   }
 
   .right-card {
-    border-radius: 20px;
-    border: 1px solid #e2e8f0;
+    border-radius: 24px;
+    border: 1px solid #e5e7eb;
     background: #fff;
     overflow: hidden;
   }
 
   .right-card-header {
-    padding: 1rem 1.05rem;
-    border-bottom: 1px solid #e2e8f0;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -255,6 +969,7 @@
     font-size: 1rem;
     font-weight: 800;
     letter-spacing: -.02em;
+    color: #0f172a;
   }
 
   .schedule {
@@ -265,12 +980,13 @@
 
   .schedule-item {
     display: grid;
-    grid-template-columns: 68px minmax(0, 1fr);
+    grid-template-columns: 72px minmax(0, 1fr) auto;
     gap: .75rem;
-    padding: .85rem;
+    align-items: center;
+    padding: 1rem;
     border-radius: 18px;
     background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e7eb;
     cursor: pointer;
     transition: transform .15s ease, box-shadow .15s ease;
   }
@@ -285,9 +1001,9 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 66px;
+    min-height: 72px;
     border-radius: 16px;
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+    background: linear-gradient(135deg, #0b3d91 0%, #1565c0 100%);
     color: #fff;
     text-align: center;
     padding: .35rem;
@@ -315,6 +1031,43 @@
     line-height: 1.45;
   }
 
+  .schedule-row {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    color: #64748b;
+    font-size: .82rem;
+    line-height: 1.45;
+    min-width: 0;
+  }
+
+  .schedule-row i {
+    flex: 0 0 auto;
+    font-size: .85rem;
+    color: #94a3b8;
+  }
+
+  .schedule-row span {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+  }
+
+  .schedule-chevron {
+    flex: 0 0 auto;
+    color: #cbd5e1;
+    font-size: 1.05rem;
+    transition: color .15s ease, transform .15s ease;
+  }
+
+  .schedule-item:hover .schedule-chevron {
+    color: #1565c0;
+    transform: translateX(2px);
+  }
+
   .empty-state {
     padding: 1rem;
     text-align: center;
@@ -329,7 +1082,7 @@
     padding: .75rem;
     background: #fff;
     border-radius: 20px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid #e5e7eb;
     box-shadow: 0 8px 20px rgba(15, 23, 42, .05);
     grid-column: 1 / -1;
   }
@@ -373,103 +1126,6 @@
     text-align: center;
     line-height: 1.2;
   }
-  @media (max-width: 768px) {
-    .mobile-grid-menu { display: grid; }
-  }
-  .modal-backdrop {
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 23, 42, .5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-    padding: 1rem;
-    backdrop-filter: blur(4px);
-  }
-
-  .modal-card {
-    width: 760px;
-    max-width: 96vw;
-    padding: 1.2rem;
-    border-radius: 24px;
-    background: rgba(255,255,255,.96);
-    border: 1px solid rgba(226,232,240,.95);
-    box-shadow: 0 30px 60px rgba(15, 23, 42, .25);
-  }
-
-  .modal-header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 1rem;
-    margin-bottom: .9rem;
-  }
-
-  .modal-title {
-    font-size: 1.35rem;
-    font-weight: 800;
-    letter-spacing: -.02em;
-  }
-
-  .modal-close {
-    border: 1px solid #cbd5e1;
-    background: #fff;
-    border-radius: 12px;
-    padding: .45rem .75rem;
-    cursor: pointer;
-    font-weight: 700;
-  }
-
-  .modal-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: .75rem 1rem;
-  }
-
-  .modal-row {
-    padding: .85rem .9rem;
-    border-radius: 16px;
-    border: 1px solid #e2e8f0;
-    background: #f8fafc;
-  }
-
-  .modal-row .label {
-    display: block;
-    font-size: .8rem;
-    color: var(--muted);
-    margin-bottom: .25rem;
-  }
-
-  .modal-row .value {
-    font-weight: 700;
-    color: #0f172a;
-    line-height: 1.45;
-    word-break: break-word;
-  }
-
-  .modal-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: .5rem;
-    margin-top: 1rem;
-  }
-
-  .wysiwyg-view {
-    border: 1px solid #e2e8f0;
-    border-radius: 18px;
-    overflow: hidden;
-    background: #fff;
-    margin-top: .55rem;
-  }
-
-  .w-content {
-    min-height: 150px;
-    padding: .9rem 1rem;
-    line-height: 1.6;
-    font-size: .95rem;
-  }
-
   @media (max-width: 1200px) {
     .dashboard-shell {
       grid-template-columns: 1fr;
@@ -483,19 +1139,48 @@
     }
   }
 
+  @media (max-width: 1100px) {
+    .metrics-row { grid-template-columns: minmax(0, 1fr); }
+    .charts-row { grid-template-columns: minmax(0, 1fr); }
+    .status-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .quick-links--4 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+
   @media (max-width: 768px) {
     @if(auth()->user()?->role === 'super_admin')
     .dashboard-sidebar { display: none !important; }
     @endif
-    .dashboard-hero,
-    .summary-card { display: none !important; }
-    .modal-header {
-      flex-direction: column;
+    .dashboard-topbar {
+      padding: .7rem .85rem;
+      gap: .6rem;
+      border-radius: 16px 16px 0 0;
     }
-
-    .quick-links,
-    .modal-grid {
-      grid-template-columns: 1fr;
+    .topbar-menu-btn { display: inline-flex; }
+    .topbar-search { max-width: none; }
+    .topbar-search input { padding: .6rem .85rem .6rem 2.3rem; font-size: .88rem; }
+    .topbar-right .topbar-icon-btn:first-child { display: none; }
+    .topbar-user { padding: .3rem; border: none; background: transparent; }
+    .topbar-user-meta, .topbar-user > i { display: none; }
+    body.mobile-sidebar-open .dashboard-sidebar {
+      display: block !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 270px;
+      max-height: none;
+      z-index: 120;
+      overflow-y: auto;
+      box-shadow: 0 0 40px rgba(0,0,0,.35);
+      border-radius: 0;
+      padding-top: 1.5rem;
+    }
+    body.mobile-sidebar-open::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, .5);
+      z-index: 110;
     }
     .dashboard-cards {
       grid-template-columns: minmax(0, 30%) minmax(0, 70%);
@@ -505,7 +1190,7 @@
       padding: .8rem .6rem;
       border-radius: 16px;
     }
-    .metric-card h4 {
+    .metric-card:not(.metric-wide) h4 {
       font-size: .75rem;
       margin-bottom: .2rem;
     }
@@ -514,8 +1199,55 @@
     }
     .metric-note { display: none; }
 
+    .dashboard-hero {
+      flex-direction: column;
+      padding: 1.25rem 1.25rem;
+      gap: 1rem;
+    }
+    .dashboard-hero .hero-photo {
+      width: 100%;
+      opacity: .16;
+      -webkit-mask-image: none;
+      mask-image: none;
+    }
+    .dashboard-hero h2 { font-size: 1.5rem; }
+    .dashboard-hero .subtitle { max-width: none; font-size: .92rem; }
+    .hero-actions { width: 100%; flex-wrap: wrap; }
+    .hero-actions .btn { flex: 1 1 auto; justify-content: center; }
+
+    .metrics-row { gap: .6rem; }
+    .metric-card.metric-wide {
+      padding: 1rem;
+      gap: .8rem;
+      min-height: 0;
+    }
+    .metric-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 13px;
+      font-size: 1.2rem;
+    }
+    .metric-watermark, .metric-bars { display: none; }
+    .metric-body h4 { font-size: .8rem; }
+    .metric-badge { font-size: .68rem; padding: .14rem .42rem; }
+
+    .status-cards { gap: .6rem; }
+    .status-card { padding: .75rem .7rem; gap: .6rem; }
+    .status-icon { width: 36px; height: 36px; font-size: 1rem; }
+    .status-label { font-size: .76rem; }
+    .status-value { font-size: 1.25rem; }
+
+    .chart-card { padding: .95rem 1rem 1.05rem; }
+    .chart-head { flex-direction: column; gap: .5rem; }
+    .chart-body { height: 190px; }
+    .donut-wrap { justify-content: center; }
+
+    .quick-links--4 { grid-template-columns: minmax(0, 1fr); }
+
     .schedule-item {
-      grid-template-columns: 56px minmax(0, 1fr);
+      grid-template-columns: 56px minmax(0, 1fr) auto;
+      padding: .8rem;
+      gap: .6rem;
     }
     .dashboard-main {
       min-height: auto;
@@ -545,7 +1277,7 @@
     }
     .right-card {
       border-radius: 16px;
-      border: 1px solid #e2e8f0;
+      border: 1px solid #e5e7eb;
       background: #fff;
       box-shadow: 0 4px 12px rgba(0,0,0,.04);
     }
@@ -653,67 +1385,223 @@
   @endif
 
   <main class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left">
+        <button class="topbar-menu-btn" id="topbarMenuBtn" aria-label="Toggle sidebar">
+          <i class="bi bi-list"></i>
+        </button>
+        <div class="topbar-search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Cari booking, kendaraan, mitra..." aria-label="Search">
+        </div>
+      </div>
+      <div class="topbar-right">
+        <a href="{{ route('dashboard.calendar') }}" class="topbar-icon-btn" title="Kalender">
+          <i class="bi bi-calendar3"></i>
+        </a>
+        <button class="topbar-icon-btn" title="Notifikasi" type="button">
+          <i class="bi bi-bell"></i>
+        </button>
+        <div class="topbar-user" title="{{ auth()->user()->name ?? 'Pengguna' }}">
+          <div class="topbar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}</div>
+          <div class="topbar-user-meta">
+            <strong>{{ auth()->user()->name ?? 'Pengguna' }}</strong>
+            <span>{{ str_replace('_', ' ', auth()->user()->role ?? 'user') }}</span>
+          </div>
+          <i class="bi bi-chevron-down"></i>
+        </div>
+      </div>
+    </div>
+
     <div class="dashboard-hero">
-      <div>
-        <h2>Dashboard</h2>
-        @if($role === 'super_admin')
-          <div class="subtitle">Pantau booking, kendaraan, dan mitra dalam satu tampilan yang lebih bersih dan modern.</div>
-        @else
-          <div class="subtitle">Welcome back, {{ $user->name }}. Here's your booking summary.</div>
-        @endif
+      <div class="hero-photo" aria-hidden="true"></div>
+      <div class="hero-content">
+        <div class="hero-eyebrow">Dashboard</div>
+        <h2>Halo, {{ auth()->user()->name ?? 'Pengguna' }} 👋</h2>
+        <div class="subtitle">Pantau booking, kendaraan, dan mitra dalam satu tampilan yang lebih bersih dan modern.</div>
       </div>
       <div class="hero-actions">
         @if($role === 'super_admin')
-          <a class="btn btn-primary" href="{{ route('bookings.index') }}">Kelola Booking</a>
+          <a class="btn btn-primary" href="{{ route('bookings.index') }}"><i class="bi bi-calendar3"></i> Kelola Booking</a>
         @endif
-        <a class="btn" href="{{ route('booking.create') }}">Tambah Booking</a>
+        <a class="btn" href="{{ route('booking.create') }}"><i class="bi bi-plus-lg"></i> Tambah Booking</a>
       </div>
     </div>
 
     @if($role === 'super_admin')
-    <div class="dashboard-cards" style="grid-template-columns: minmax(0, 30%) minmax(0, 70%); gap: .4rem;">
-      <div class="metric-card" style="background: linear-gradient(135deg, #0891b2 0%, #22d3ee 100%);">
-        <h4>Total Booking</h4>
-        <div class="metric-value">{{ $metrics['bookings'] ?? 0 }}</div>
+    @php
+        $donutTotal = ($metrics['booking_masuk'] ?? 0)
+            + ($metrics['booking_proses'] ?? 0)
+            + ($metrics['booking_selesai'] ?? 0)
+            + ($metrics['booking_cancel'] ?? 0);
+        $donutPct = function ($value) use ($donutTotal) {
+            return $donutTotal > 0 ? number_format($value / $donutTotal * 100, 1, ',', '') : '0,0';
+        };
+    @endphp
+    <div class="metrics-row">
+      <div class="metric-card metric-wide" style="background: linear-gradient(135deg, #0b3d91 0%, #1565c0 100%);">
+        <div class="metric-icon"><i class="bi bi-calendar3"></i></div>
+        <div class="metric-body">
+          <h4>Total Booking</h4>
+          <div class="metric-row">
+            <div class="metric-value">{{ $metrics['bookings'] ?? 0 }}</div>
+            @if(($growthLabel = $fmtGrowth($metrics['bookings_growth'] ?? null)) !== null)
+              <span class="metric-badge {{ ($metrics['bookings_growth'] ?? 0) < 0 ? 'down' : '' }}">
+                <i class="bi bi-arrow-{{ ($metrics['bookings_growth'] ?? 0) < 0 ? 'down' : 'up' }}"></i>{{ $growthLabel }}
+              </span>
+            @endif
+          </div>
+          <div class="metric-note">vs. bulan lalu</div>
+        </div>
+        <div class="metric-watermark" aria-hidden="true"><i class="bi bi-calendar3"></i></div>
       </div>
-      <div class="metric-card" style="background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);">
-        <h4>Pendapatan Kotor</h4>
-        <div class="metric-value">Rp {{ number_format($metrics['gross_revenue'] ?? 0, 0, ',', '.') }}</div>
+
+      <div class="metric-card metric-wide metric-card--light">
+        <div class="metric-icon"><i class="bi bi-cash-coin"></i></div>
+        <div class="metric-body">
+          <h4>Pendapatan Kotor</h4>
+          <div class="metric-row">
+            <div class="metric-value">Rp {{ number_format($metrics['gross_revenue'] ?? 0, 0, ',', '.') }}</div>
+            @if(($growthLabel = $fmtGrowth($metrics['revenue_growth'] ?? null)) !== null)
+              <span class="metric-badge {{ ($metrics['revenue_growth'] ?? 0) < 0 ? 'down' : '' }}">
+                <i class="bi bi-arrow-{{ ($metrics['revenue_growth'] ?? 0) < 0 ? 'down' : 'up' }}"></i>{{ $growthLabel }}
+              </span>
+            @endif
+          </div>
+          <div class="metric-note">vs. bulan lalu</div>
+        </div>
+        <div class="metric-bars" aria-hidden="true">
+          <span style="height: 34%"></span>
+          <span style="height: 52%"></span>
+          <span style="height: 42%"></span>
+          <span style="height: 68%"></span>
+          <span style="height: 58%"></span>
+          <span style="height: 88%"></span>
+        </div>
       </div>
     </div>
 
-    <div class="dashboard-cards" style="grid-template-columns: repeat(4, 1fr); gap: .4rem;">
-      <div class="metric-card" style="background: linear-gradient(135deg, #2563eb 0%, #60a5fa 100%); padding: .7rem .5rem;">
-        <h4 style="font-size:.7rem;">Masuk</h4>
-        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_masuk'] ?? 0 }}</div>
+    <div class="status-cards">
+      <div class="status-card status-card--blue">
+        <div class="status-icon"><i class="bi bi-box-arrow-in-right"></i></div>
+        <div>
+          <div class="status-label">Masuk</div>
+          <div class="status-value">{{ $metrics['booking_masuk'] ?? 0 }}</div>
+        </div>
       </div>
-      <div class="metric-card" style="background: linear-gradient(135deg, #d97706 0%, #fbbf24 100%); padding: .7rem .5rem;">
-        <h4 style="font-size:.7rem;">Proses</h4>
-        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_proses'] ?? 0 }}</div>
+      <div class="status-card status-card--amber">
+        <div class="status-icon"><i class="bi bi-clock-history"></i></div>
+        <div>
+          <div class="status-label">Proses</div>
+          <div class="status-value">{{ $metrics['booking_proses'] ?? 0 }}</div>
+        </div>
       </div>
-      <div class="metric-card" style="background: linear-gradient(135deg, #059669 0%, #34d399 100%); padding: .7rem .5rem;">
-        <h4 style="font-size:.7rem;">Selesai</h4>
-        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_selesai'] ?? 0 }}</div>
+      <div class="status-card status-card--green">
+        <div class="status-icon"><i class="bi bi-check2-circle"></i></div>
+        <div>
+          <div class="status-label">Selesai</div>
+          <div class="status-value">{{ $metrics['booking_selesai'] ?? 0 }}</div>
+        </div>
       </div>
-      <div class="metric-card" style="background: linear-gradient(135deg, #dc2626 0%, #f87171 100%); padding: .7rem .5rem;">
-        <h4 style="font-size:.7rem;">Cancel</h4>
-        <div class="metric-value" style="font-size:1.3rem;">{{ $metrics['booking_cancel'] ?? 0 }}</div>
+      <div class="status-card status-card--red">
+        <div class="status-icon"><i class="bi bi-x-circle"></i></div>
+        <div>
+          <div class="status-label">Cancel</div>
+          <div class="status-value">{{ $metrics['booking_cancel'] ?? 0 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="chart-head">
+          <div>
+            <div class="chart-title">
+              <span class="chart-badge chart-badge--green"><i class="bi bi-bar-chart-fill"></i></span>
+              Tren Booking
+            </div>
+            <div class="chart-sub">Perkembangan jumlah booking 7 hari terakhir.</div>
+          </div>
+          <span class="chart-pill">7 Hari Terakhir <i class="bi bi-chevron-down"></i></span>
+        </div>
+        <div class="chart-body">
+          <canvas id="trenBookingChart" aria-label="Grafik tren booking 7 hari terakhir" role="img"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-head">
+          <div class="chart-title">
+            <span class="chart-badge chart-badge--blue"><i class="bi bi-truck"></i></span>
+            Status Booking
+          </div>
+        </div>
+        <div class="donut-wrap">
+          <div class="donut-canvas">
+            <canvas id="statusBookingChart" aria-label="Grafik status booking" role="img"></canvas>
+            <div class="donut-center">
+              <strong>{{ $metrics['bookings'] ?? 0 }}</strong>
+              <span>Total</span>
+            </div>
+          </div>
+          <ul class="donut-legend">
+            <li>
+              <span class="dot" style="background:#16a34a"></span><span>Selesai</span>
+              <span class="lg-count">{{ $metrics['booking_selesai'] ?? 0 }}</span>
+              <span class="lg-pct">{{ $donutPct($metrics['booking_selesai'] ?? 0) }}%</span>
+            </li>
+            <li>
+              <span class="dot" style="background:#eab308"></span><span>Proses</span>
+              <span class="lg-count">{{ $metrics['booking_proses'] ?? 0 }}</span>
+              <span class="lg-pct">{{ $donutPct($metrics['booking_proses'] ?? 0) }}%</span>
+            </li>
+            <li>
+              <span class="dot" style="background:#2563eb"></span><span>Masuk</span>
+              <span class="lg-count">{{ $metrics['booking_masuk'] ?? 0 }}</span>
+              <span class="lg-pct">{{ $donutPct($metrics['booking_masuk'] ?? 0) }}%</span>
+            </li>
+            <li>
+              <span class="dot" style="background:#dc2626"></span><span>Cancel</span>
+              <span class="lg-count">{{ $metrics['booking_cancel'] ?? 0 }}</span>
+              <span class="lg-pct">{{ $donutPct($metrics['booking_cancel'] ?? 0) }}%</span>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
 
     <div class="summary-card">
       <div class="summary-head">
-        <div>
-          <h3>Ringkasan</h3>
-          <div class="subtitle" style="margin-top:.25rem;">Akses cepat ke modul utama dan pantau jadwal di panel kanan.</div>
+        <div class="summary-title-row">
+          <span class="summary-icon"><i class="bi bi-lightning-charge-fill"></i></span>
+          <div>
+            <h3>Ringkasan &amp; Akses Cepat</h3>
+            <div class="subtitle" style="margin-top:.25rem;">Akses cepat ke modul utama dan pantau jadwal di panel kanan.</div>
+          </div>
         </div>
       </div>
       <div class="summary-body">
-        <div class="quick-links">
-          <a class="quick-link" href="{{ route('bookings.index') }}">Kelola Booking <span>→</span></a>
-          <a class="quick-link" href="{{ route('dashboard.calendar') }}">Buka Kalender <span>→</span></a>
-          <a class="quick-link" href="{{ route('settings.smtp') }}">SMTP Setting <span>→</span></a>
-          <a class="quick-link" href="{{ route('email-logs.index') }}">Email Logs <span>→</span></a>
+        <div class="quick-links quick-links--4">
+          <a class="quick-link" href="{{ route('bookings.index') }}">
+            <span class="ql-icon"><i class="bi bi-calendar3"></i></span>
+            <span class="ql-text">Kelola Booking</span>
+            <span class="ql-arrow">&rarr;</span>
+          </a>
+          <a class="quick-link" href="{{ route('dashboard.calendar') }}">
+            <span class="ql-icon"><i class="bi bi-calendar-week"></i></span>
+            <span class="ql-text">Buka Kalender</span>
+            <span class="ql-arrow">&rarr;</span>
+          </a>
+          <a class="quick-link" href="{{ route('settings.smtp') }}">
+            <span class="ql-icon ql-icon--green"><i class="bi bi-envelope-paper"></i></span>
+            <span class="ql-text">SMTP Setting</span>
+            <span class="ql-arrow">&rarr;</span>
+          </a>
+          <a class="quick-link" href="{{ route('email-logs.index') }}">
+            <span class="ql-icon"><i class="bi bi-gear"></i></span>
+            <span class="ql-text">Email Logs</span>
+            <span class="ql-arrow">&rarr;</span>
+          </a>
         </div>
       </div>
     </div>
@@ -759,8 +1647,8 @@
   <aside class="dashboard-right">
     <div class="right-card">
       <div class="right-card-header">
-        <h3>Jadwal Booking Terbaru</h3>
-        <a href="{{ route('dashboard.calendar') }}" class="subtitle" style="text-decoration:none; font-weight:700;">Lihat kalender</a>
+        <h3><i class="bi bi-calendar3" style="color:#1565c0; margin-right:.4rem;"></i>Jadwal Booking Terbaru</h3>
+        <a href="{{ route('dashboard.calendar') }}" style="text-decoration:none; font-weight:700; color:#1565c0; font-size:.85rem; white-space:nowrap;">Lihat Kalender &rarr;</a>
       </div>
       <div class="schedule" id="schedule_list">
         <div class="empty-state">Memuat jadwal...</div>
@@ -791,6 +1679,110 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  if (typeof Chart === 'undefined') return;
+
+  Chart.defaults.font.family = "'Instrument Sans', ui-sans-serif, system-ui, sans-serif";
+
+  const tooltipStyle = {
+    backgroundColor: '#0f172a',
+    padding: 10,
+    cornerRadius: 10,
+    displayColors: false,
+    titleFont: { size: 12, weight: '700' },
+    bodyFont: { size: 12 }
+  };
+
+  const trendCanvas = document.getElementById('trenBookingChart');
+  if (trendCanvas) {
+    const ctx = trendCanvas.getContext('2d');
+    const areaFill = ctx.createLinearGradient(0, 0, 0, 210);
+    areaFill.addColorStop(0, 'rgba(34, 197, 94, 0.40)');
+    areaFill.addColorStop(1, 'rgba(34, 197, 94, 0.02)');
+
+    new Chart(trendCanvas, {
+      type: 'line',
+      data: {
+        labels: @json($trendLabels),
+        datasets: [{
+          label: 'Booking',
+          data: @json($trendValues),
+          borderColor: '#2563eb',
+          backgroundColor: areaFill,
+          fill: true,
+          tension: 0.38,
+          borderWidth: 3,
+          pointBackgroundColor: '#2563eb',
+          pointBorderColor: '#ffffff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        plugins: {
+          legend: { display: false },
+          tooltip: Object.assign({}, tooltipStyle, {
+            callbacks: { label: function (c) { return c.parsed.y + ' booking'; } }
+          })
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            border: { display: false },
+            ticks: { color: '#64748b', font: { size: 11 } }
+          },
+          y: {
+            beginAtZero: true,
+            grace: '10%',
+            grid: { color: '#eef2f7' },
+            border: { display: false },
+            ticks: { precision: 0, color: '#94a3b8', font: { size: 11 }, padding: 6 }
+          }
+        }
+      }
+    });
+  }
+
+  const donutCanvas = document.getElementById('statusBookingChart');
+  if (donutCanvas) {
+    new Chart(donutCanvas, {
+      type: 'doughnut',
+      data: {
+        labels: ['Selesai', 'Proses', 'Masuk', 'Cancel'],
+        datasets: [{
+          data: [
+            {{ $metrics['booking_selesai'] ?? 0 }},
+            {{ $metrics['booking_proses'] ?? 0 }},
+            {{ $metrics['booking_masuk'] ?? 0 }},
+            {{ $metrics['booking_cancel'] ?? 0 }}
+          ],
+          backgroundColor: ['#16a34a', '#eab308', '#2563eb', '#dc2626'],
+          borderColor: '#ffffff',
+          borderWidth: 3,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '70%',
+        plugins: {
+          legend: { display: false },
+          tooltip: Object.assign({}, tooltipStyle, {
+            callbacks: { label: function (c) { return c.label + ': ' + c.parsed; } }
+          })
+        }
+      }
+    });
+  }
+});
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', async function() {
   const scheduleEl = document.getElementById('schedule_list');
@@ -837,6 +1829,18 @@ document.addEventListener('DOMContentLoaded', async function() {
 
   function normalizeTime(value) {
     return (value || '00:00').toString().substring(0, 5);
+  }
+
+  const MONTHS_ID = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+
+  function formatDateID(value) {
+    const raw = normalizeDate(value);
+    if (!raw) return '-';
+    const parts = raw.split('-');
+    if (parts.length !== 3) return raw;
+    const month = MONTHS_ID[parseInt(parts[1], 10) - 1] || parts[1];
+
+    return parseInt(parts[2], 10) + ' ' + month + ' ' + parts[0];
   }
 
   function openBookingModal(booking) {
@@ -901,10 +1905,11 @@ document.addEventListener('DOMContentLoaded', async function() {
           id: booking.id,
           raw: booking,
           date: booking.booking_date,
-          displayDate: normalizeDate(booking.booking_date),
+          displayDate: formatDateID(booking.booking_date),
           time: normalizeTime(booking.pickup_time),
           title: booking.customer_name ?? 'Customer',
-          meta: ((booking.mitra && booking.mitra.full_name) ? booking.mitra.full_name : 'No driver') + (booking.pickup_location ? (' • ' + booking.pickup_location) : '')
+          driver: (booking.mitra && booking.mitra.full_name) ? booking.mitra.full_name : 'No driver',
+          location: booking.pickup_location || ''
         };
       })
       .sort((a, b) => (b.date + ' ' + b.time).localeCompare(a.date + ' ' + a.time))
@@ -929,17 +1934,38 @@ document.addEventListener('DOMContentLoaded', async function() {
         time.appendChild(timeSpan);
 
         const info = document.createElement('div');
+        info.style.minWidth = '0';
+
         const title = document.createElement('div');
         title.className = 'schedule-title';
         title.textContent = item.title;
-        const meta = document.createElement('div');
-        meta.className = 'schedule-meta';
-        meta.textContent = item.meta;
         info.appendChild(title);
-        info.appendChild(meta);
+
+        const driverRow = document.createElement('div');
+        driverRow.className = 'schedule-row';
+        driverRow.innerHTML = '<i class="bi bi-truck"></i>';
+        const driverText = document.createElement('span');
+        driverText.textContent = item.driver;
+        driverRow.appendChild(driverText);
+        info.appendChild(driverRow);
+
+        if (item.location) {
+          const locationRow = document.createElement('div');
+          locationRow.className = 'schedule-row';
+          locationRow.innerHTML = '<i class="bi bi-geo-alt"></i>';
+          const locationText = document.createElement('span');
+          locationText.textContent = item.location;
+          locationRow.appendChild(locationText);
+          info.appendChild(locationRow);
+        }
+
+        const chevron = document.createElement('i');
+        chevron.className = 'bi bi-chevron-right schedule-chevron';
+        chevron.setAttribute('aria-hidden', 'true');
 
         wrap.appendChild(time);
         wrap.appendChild(info);
+        wrap.appendChild(chevron);
         wrap.addEventListener('click', async function () {
           try {
             const r = await fetch('/api/bookings/' + item.id, { headers: { 'Accept': 'application/json' } });
@@ -963,5 +1989,23 @@ document.addEventListener('DOMContentLoaded', async function() {
     if (e.target === this) closeModal();
   });
 });
+
+(function () {
+  const btn = document.getElementById('topbarMenuBtn');
+  if (!btn) return;
+  btn.addEventListener('click', function () {
+    document.body.classList.toggle('mobile-sidebar-open');
+  });
+  document.addEventListener('click', function (e) {
+    if (!document.body.classList.contains('mobile-sidebar-open')) return;
+    const sidebar = document.querySelector('.dashboard-sidebar');
+    if (sidebar && !sidebar.contains(e.target) && !btn.contains(e.target)) {
+      document.body.classList.remove('mobile-sidebar-open');
+    }
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') document.body.classList.remove('mobile-sidebar-open');
+  });
+})();
 </script>
 @endsection

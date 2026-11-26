@@ -20,6 +20,9 @@ class DashboardController extends Controller
         $user = Auth::user();
         $role = $user?->role ?? 'guest';
 
+        $trendLabels = [];
+        $trendValues = [];
+
         if ($role === 'super_admin') {
             $metrics = [
                 'bookings' => Booking::count(),
@@ -29,6 +32,30 @@ class DashboardController extends Controller
                 'booking_selesai' => Booking::whereIn('status', ['selesai_pelayanan', 'selesai_administrasi_fee'])->count(),
                 'booking_cancel' => Booking::whereIn('status', ['cancelled', 'cancel', 'batal'])->count(),
             ];
+
+            // Pertumbuhan bulan berjalan dibanding bulan sebelumnya (hanya untuk tampilan).
+            $thisMonth = [now()->startOfMonth(), now()->endOfMonth()];
+            $lastMonth = [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()];
+
+            $metrics['bookings_growth'] = $this->growthPercent(
+                Booking::whereBetween('created_at', $thisMonth)->count(),
+                Booking::whereBetween('created_at', $lastMonth)->count()
+            );
+            $metrics['revenue_growth'] = $this->growthPercent(
+                (float) Booking::whereBetween('created_at', $thisMonth)->sum('price'),
+                (float) Booking::whereBetween('created_at', $lastMonth)->sum('price')
+            );
+
+            // Tren jumlah booking 7 hari terakhir (berdasarkan tanggal pembuatan).
+            $bookingsPerDay = Booking::where('created_at', '>=', now()->subDays(6)->startOfDay())
+                ->get(['created_at'])
+                ->groupBy(fn (Booking $booking) => $booking->created_at->toDateString());
+
+            for ($i = 6; $i >= 0; $i--) {
+                $day = now()->subDays($i);
+                $trendLabels[] = $day->format('d M');
+                $trendValues[] = $bookingsPerDay->get($day->toDateString(), collect())->count();
+            }
         } else {
             $userId = Auth::id();
             $metrics = [
@@ -38,8 +65,22 @@ class DashboardController extends Controller
             ];
         }
 
-        return view('dashboard.index', compact('user', 'role', 'metrics'));
+        return view('dashboard.index', compact('user', 'role', 'metrics', 'trendLabels', 'trendValues'));
     }
+
+    /**
+     * Persentase perubahan antara periode berjalan dan periode sebelumnya.
+     * Mengembalikan null bila periode sebelumnya tidak ada datanya.
+     */
+    private function growthPercent(float $current, float $previous): ?float
+    {
+        if ($previous <= 0) {
+            return null;
+        }
+
+        return round((($current - $previous) / $previous) * 100, 1);
+    }
+
     public function calendar()
     {
         $user = Auth::user();
