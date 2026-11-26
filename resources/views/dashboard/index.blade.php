@@ -121,6 +121,16 @@
     color: rgba(255,255,255,.7);
   }
 
+  .dashboard-menu .nav-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.35rem;
+    flex: 0 0 auto;
+    font-size: 1rem;
+    color: rgba(255,255,255,.9);
+  }
+
   .dashboard-menu {
     list-style: none;
     margin: 0;
@@ -366,16 +376,15 @@
   }
 
   .dashboard-hero .hero-photo {
-    position: absolute;
-    top: 0;
-    right: 0;
-    bottom: 0;
-    width: 46%;
-    z-index: 1;
-    background: url('{{ asset('assets/img/gedung-sate-drive.png') }}') 64% 58% / cover no-repeat;
-    -webkit-mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,.3) 28%, rgba(0,0,0,.8) 62%, #000 100%);
-    mask-image: linear-gradient(to right, rgba(0,0,0,0) 0%, rgba(0,0,0,.3) 28%, rgba(0,0,0,.8) 62%, #000 100%);
-    pointer-events: none;
+    position: relative;
+    flex: 0 0 auto;
+    width: 42%;
+    min-width: 260px;
+    height: 200px;
+    border-radius: 18px;
+    overflow: hidden;
+    background: url('{{ asset('assets/img/gedung-sate-drive.png') }}') 60% 40% / cover no-repeat;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
   }
 
   .dashboard-hero > div {
@@ -419,6 +428,8 @@
     flex: 0 0 auto;
     position: relative;
     z-index: 2;
+    margin-top: 1.1rem;
+    justify-content: flex-start;
   }
 
   .dashboard-hero .btn {
@@ -458,6 +469,19 @@
 
   .dashboard-hero .btn:not(.btn-primary):hover {
     background: #f8fafc;
+  }
+
+  /* Topbar shortcut badge */
+  .topbar-shortcut {
+    font-size: .72rem;
+    font-weight: 700;
+    color: #64748b;
+    background: #f1f5f9;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: .12rem .5rem;
+    margin-left: .5rem;
+    white-space: nowrap;
   }
 
   /* Kartu metrik utama (Total Booking / Pendapatan Kotor) */
@@ -1392,7 +1416,8 @@
         </button>
         <div class="topbar-search">
           <i class="bi bi-search"></i>
-          <input type="text" placeholder="Cari booking, kendaraan, mitra..." aria-label="Search">
+          <input type="text" placeholder="Cari booking, kendaraan, atau pelanggan..." aria-label="Search">
+          <span class="topbar-shortcut">Ctrl + K</span>
         </div>
       </div>
       <div class="topbar-right">
@@ -1414,18 +1439,18 @@
     </div>
 
     <div class="dashboard-hero">
-      <div class="hero-photo" aria-hidden="true"></div>
       <div class="hero-content">
         <div class="hero-eyebrow">Dashboard</div>
         <h2>Halo, {{ auth()->user()->name ?? 'Pengguna' }} 👋</h2>
         <div class="subtitle">Pantau booking, kendaraan, dan mitra dalam satu tampilan yang lebih bersih dan modern.</div>
+        <div class="hero-actions">
+          @if($role === 'super_admin')
+            <a class="btn btn-primary" href="{{ route('bookings.index') }}"><i class="bi bi-calendar3"></i> Kelola Booking</a>
+          @endif
+          <a class="btn" href="{{ route('booking.create') }}"><i class="bi bi-plus-lg"></i> Tambah Booking</a>
+        </div>
       </div>
-      <div class="hero-actions">
-        @if($role === 'super_admin')
-          <a class="btn btn-primary" href="{{ route('bookings.index') }}"><i class="bi bi-calendar3"></i> Kelola Booking</a>
-        @endif
-        <a class="btn" href="{{ route('booking.create') }}"><i class="bi bi-plus-lg"></i> Tambah Booking</a>
-      </div>
+      <div class="hero-photo" aria-hidden="true"></div>
     </div>
 
     @if($role === 'super_admin')
@@ -1445,9 +1470,9 @@
           <h4>Total Booking</h4>
           <div class="metric-row">
             <div class="metric-value">{{ $metrics['bookings'] ?? 0 }}</div>
-            @if(($growthLabel = $fmtGrowth($metrics['bookings_growth'] ?? null)) !== null)
-              <span class="metric-badge {{ ($metrics['bookings_growth'] ?? 0) < 0 ? 'down' : '' }}">
-                <i class="bi bi-arrow-{{ ($metrics['bookings_growth'] ?? 0) < 0 ? 'down' : 'up' }}"></i>{{ $growthLabel }}
+            @if(($growthLabel = $fmtGrowth($metrics['bookings_growth'] ?? null)) !== null && ($metrics['bookings_growth'] ?? 0) > 0)
+              <span class="metric-badge">
+                <i class="bi bi-arrow-up"></i>{{ $growthLabel }}
               </span>
             @endif
           </div>
@@ -1462,9 +1487,9 @@
           <h4>Pendapatan Kotor</h4>
           <div class="metric-row">
             <div class="metric-value">Rp {{ number_format($metrics['gross_revenue'] ?? 0, 0, ',', '.') }}</div>
-            @if(($growthLabel = $fmtGrowth($metrics['revenue_growth'] ?? null)) !== null)
-              <span class="metric-badge {{ ($metrics['revenue_growth'] ?? 0) < 0 ? 'down' : '' }}">
-                <i class="bi bi-arrow-{{ ($metrics['revenue_growth'] ?? 0) < 0 ? 'down' : 'up' }}"></i>{{ $growthLabel }}
+            @if(($growthLabel = $fmtGrowth($metrics['revenue_growth'] ?? null)) !== null && ($metrics['revenue_growth'] ?? 0) > 0)
+              <span class="metric-badge">
+                <i class="bi bi-arrow-up"></i>{{ $growthLabel }}
               </span>
             @endif
           </div>
