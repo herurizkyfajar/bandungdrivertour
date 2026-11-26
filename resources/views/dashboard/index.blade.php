@@ -24,7 +24,7 @@
 
   .dashboard-shell {
     display: grid;
-    grid-template-columns: 260px minmax(0, 1fr) 340px;
+    grid-template-columns: minmax(0, 1fr) 340px;
     gap: 1.25rem;
     align-items: start;
     min-height: calc(100vh - 7rem);
@@ -1402,7 +1402,7 @@
 
     <div class="dashboard-hero">
       <div class="hero-content">
-        <div class="hero-eyebrow">Dashboard</div>
+        <div class="hero-eyebrow">DASHBOARD</div>
         <h2>Halo, {{ auth()->user()->name ?? 'Pengguna' }} 👋</h2>
         <div class="subtitle">Pantau booking, kendaraan, dan mitra dalam satu tampilan yang lebih bersih dan modern.</div>
         <div class="hero-actions">

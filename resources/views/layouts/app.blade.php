@@ -209,9 +209,17 @@
             line-height: 1.6;
         }
         .site-footer-inner {
-            max-width: 980px;
+            max-width: 100%;
             margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 0 2rem;
         }
+        .footer-left { font-size: .85rem; color: var(--muted); }
+        .footer-right { font-size: .85rem; color: var(--muted); }
         body.admin-shell .site-footer-inner {
             max-width: 100%;
         }
