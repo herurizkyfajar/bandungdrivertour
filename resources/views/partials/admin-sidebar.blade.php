@@ -27,7 +27,7 @@
   </ul>
 
   <div class="dashboard-section-label">Settings</div>
-  <ul class="side-menu">
+  <ul class="dashboard-menu">
     <li><a href="{{ route('settings.invoice.edit') }}" class="{{ request()->routeIs('settings.invoice*') ? 'active' : '' }}"><span class="nav-icon"><i class="bi bi-receipt"></i></span>Invoice Settings</a></li>
     <li><a href="{{ route('settings.terms.edit') }}" class="{{ request()->routeIs('settings.terms*') ? 'active' : '' }}"><span class="nav-icon"><i class="bi bi-file-text"></i></span>Terms &amp; Conditions</a></li>
     <li><a href="{{ route('settings.notification-sound') }}" class="{{ request()->routeIs('settings.notification-sound*') ? 'active' : '' }}"><span class="nav-icon"><i class="bi bi-volume-up"></i></span>Sound Settings</a></li>

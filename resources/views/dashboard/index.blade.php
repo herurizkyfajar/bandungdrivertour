@@ -31,15 +31,17 @@
   }
 
   .dashboard-sidebar {
-    background: #0b3d91;
+    background: linear-gradient(135deg, #0b3d91 0%, #1565c0 100%);
     color: #fff;
-    border-radius: 0;
-    box-shadow: none;
-    padding: 1.25rem 1rem;
-    position: sticky;
-    top: 5.75rem;
-    max-height: calc(100vh - 7.25rem);
+    padding: 1.5rem 1rem;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 260px;
     overflow-y: auto;
+    z-index: 40;
+    box-shadow: 4px 0 20px rgba(0,0,0,.08);
   }
 
   .dashboard-main,
@@ -60,83 +62,49 @@
 
   .dashboard-brand {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    text-align: center;
-    gap: .55rem;
-    padding-bottom: .95rem;
+    gap: .75rem;
+    padding-bottom: 1rem;
     border-bottom: 1px solid rgba(255,255,255,.15);
+    margin-bottom: 1rem;
   }
 
   .dashboard-brand img {
-    width: 68px;
-    height: 68px;
+    width: 36px;
+    height: 36px;
     object-fit: contain;
   }
 
   .dashboard-brand h3 {
     margin: 0;
-    font-size: 1.15rem;
+    font-size: 1.1rem;
     font-weight: 800;
     letter-spacing: -.02em;
     color: #fff;
   }
 
   .dashboard-brand .subtitle {
-    font-size: .85rem;
+    font-size: .8rem;
     color: rgba(255,255,255,.85);
-  }
-
-  /* Menu Settings ikut tema gelap sidebar */
-  .dashboard-sidebar .side-menu a,
-  .dashboard-sidebar .side-menu button {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,.14);
-    color: rgba(255,255,255,.9);
-  }
-
-  .dashboard-sidebar .side-menu a:hover,
-  .dashboard-sidebar .side-menu button:hover {
-    background: rgba(255,255,255,.1);
-    border-color: rgba(255,255,255,.28);
-    color: #fff;
-    box-shadow: none;
-    transform: none;
-  }
-
-  .dashboard-sidebar .side-menu a.active {
-    background: #ffffff;
-    color: #0b3d91;
-    border-color: transparent;
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
   }
 
   .dashboard-section-label {
     margin-top: 1rem;
-    margin-bottom: .5rem;
-    font-size: .8rem;
+    margin-bottom: .6rem;
+    font-size: .75rem;
     font-weight: 800;
-    letter-spacing: .06em;
+    letter-spacing: .08em;
     text-transform: uppercase;
-    color: rgba(255,255,255,.7);
-  }
-
-  .dashboard-menu .nav-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 1.35rem;
-    flex: 0 0 auto;
-    font-size: 1rem;
-    color: rgba(255,255,255,.9);
+    color: rgba(255,255,255,.65);
+    padding: 0 1rem;
   }
 
   .dashboard-menu {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0 1rem;
     display: grid;
-    gap: .3rem;
+    gap: .2rem;
   }
 
   .dashboard-menu a,
@@ -146,7 +114,7 @@
     gap: .7rem;
     width: 100%;
     padding: .65rem .9rem;
-    border-radius: 12px;
+    border-radius: 10px;
     text-decoration: none;
     color: rgba(255,255,255,.9);
     background: transparent;
@@ -160,18 +128,18 @@
 
   .dashboard-menu a:hover,
   .dashboard-menu button:hover {
-    background: rgba(255,255,255,.1);
+    background: rgba(255,255,255,.08);
     color: #fff;
   }
 
   .dashboard-menu a.active {
     background: #ffffff;
     color: #0b3d91;
-    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    box-shadow: 0 2px 8px rgba(0,0,0,.12);
   }
 
   .dashboard-main {
-    padding: 1.5rem 2rem;
+    padding: 1.5rem 2rem 1.5rem calc(260px + 1rem);
     min-height: calc(100vh - 7rem);
     display: grid;
     gap: 1.5rem;
@@ -363,33 +331,25 @@
 
   .dashboard-hero {
     display: flex;
-    justify-content: space-between;
+    align-items: center;
     gap: 1.5rem;
-    align-items: flex-start;
-    padding: 1.75rem 2rem;
+    padding: 1.5rem 2rem;
     border-radius: 24px;
-    position: relative;
-    overflow: hidden;
     background: linear-gradient(115deg, #f3f8ff 0%, #e9f2ff 45%, #f9fcff 100%);
     border: 1px solid #dcebfb;
     box-shadow: 0 12px 28px rgba(13, 43, 82, .06);
   }
 
   .dashboard-hero .hero-photo {
-    position: relative;
     flex: 0 0 auto;
-    width: 42%;
+    width: 38%;
     min-width: 260px;
-    height: 200px;
+    height: 210px;
     border-radius: 18px;
     overflow: hidden;
     background: url('{{ asset('assets/img/gedung-sate-drive.png') }}') 60% 40% / cover no-repeat;
     box-shadow: 0 8px 24px rgba(0,0,0,.12);
-  }
-
-  .dashboard-hero > div {
-    position: relative;
-    z-index: 2;
+    margin-left: auto;
   }
 
   .dashboard-hero .hero-content {
@@ -415,21 +375,18 @@
   }
 
   .dashboard-hero .subtitle {
-    margin-top: .5rem;
-    max-width: 50ch;
+    margin: 0 0 1.25rem;
+    max-width: 48ch;
     color: #475569;
     font-size: .98rem;
+    line-height: 1.5;
   }
 
   .hero-actions {
     display: flex;
+    flex-direction: column;
     gap: .75rem;
-    flex-wrap: nowrap;
     flex: 0 0 auto;
-    position: relative;
-    z-index: 2;
-    margin-top: 1.1rem;
-    justify-content: flex-start;
   }
 
   .dashboard-hero .btn {
@@ -444,6 +401,8 @@
     white-space: nowrap;
     box-shadow: 0 8px 18px rgba(11, 61, 145, .16);
     transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+    width: 100%;
+    justify-content: center;
   }
 
   .dashboard-hero .btn:hover {
@@ -1304,6 +1263,9 @@
       border: 1px solid #e5e7eb;
       background: #fff;
       box-shadow: 0 4px 12px rgba(0,0,0,.04);
+    }
+    .dashboard-main {
+      padding: 1rem;
     }
   }
 </style>
