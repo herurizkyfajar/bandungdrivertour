@@ -709,10 +709,10 @@
       </div>
 
       <h1 class="hero-headline">
-        Sistem Akuntansi<br><span class="bandung">PT Bandung Driver Tour</span>
+        Aplikasi Booking<br><span class="bandung">Bandung Driver Tour</span>
       </h1>
       <p class="hero-sub">
-        Aplikasi manajemen keuangan dan akuntansi untuk mencatat transaksi, mengelola laporan keuangan, dan memonitor pertumbuhan bisnis Bandung Driver Tour secara terstruktur dan terintegrasi.
+        Aplikasi pemesanan kendaraan dan driver online untuk Bandung Driver Tour. Mudah, cepat, dan terpercaya dalam menyewa mobil dengan pengemudi profesional untuk kebutuhan perjalanan Anda di Bandung dan sekitarnya.
       </p>
 
       <div class="hero-features">
@@ -720,13 +720,19 @@
           <span class="feat-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="3"/></svg>
           </span>
-          <span class="feat-label">Manajemen<br>Transaksi Keuangan</span>
+          <span class="feat-label">Pemesanan<br>Mobil &amp; Driver</span>
         </div>
         <div class="feature-box">
           <span class="feat-icon">
             <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/><line x1="8" y1="8" x2="12" y2="12"/></svg>
           </span>
-          <span class="feat-label">Laporan<br>Keuangan &amp; Jurnal</span>
+          <span class="feat-label">Jadwal &amp; Rute<br>Perjalanan</span>
+        </div>
+        <div class="feature-box">
+          <span class="feat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>
+          </span>
+          <span class="feat-label">Pengemudi<br>Profesional</span>
         </div>
         <div class="feature-box">
           <span class="feat-icon">
