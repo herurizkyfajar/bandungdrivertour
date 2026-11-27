@@ -1,205 +1,241 @@
-@extends('layouts.app', ['title' => 'Calendar'])
+@extends('layouts.app', ['title' => 'Kalender Booking'])
 
 @section('content')
 <style>
-  html, body { overflow-x: hidden; }
-  body.admin-shell { overflow-x: hidden; }
-  main { overflow: visible; }
-  .dashboard-wrap {
-    display: grid;
-    grid-template-columns: 250px minmax(0, 1fr);
-    gap: 1.25rem;
-    align-items: start;
-  }
-
-  .sidebar,
-  .content-card {
-    background: rgba(255,255,255,.88);
-    border: 1px solid rgba(226,232,240,.95);
-    border-radius: 24px;
-    box-shadow: 0 18px 40px rgba(15, 23, 42, .08);
-    backdrop-filter: blur(10px);
-  }
-
-  .sidebar {
-    padding: 1rem;
-    height: fit-content;
-    position: sticky;
-    top: 76px;
-  }
-
-  .sidebar h3,
-  .content-card h2 {
+  body { background: #eef2f7; }
+  .dashboard-shell { display: block; padding-left: 252px; min-height: calc(100vh - 4rem); }
+  .dashboard-sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 252px;
+    height: 100vh;
+    max-height: none;
     margin: 0;
-    letter-spacing: -.02em;
-  }
-
-  .side-menu {
-    list-style: none;
-    padding: 0;
-    margin: .9rem 0 0;
-    display: grid;
-    gap: .45rem;
-  }
-
-  .side-menu a {
-    display: block;
-    padding: .72rem .85rem;
-    border-radius: 14px;
-    text-decoration: none;
-    color: var(--text);
-    border: 1px solid #e5e7eb;
-    background: #fff;
-    transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
-  }
-
-  .side-menu a:hover {
-    transform: translateY(-1px);
-    border-color: #c7d2fe;
-    box-shadow: 0 10px 18px rgba(15, 23, 42, .06);
-    background: #f8fafc;
-  }
-
-  .side-menu a.active {
-    background: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+    border: none;
+    border-radius: 0;
+    padding: 1.1rem .9rem 1.25rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 60;
     color: #fff;
-    border-color: transparent;
-    box-shadow: 0 12px 24px rgba(37, 99, 235, .25);
+    background: linear-gradient(170deg, #1f63e8 0%, #0d4cd0 42%, #093fa9 100%);
+    box-shadow: 6px 0 24px rgba(9, 63, 169, .16);
   }
-
-  .content-card {
-    padding: 1.15rem;
-    min-width: 0;
+  .dashboard-sidebar::after {
+    content: "";
+    display: block;
+    flex: 0 0 auto;
+    margin-top: 1.25rem;
+    height: 168px;
+    border-radius: 14px;
+    background:
+      linear-gradient(180deg, rgba(31, 99, 232, 0) 0%, rgba(9, 63, 169, .35) 100%),
+      url('{{ asset('assets/img/gedung-sate-drive.png') }}') 14% 82% / 200% auto no-repeat;
   }
-
-  .calendar-hero {
+  .dashboard-brand {
     display: flex;
-    justify-content: space-between;
-    gap: 1rem;
+    flex-direction: column;
     align-items: flex-start;
-    margin-bottom: 1rem;
-    padding: 1rem;
-    border-radius: 20px;
-    background: linear-gradient(135deg, rgba(37,99,235,.08), rgba(99,102,241,.08));
-    border: 1px solid rgba(191,219,254,.8);
+    gap: .45rem;
+    padding: 0 .3rem 1rem;
+    margin-bottom: .75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .18);
   }
-
-  .calendar-hero h2 {
-    font-size: 1.45rem;
+  .dashboard-brand img {
+    width: 142px;
+    height: auto;
+    padding: .3rem .45rem;
+    border-radius: 10px;
+    background: #ffffff;
+    object-fit: contain;
   }
-
-  .calendar-hero .subtitle {
-    max-width: 56ch;
-  }
-
-  .hero-actions {
-    display: flex;
-    gap: .5rem;
-    flex-wrap: wrap;
-  }
-
-  .calendar-stats {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: .75rem;
-    margin-bottom: 1rem;
-  }
-
-  .stat-card {
-    border-radius: 18px;
-    padding: .95rem 1rem;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-  }
-
-  .stat-label {
-    font-size: .82rem;
-    color: var(--muted);
-    margin-bottom: .25rem;
-  }
-
-  .stat-value {
-    font-size: 1.55rem;
-    font-weight: 800;
-    letter-spacing: -.03em;
-    line-height: 1.1;
-  }
-
-  .calendar-shell {
-    background: #fff;
-    border-radius: 22px;
-    border: 1px solid #e2e8f0;
-    overflow: hidden;
-  }
-
-  .calendar-shell .fc {
-    --fc-border-color: #e2e8f0;
-    --fc-page-bg-color: #fff;
-    --fc-neutral-bg-color: #f8fafc;
-    --fc-list-event-hover-bg-color: #f8fafc;
-    --fc-today-bg-color: rgba(59, 130, 246, .08);
-    width: 100%;
-  }
-
-  .calendar-shell .fc .fc-scrollgrid {
-    border-collapse: collapse;
-  }
-
-  .calendar-shell .fc .fc-toolbar {
-    padding: 1rem 1rem .5rem;
-    margin-bottom: 0;
-  }
-
-  .calendar-shell .fc .fc-toolbar-title {
+  .dashboard-brand h3 {
+    margin: 0;
     font-size: 1.15rem;
     font-weight: 800;
-    letter-spacing: -.02em;
+    letter-spacing: -.01em;
+    color: #ffffff;
   }
-
-  .calendar-shell .fc .fc-button {
-    border-radius: 12px !important;
-    border: 1px solid #dbeafe !important;
-    background: #fff !important;
-    color: #0f172a !important;
-    box-shadow: none !important;
-    text-transform: capitalize;
+  .dashboard-brand .subtitle {
+    font-size: .82rem;
+    color: rgba(255, 255, 255, .82);
   }
-
-  .calendar-shell .fc .fc-button-primary:not(:disabled).fc-button-active,
-  .calendar-shell .fc .fc-button-primary:not(:disabled):active {
-    background: #2563eb !important;
-    color: #fff !important;
-    border-color: #2563eb !important;
+  .dashboard-section-label {
+    margin: .85rem .3rem .4rem;
+    padding: 0;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .6);
   }
-
-  .calendar-shell .fc .fc-daygrid-day-number,
-  .calendar-shell .fc .fc-col-header-cell-cushion {
-    color: #334155;
-    text-decoration: none;
+  .dashboard-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .12rem;
+  }
+  .dashboard-menu a,
+  .dashboard-menu button {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    width: 100%;
+    padding: .48rem .55rem;
+    border: none;
+    border-radius: 11px;
+    background: transparent;
+    color: #e9f1ff;
+    font-family: inherit;
+    font-size: .87rem;
     font-weight: 600;
-  }
-
-  .calendar-shell .fc .fc-day-today {
-    background: rgba(59,130,246,.08) !important;
-  }
-
-  .calendar-shell .fc .fc-event {
-    border: 0;
-    border-radius: 8px;
-    padding: .15rem .3rem;
-    box-shadow: 0 4px 8px rgba(15, 23, 42, .1);
+    text-align: left;
+    text-decoration: none;
     cursor: pointer;
+    transition: background .15s ease, color .15s ease;
   }
-
-  .calendar-shell .fc-event-main {
-    font-weight: 700;
-    overflow: hidden;
+  .dashboard-menu a:hover,
+  .dashboard-menu button:hover {
+    background: rgba(255, 255, 255, .12);
+    color: #ffffff;
   }
-
-  .calendar-shell .fc .fc-daygrid-event {
-    white-space: normal;
+  .dashboard-menu a.active {
+    background: #ffffff;
+    color: #0b4fd6;
+    box-shadow: 0 6px 14px rgba(4, 33, 90, .22);
   }
-
+  .dashboard-menu .nav-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .14);
+    color: #ffffff;
+    font-size: .9rem;
+  }
+  .dashboard-menu a.active .nav-icon {
+    background: #e7f0ff;
+    color: #0b4fd6;
+  }
+  .dashboard-main { padding: 1rem 1.25rem 4.5rem; min-width: 0; }
+  .dashboard-topbar {
+    position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: .75rem;
+    background: rgba(255,255,255,.92); backdrop-filter: blur(10px);
+    border: 1px solid #e2e8f0; border-radius: 18px; padding: .6rem .7rem;
+    box-shadow: 0 8px 24px rgba(15,23,42,.06); margin-bottom: 1rem;
+  }
+  .topbar-search { position: relative; flex: 1 1 auto; max-width: 460px; }
+  .topbar-search input {
+    width: 100%; padding: .62rem .9rem .62rem 2.2rem; border-radius: 12px;
+    border: 1px solid #dbe3ef; background: #f8fafc; font-size: .9rem; color: #0f172a;
+  }
+  .topbar-search input:focus { outline: none; border-color: #93c5fd; background: #fff; box-shadow: 0 0 0 3px rgba(59,130,246,.12); }
+  .topbar-search svg { position: absolute; left: .7rem; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: #94a3b8; }
+  .topbar-search kbd {
+    position: absolute; right: .5rem; top: 50%; transform: translateY(-50%);
+    font-size: .68rem; color: #94a3b8; border: 1px solid #e2e8f0; background: #fff;
+    border-radius: 6px; padding: .1rem .35rem;
+  }
+  .topbar-actions { display: flex; align-items: center; gap: .45rem; margin-left: auto; }
+  .topbar-icon {
+    display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+    border-radius: 12px; border: 1px solid #e2e8f0; background: #fff; color: #475569; cursor: pointer;
+    transition: all .15s ease; text-decoration: none;
+  }
+  .topbar-icon:hover { background: #f1f5f9; color: #1d4ed8; border-color: #c7d2fe; }
+  .topbar-icon svg { width: 18px; height: 18px; }
+  .topbar-icon.active-pill { width: auto; padding: 0 .8rem; gap: .4rem; background: #eff6ff; border-color: #bfdbfe; color: #1d4ed8; font-weight: 700; font-size: .82rem; }
+  .topbar-user {
+    display: inline-flex; align-items: center; gap: .5rem; padding: .3rem .7rem .3rem .35rem;
+    border-radius: 999px; border: 1px solid #e2e8f0; background: #fff;
+  }
+  .topbar-user .avatar {
+    width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #2563eb, #4f46e5); color: #fff; font-weight: 800; font-size: .78rem;
+  }
+  .topbar-user .user-meta { line-height: 1.1; }
+  .topbar-user .user-meta strong { display: block; font-size: .78rem; color: #0f172a; }
+  .topbar-user .user-meta span { font-size: .68rem; color: #94a3b8; }
+  .dashboard-hero {
+    position: relative; overflow: hidden; border-radius: 22px; padding: 1.5rem 1.6rem; color: #fff;
+    background: linear-gradient(120deg, #1e40af 0%, #2563eb 55%, #3b82f6 100%);
+    box-shadow: 0 18px 38px rgba(30, 64, 175, .25); margin-bottom: 1rem;
+  }
+  .dashboard-hero::after {
+    content: ""; position: absolute; right: -10%; top: 0; bottom: 0; width: 60%;
+    background: url('{{ asset('assets/img/gedung-sate-drive.png') }}') no-repeat right center / contain;
+    opacity: .38; pointer-events: none;
+  }
+  .dashboard-hero h1 { position: relative; margin: 0 0 .35rem; font-size: 1.6rem; font-weight: 800; letter-spacing: -.02em; }
+  .dashboard-hero p { position: relative; margin: 0; color: #dbeafe; font-size: .9rem; max-width: 520px; }
+  .status-cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: .85rem; margin-bottom: 1rem; }
+  .status-card {
+    background: #fff; border: 1px solid #e6ecf5; border-radius: 18px; padding: .95rem 1.05rem;
+    box-shadow: 0 10px 24px rgba(15,23,42,.05); display: flex; align-items: center; gap: .85rem;
+  }
+  .status-card .icon {
+    width: 44px; height: 44px; border-radius: 14px; display: inline-flex; align-items: center; justify-content: center;
+    background: #eff6ff; color: #1d4ed8; flex: 0 0 auto;
+  }
+  .status-card .icon svg { width: 21px; height: 21px; }
+  .status-card .meta span { display: block; font-size: .76rem; color: #64748b; font-weight: 600; }
+  .status-card .meta strong { display: block; font-size: 1.35rem; font-weight: 800; color: #0f172a; letter-spacing: -.02em; }
+  .calendar-panel { background: #fff; border: 1px solid #e6ecf5; border-radius: 22px; padding: 1rem 1.1rem 1.2rem; box-shadow: 0 14px 30px rgba(15,23,42,.06); }
+  .calendar-panel-head { display: flex; align-items: center; justify-content: space-between; gap: .75rem; flex-wrap: wrap; margin-bottom: .85rem; }
+  .calendar-panel-head h2 { margin: 0; font-size: 1.02rem; font-weight: 800; color: #0f172a; }
+  .calendar-panel-head p { margin: .15rem 0 0; font-size: .8rem; color: #64748b; }
+  .calendar-legend { display: flex; gap: .85rem; flex-wrap: wrap; font-size: .76rem; color: #475569; font-weight: 600; }
+  .calendar-legend i { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: .3rem; }
+  #calendar { min-height: 620px; }
+  .fc .fc-toolbar-title { font-size: 1.05rem; font-weight: 800; color: #0f172a; }
+  .fc .fc-button { background: #eff6ff; border: 1px solid #dbeafe; color: #1d4ed8; font-weight: 700; font-size: .8rem; box-shadow: none; padding: .35rem .7rem; }
+  .fc .fc-button:hover, .fc .fc-button:focus { background: #dbeafe; border-color: #bfdbfe; color: #1e40af; }
+  .fc .fc-button-primary:not(:disabled).fc-button-active,
+  .fc .fc-button-primary:not(:disabled):active { background: #2563eb; border-color: #2563eb; color: #fff; }
+  .fc-theme-standard th { background: #f8fafc; color: #64748b; font-size: .74rem; text-transform: uppercase; letter-spacing: .04em; padding: .5rem 0; }
+  .fc-theme-standard td, .fc-theme-standard th { border-color: #eef2f7; }
+  .fc .fc-daygrid-day-number { font-size: .78rem; color: #475569; font-weight: 600; }
+  .fc .fc-day-today { background: #f5f9ff !important; }
+  .fc-event { border-radius: 8px; border: none; padding: 2px 6px; font-size: .72rem; font-weight: 600; cursor: pointer; }
+  .site-footer { position: fixed; left: 252px; right: 0; bottom: 0; z-index: 45; margin: 0; background: #fff; border-top: 1px solid #e2e8f0; }
+  body.admin-shell .site-footer-inner { padding: 0 1.25rem; }
+  .sidebar-backdrop { display: none; position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 110; }
+  body.sidebar-open .sidebar-backdrop { display: block; }
+  #sidebarToggle { display: none; }
+  @media (max-width: 1200px) {
+    .dashboard-shell { padding-left: 0; }
+    #sidebarToggle { display: inline-flex; }
+    .dashboard-sidebar { display: none; }
+    body.sidebar-open .dashboard-sidebar {
+      display: flex;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 270px;
+      height: 100vh;
+      max-height: none;
+      overflow-y: auto;
+      z-index: 120;
+      border-radius: 0;
+      box-shadow: 0 0 40px rgba(0, 0, 0, .35);
+    }
+    .site-footer { left: 0; }
+  }
+  @media (max-width: 768px) {
+    .status-cards { grid-template-columns: 1fr; }
+    .dashboard-hero h1 { font-size: 1.3rem; }
+    #calendar { min-height: 520px; }
+    .topbar-user .user-meta { display: none; }
+  }
   .modal-backdrop {
     position: fixed;
     inset: 0;
@@ -311,115 +347,85 @@
     flex-shrink: 0;
   }
 
-  @media (max-width: 1200px) {
-    .dashboard-wrap { grid-template-columns: 1fr; }
-    .sidebar { position: static; overflow: hidden; min-width: 0; }
-  }
-
   @media (max-width: 768px) {
-    .card { box-shadow: none; }
-    .content-card { overflow: hidden; padding: .75rem; }
-    .calendar-hero { flex-direction: column; padding: .75rem; }
-    .calendar-hero h2 { font-size: 1.15rem; }
-    .hero-actions { width: 100%; }
-    .hero-actions .btn { flex: 1; text-align: center; }
-    .calendar-stats { grid-template-columns: 1fr; gap: .5rem; }
-    .stat-card { padding: .7rem .85rem; }
-    .stat-value { font-size: 1.25rem; }
     .modal-header { flex-direction: column; }
     .modal-grid { grid-template-columns: 1fr; }
-
-    .calendar-shell .fc .fc-toolbar {
-      flex-direction: column;
-      gap: .5rem;
-      padding: .75rem;
-    }
-    .calendar-shell .fc .fc-toolbar-chunk {
-      display: flex;
-      justify-content: center;
-    }
-    .calendar-shell .fc .fc-toolbar-title {
-      font-size: 1rem;
-    }
-    .calendar-shell .fc .fc-button {
-      padding: .35rem .65rem !important;
-      font-size: .78rem !important;
-    }
-    .calendar-shell .fc .fc-col-header-cell {
-      padding: .3rem 0;
-    }
-    .calendar-shell .fc .fc-col-header-cell-cushion {
-      font-size: .7rem;
-      padding: .2rem 0;
-    }
-    .calendar-shell .fc .fc-daygrid-day {
-      padding: .15rem;
-    }
-    .calendar-shell .fc .fc-daygrid-day-number {
-      font-size: .72rem;
-      padding: .2rem .3rem;
-    }
-    .calendar-shell .fc .fc-event {
-      border-radius: 6px;
-      padding: .1rem .2rem;
-      margin-bottom: 1px;
-    }
-    .calendar-shell .fc-event-main {
-      font-size: .65rem;
-      line-height: 1.25;
-    }
-    .calendar-shell .fc .fc-daygrid-more-link {
-      font-size: .65rem;
-      padding: .1rem .25rem;
-    }
   }
 </style>
 
-@php
-  $sidebarActiveCalendar = request()->routeIs('dashboard.calendar');
-@endphp
-
-<div class="dashboard-wrap">
+<div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+<div class="dashboard-shell">
   @include('partials.admin-sidebar')
 
-  <main>
-    <div class="content-card">
-      <div class="calendar-hero">
+  <div class="dashboard-main">
+    <header class="dashboard-topbar">
+      <button type="button" class="topbar-icon" id="sidebarToggle" aria-label="Buka menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16" stroke-linecap="round"/></svg>
+      </button>
+      <form class="topbar-search" method="GET" action="{{ route('bookings.index') }}">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5" stroke-linecap="round"/></svg>
+        <input type="search" name="q" id="globalSearch" placeholder="Cari booking, pelanggan, negara..." value="{{ request('q') }}" autocomplete="off">
+        <kbd>Ctrl K</kbd>
+      </form>
+      <div class="topbar-actions">
+        <a class="topbar-icon" href="{{ route('bookings.index') }}" title="Data booking">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h12" stroke-linecap="round"/></svg>
+        </a>
+        <a class="topbar-icon" href="{{ route('dashboard') }}" title="Dashboard">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 13h6V4H4v9Zm10 7h6v-9h-6v9ZM4 20h6v-4H4v4Zm10-11h6V4h-6v5Z"/></svg>
+        </a>
+        <span class="topbar-icon active-pill">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg>
+          Kalender
+        </span>
+        <div class="topbar-user">
+          <span class="avatar">{{ strtoupper(substr(auth()->user()->name ?? 'A', 0, 1)) }}</span>
+          <span class="user-meta">
+            <strong>{{ auth()->user()->name ?? 'Admin' }}</strong>
+            <span>{{ ucfirst(auth()->user()->role ?? 'admin') }}</span>
+          </span>
+        </div>
+      </div>
+    </header>
+
+    <section class="dashboard-hero">
+      <h1>Kalender Booking</h1>
+      <p>Lihat jadwal perjalanan per tanggal, klik event untuk membuka detail booking.</p>
+    </section>
+
+    <section class="status-cards">
+      <article class="status-card">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M8 3v4M16 3v4M3 11h18"/></svg></span>
+        <div class="meta"><span>Total Booking</span><strong id="statTotal">-</strong></div>
+      </article>
+      <article class="status-card">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2" stroke-linecap="round"/></svg></span>
+        <div class="meta"><span>Hari Ini</span><strong id="statToday">-</strong></div>
+      </article>
+      <article class="status-card">
+        <span class="icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 18h16M6 18V9m6 9V5m6 13v-6" stroke-linecap="round"/></svg></span>
+        <div class="meta"><span>Akan Datang</span><strong id="statUpcoming">-</strong></div>
+      </article>
+    </section>
+
+    <section class="calendar-panel">
+      <div class="calendar-panel-head">
         <div>
-          <h2>Booking Calendar</h2>
-          <div class="subtitle" style="margin-top:.35rem;">
-            Track bookings in a cleaner, faster, and easier-to-read calendar view.
-          </div>
+          <h2>Jadwal Perjalanan</h2>
+          <p>Klik pada event untuk melihat detail booking.</p>
         </div>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="{{ route('bookings.index') }}">Manage Bookings</a>
-          <a class="btn" href="{{ route('booking.create') }}">Add Booking</a>
-        </div>
-      </div>
-
-      <div class="calendar-stats">
-        <div class="stat-card">
-          <div class="stat-label">Total Bookings</div>
-          <div class="stat-value" id="statTotal">-</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Today's Bookings</div>
-          <div class="stat-value" id="statToday">-</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Upcoming Bookings</div>
-          <div class="stat-value" id="statUpcoming">-</div>
+        <div class="calendar-legend">
+          <span><i style="background:#22c55e"></i>Confirmed</span>
+          <span><i style="background:#f59e0b"></i>Pending</span>
+          <span><i style="background:#ef4444"></i>Cancelled</span>
+          <span><i style="background:#64748b"></i>Lainnya</span>
         </div>
       </div>
-
-      <div class="calendar-shell">
-        <div id="calendar"></div>
-      </div>
-    </div>
-  </main>
+      <div id="calendar"></div>
+    </section>
+  </div>
 </div>
 
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.css" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.11/index.global.min.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -717,6 +723,29 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   calendar.render();
+
+  const sidebarToggle = document.getElementById('sidebarToggle');
+  const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+  if (sidebarToggle) {
+    sidebarToggle.addEventListener('click', function () {
+      document.body.classList.toggle('sidebar-open');
+    });
+  }
+  if (sidebarBackdrop) {
+    sidebarBackdrop.addEventListener('click', function () {
+      document.body.classList.remove('sidebar-open');
+    });
+  }
+  const globalSearch = document.getElementById('globalSearch');
+  document.addEventListener('keydown', function (e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      if (globalSearch) globalSearch.focus();
+    }
+    if (e.key === 'Escape') {
+      document.body.classList.remove('sidebar-open');
+    }
+  });
 
   document.getElementById('calendar_booking_modal_close').addEventListener('click', closeBookingModal);
   document.getElementById('calendar_booking_modal').addEventListener('click', function (e) {

@@ -99,30 +99,557 @@
               : ('Halo ' . $booking->customer_name . '. Mohon konfirmasi booking Anda.'))) : null,
       ]];
   });
+
+  $bookingOrder = $bookings->pluck('id')->values()->flip();
+  $initialBookingLimit = 15;
 @endphp
 
 @section('content')
 <style>
-  .dashboard-wrap { display: grid; grid-template-columns: 250px minmax(0, 1fr); gap: 1.25rem; }
-  .sidebar { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 1rem; height: fit-content; position: sticky; top: 76px; }
-  .side-menu { list-style: none; padding: 0; margin: 0; display: grid; gap: .35rem; }
-  .side-menu a { display: block; padding: .6rem .8rem; border-radius: 10px; text-decoration: none; color: var(--text); border: 1px solid #e5e7eb; }
-  .side-menu a:hover, .side-menu a.active { background: #f1f5f9; }
-  .content-card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 1rem; min-width: 0; }
-  .kanban-top { display: flex; flex-wrap: wrap; gap: .75rem; justify-content: space-between; align-items: flex-start; }
+  /* ===== Shell halaman: sama dengan dashboard ===== */
+  body { background: #eef5ff; }
+
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(1100px 460px at 88% -8%, #d4e9ff 0%, rgba(212, 233, 255, 0) 72%),
+      linear-gradient(180deg, #e3f0fd 0%, #eef5ff 34%, #f7fbff 68%, #e9f7ee 100%);
+  }
+
+  .container {
+    max-width: 100% !important;
+    width: 100%;
+    margin: 0 auto;
+    padding: 1rem 1.25rem .5rem;
+  }
+
+  .dashboard-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+    min-height: calc(100vh - 6rem);
+    padding-left: 252px;
+  }
+
+  .dashboard-main {
+    display: grid;
+    gap: 1.05rem;
+    align-content: start;
+    min-width: 0;
+    min-height: 0;
+    padding: 0 0 1rem;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+
+  .dashboard-sidebar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 252px;
+    height: 100vh;
+    max-height: none;
+    margin: 0;
+    border: none;
+    border-radius: 0;
+    padding: 1.1rem .9rem 1.25rem;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 60;
+    color: #fff;
+    background: linear-gradient(170deg, #1f63e8 0%, #0d4cd0 42%, #093fa9 100%);
+    box-shadow: 6px 0 24px rgba(9, 63, 169, .16);
+  }
+
+  .dashboard-sidebar::after {
+    content: "";
+    display: block;
+    flex: 0 0 auto;
+    margin-top: 1.25rem;
+    height: 168px;
+    border-radius: 14px;
+    background:
+      linear-gradient(180deg, rgba(31, 99, 232, 0) 0%, rgba(9, 63, 169, .35) 100%),
+      url('{{ asset('assets/img/gedung-sate-drive.png') }}') 14% 82% / 200% auto no-repeat;
+  }
+
+  .dashboard-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .45rem;
+    padding: 0 .3rem 1rem;
+    margin-bottom: .75rem;
+    border-bottom: 1px solid rgba(255, 255, 255, .18);
+  }
+
+  .dashboard-brand img {
+    width: 142px;
+    height: auto;
+    padding: .3rem .45rem;
+    border-radius: 10px;
+    background: #ffffff;
+    object-fit: contain;
+  }
+
+  .dashboard-brand h3 {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 800;
+    letter-spacing: -.01em;
+    color: #ffffff;
+  }
+
+  .dashboard-brand .subtitle {
+    font-size: .82rem;
+    color: rgba(255, 255, 255, .82);
+  }
+
+  .dashboard-section-label {
+    margin: .85rem .3rem .4rem;
+    padding: 0;
+    font-size: .68rem;
+    font-weight: 800;
+    letter-spacing: .13em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .6);
+  }
+
+  .dashboard-menu {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: .12rem;
+  }
+
+  .dashboard-menu a,
+  .dashboard-menu button {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    width: 100%;
+    padding: .48rem .55rem;
+    border: none;
+    border-radius: 11px;
+    background: transparent;
+    color: #e9f1ff;
+    font-family: inherit;
+    font-size: .87rem;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background .15s ease, color .15s ease;
+  }
+
+  .dashboard-menu a:hover,
+  .dashboard-menu button:hover {
+    background: rgba(255, 255, 255, .12);
+    color: #ffffff;
+  }
+
+  .dashboard-menu a.active {
+    background: #ffffff;
+    color: #0b4fd6;
+    box-shadow: 0 6px 14px rgba(4, 33, 90, .22);
+  }
+
+  .dashboard-menu .nav-icon {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, .14);
+    color: #ffffff;
+    font-size: .9rem;
+  }
+
+  .dashboard-menu a.active .nav-icon {
+    background: #e7f0ff;
+    color: #0b4fd6;
+  }
+
+  .dashboard-topbar {
+    position: sticky;
+    top: .5rem;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .85rem;
+    padding: .65rem .85rem;
+    border: 1px solid #e8f0fb;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .94);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 22px rgba(13, 43, 82, .05);
+  }
+
+  .topbar-menu-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e6eef9;
+    border-radius: 12px;
+    background: #f6faff;
+    color: #0b4fd6;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
+
+  .topbar-search {
+    position: relative;
+    flex: 1 1 420px;
+    min-width: 0;
+    max-width: 520px;
+  }
+
+  .topbar-search > i {
+    position: absolute;
+    left: .95rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    font-size: .95rem;
+  }
+
+  .topbar-search input {
+    width: 100%;
+    height: auto;
+    padding: .6rem 5.4rem .6rem 2.45rem;
+    border: 1px solid #e6eef9;
+    border-radius: 999px;
+    background: #f8fbff;
+    color: #0b2545;
+    font-size: .88rem;
+    outline: none;
+    transition: border-color .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+
+  .topbar-search input:focus {
+    background: #ffffff;
+    border-color: #7aa7e8;
+    box-shadow: 0 0 0 4px rgba(21, 101, 192, .1);
+  }
+
+  .topbar-shortcut {
+    position: absolute;
+    right: .4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    padding: .18rem .45rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #475569;
+    font-size: .72rem;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex: 0 1 auto;
+  }
+
+  .topbar-icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    border: 1px solid #e8eef7;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #334155;
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background .15s ease, border-color .15s ease, color .15s ease;
+  }
+
+  .topbar-icon-btn:hover {
+    background: #f3f8ff;
+    border-color: #cbd5e1;
+    color: #0b4fd6;
+  }
+
+  .topbar-user {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .3rem .7rem .3rem .35rem;
+    border: 1px solid #e8eef7;
+    border-radius: 999px;
+    background: #ffffff;
+  }
+
+  .topbar-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #2f80ed, #0b4fd6);
+    color: #ffffff;
+    font-size: .88rem;
+    font-weight: 800;
+    flex-shrink: 0;
+  }
+
+  .topbar-user-meta {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.15;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .topbar-user-meta strong {
+    max-width: 130px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .82rem;
+    font-weight: 800;
+    color: #0b2545;
+  }
+
+  .topbar-user-meta span {
+    font-size: .7rem;
+    color: #64748b;
+    text-transform: capitalize;
+  }
+
+  .topbar-user > i { color: #94a3b8; font-size: .75rem; }
+
+  /* ===== Header halaman booking ===== */
+  .bookings-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.3rem 1.4rem;
+    border: 1px solid #dbeafe;
+    border-radius: 22px;
+    background:
+      linear-gradient(115deg, #ffffff 0%, #f4f9ff 48%, #e6f2ff 100%);
+    box-shadow: 0 14px 30px rgba(13, 43, 82, .07);
+  }
+
+  .bookings-hero .hero-eyebrow {
+    margin-bottom: .3rem;
+    font-size: .7rem;
+    font-weight: 800;
+    letter-spacing: .14em;
+    color: #1d6fe0;
+  }
+
+  .bookings-hero h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+    letter-spacing: -.03em;
+    color: #0b2545;
+  }
+
+  .bookings-hero .subtitle {
+    margin: .35rem 0 0;
+    max-width: 58ch;
+    font-size: .9rem;
+    line-height: 1.5;
+    color: #3c5878;
+  }
+
+  .hero-actions {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex: 0 0 auto;
+    flex-wrap: wrap;
+  }
+
+  .bookings-hero .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    padding: .68rem 1.05rem;
+    border-radius: 12px;
+    font-size: .88rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 8px 18px rgba(11, 61, 145, .16);
+    transition: transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+
+  .bookings-hero .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(11, 61, 145, .22);
+  }
+
+  .bookings-hero .btn-primary { background: #0b4fd6; color: #ffffff; }
+  .bookings-hero .btn-primary:hover { background: #093fa9; }
+
+  .bookings-panel {
+    position: relative;
+    min-width: 0;
+    padding: 1rem 1.1rem 1.1rem;
+    border: 1px solid #e8f0fb;
+    border-radius: 20px;
+    background: #ffffff;
+    box-shadow: 0 12px 26px rgba(13, 43, 82, .06);
+  }
+
+  .bookings-toolbar {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: .75rem;
+  }
+
+  .bookings-toolbar__fields {
+    display: flex;
+    flex: 1 1 auto;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    gap: .6rem;
+    min-width: 0;
+  }
+
+  .bookings-toolbar .field { flex: 1 1 0; min-width: 0; width: auto; max-width: none; }
+
+  .bookings-toolbar label {
+    display: block;
+    font-size: .74rem;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: #64748b;
+    margin-bottom: .3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bookings-toolbar select {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding: 0 .6rem;
+    text-overflow: ellipsis;
+    border: 1px solid #dbe7f6;
+    border-radius: 11px;
+    background: #f8fbff;
+    color: #0b2545;
+    font-family: inherit;
+    font-size: .88rem;
+  }
+
+  .bookings-total {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: .35rem;
+    white-space: nowrap;
+    padding: .45rem .8rem;
+    border-radius: 999px;
+    background: #eff6ff;
+    color: #0b4fd6;
+    font-size: .8rem;
+    font-weight: 700;
+  }
+
+  .bookings-panel.is-loading .kanban-board { opacity: .45; }
+
+  .bookings-panel.is-loading::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 34px;
+    height: 34px;
+    margin: -17px 0 0 -17px;
+    border: 3px solid #cfe0f7;
+    border-top-color: #0b4fd6;
+    border-radius: 50%;
+    animation: bookings-spin .7s linear infinite;
+    z-index: 5;
+  }
+
+  @keyframes bookings-spin { to { transform: rotate(360deg); } }
+
+  .booking-card.is-hidden-booking { display: none !important; }
+
+  .bookings-loadmore {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .55rem;
+    padding-top: .35rem;
+  }
+
+  .bookings-loadmore-info {
+    font-size: .78rem;
+    font-weight: 600;
+    color: #64748b;
+  }
+
+  .bookings-loadmore-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: .45rem;
+    padding: .65rem 1.15rem;
+    border: 1px solid #cfe0f7;
+    border-radius: 999px;
+    background: #f5faff;
+    color: #0b4fd6;
+    font-family: inherit;
+    font-size: .85rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background .15s ease, border-color .15s ease, box-shadow .15s ease;
+  }
+
+  .bookings-loadmore-btn:hover {
+    background: #ffffff;
+    border-color: #93c5fd;
+    box-shadow: 0 8px 18px rgba(13, 43, 82, .1);
+  }
+
+  .bookings-loadmore-btn[hidden] { display: none !important; }
+
   .kanban-subtitle { color: var(--muted); font-size: .95rem; margin-top: .25rem; }
-  .kanban-filters { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1rem; }
-  .kanban-filters .field { flex: 1 1 220px; }
-  .kanban-filters input, .kanban-filters select { width: 100%; }
-  .kanban-board { display: flex; gap: 1rem; margin-top: 1.25rem; overflow-x: auto; overflow-y: hidden; padding-bottom: .9rem; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; }
-  .kanban-column { background: #f8fafc; border: 1px solid #e5e7eb; border-radius: 18px; padding: .9rem; flex: 0 0 320px; width: 320px; min-width: 320px; display: flex; flex-direction: column; gap: .75rem; scroll-snap-align: start; }
+  .kanban-board { display: flex; gap: 1rem; margin-top: 1rem; overflow-x: auto; overflow-y: hidden; padding-bottom: .9rem; scroll-snap-type: x proximity; -webkit-overflow-scrolling: touch; transition: opacity .15s ease; }
+  .kanban-column { background: #f7fbff; border: 1px solid #e6eefb; border-radius: 18px; padding: .9rem; flex: 0 0 320px; width: 320px; min-width: 320px; display: flex; flex-direction: column; gap: .75rem; scroll-snap-align: start; }
   .kanban-column.is-over { outline: 2px dashed #94a3b8; outline-offset: 2px; }
   .kanban-column__header { display: flex; align-items: center; justify-content: space-between; gap: .75rem; }
   .kanban-column__title { margin: 0; font-size: 1rem; font-weight: 700; color: #0f172a; }
-  .kanban-column__count { display: inline-flex; align-items: center; justify-content: center; min-width: 2rem; padding: .2rem .55rem; border-radius: 999px; background: #e2e8f0; color: #0f172a; font-weight: 700; font-size: .85rem; }
+  .kanban-column__count { display: inline-flex; align-items: center; justify-content: center; min-width: 2rem; padding: .2rem .55rem; border-radius: 999px; background: #e7f0ff; color: #0b4fd6; font-weight: 800; font-size: .85rem; }
   .kanban-column__cards { display: grid; gap: .75rem; min-height: 140px; }
   .kanban-empty { border: 1px dashed #cbd5e1; border-radius: 16px; padding: 1rem; text-align: center; color: #64748b; background: rgba(255,255,255,.65); }
-  .booking-card { border-radius: 18px; border: 1px solid #dbe3ee; background: #ffffff; box-shadow: 0 8px 18px rgba(15, 23, 42, .06); padding: .9rem; cursor: grab; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+  .booking-card { border-radius: 16px; border: 1px solid #e3ecf8; background: #ffffff; box-shadow: 0 8px 18px rgba(13, 43, 82, .06); padding: .9rem; cursor: grab; transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
   .booking-card:hover { transform: translateY(-1px); box-shadow: 0 12px 24px rgba(15, 23, 42, .10); }
   .booking-card:active { cursor: grabbing; }
   .booking-card.is-dragging { opacity: .55; }
@@ -181,9 +708,70 @@
   .notify-value { color:#0f172a; font-weight:700; line-height:1.45; }
   .notify-close { border: 1px solid #cbd5e1; background: #ffffff; color:#0f172a; border-radius: 999px; width: 34px; height: 34px; font-size: 1rem; cursor: pointer; flex: 0 0 auto; }
   .notify-close:hover { background:#f8fafc; }
+  /* Footer fixed, sama seperti dashboard */
+  body .site-footer {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 50;
+    margin-top: 0;
+    padding: .6rem 0;
+    border-top: 1px solid rgba(148, 178, 222, .4);
+    background: #ffffff;
+    text-align: left;
+  }
+
+  body .site-footer-inner {
+    max-width: 100%;
+    padding: 0 1.25rem 0 calc(252px + 1.25rem);
+  }
+
+  body .site-footer .footer-left,
+  body .site-footer .footer-right {
+    font-size: .78rem;
+    color: #64748b;
+  }
+
+  body.admin-shell .container { padding-bottom: 4.5rem; }
+
   @media (max-width: 1200px) {
-    .dashboard-wrap { grid-template-columns: 1fr; }
-    .sidebar { position: static; }
+    .dashboard-shell {
+      grid-template-columns: minmax(0, 1fr);
+      padding-left: 0;
+    }
+
+    .dashboard-sidebar { display: none; }
+
+    .topbar-menu-btn { display: inline-flex; }
+
+    body .site-footer-inner {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+
+    body.mobile-sidebar-open .dashboard-sidebar {
+      display: flex !important;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      width: 270px;
+      max-height: none;
+      overflow-y: auto;
+      z-index: 120;
+      border-radius: 0;
+      box-shadow: 0 0 40px rgba(0, 0, 0, .35);
+    }
+
+    body.mobile-sidebar-open::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: 110;
+      background: rgba(15, 23, 42, .5);
+    }
+
     .kanban-column { flex-basis: 300px; width: 300px; min-width: 300px; }
   }
   @media (max-width: 980px) {
@@ -192,43 +780,122 @@
     .notify-backdrop { width: min(320px, calc(100vw - 1.5rem)); right: .75rem; bottom: .75rem; }
     .kanban-column { flex-basis: 86vw; width: 86vw; min-width: 280px; }
   }
+  @media (max-width: 768px) {
+    body .site-footer { display: none; }
+    body.admin-shell .container { padding-bottom: 5rem; }
+  }
+
   @media (max-width: 640px) {
+    .container { padding: .75rem .75rem 0; }
+    .dashboard-topbar { top: .25rem; gap: .5rem; padding: .55rem .6rem; border-radius: 14px; }
+    .topbar-search { max-width: none; }
+    .topbar-search input { padding-right: 2.4rem; font-size: .84rem; }
+    .topbar-shortcut { display: none; }
+    .topbar-icon-btn { width: 34px; height: 34px; font-size: .92rem; }
+    .topbar-user { padding: .15rem; border: none; background: transparent; }
+    .topbar-user-meta, .topbar-user > i { display: none; }
+    .topbar-avatar { width: 34px; height: 34px; }
+    .bookings-hero { flex-direction: column; align-items: flex-start; padding: 1.1rem 1.15rem; border-radius: 18px; }
+    .bookings-hero h2 { font-size: 1.3rem; }
+    .bookings-hero .subtitle { font-size: .84rem; }
+    .hero-actions { width: 100%; }
+    .bookings-hero .btn { flex: 1 1 auto; }
+    .bookings-panel { padding: .85rem .85rem 1rem; border-radius: 18px; }
+    .bookings-toolbar { flex-wrap: wrap; }
+    .bookings-toolbar__fields { flex: 1 1 100%; gap: .5rem; }
+    .bookings-toolbar .field { flex: 1 1 30%; }
+    .bookings-toolbar label { font-size: .68rem; }
+    .bookings-toolbar select { padding: 0 .45rem; font-size: .82rem; }
     .kanban-board { gap: .75rem; padding-bottom: 1rem; }
     .kanban-column { flex-basis: 88vw; width: 88vw; min-width: 280px; }
   }
 </style>
 
-<div class="dashboard-wrap">
+<div class="dashboard-shell">
   @include('partials.admin-sidebar')
 
-  <main class="content-card">
-    <div class="kanban-top">
-      <div>
-        <h2 style="margin:0;">Kelola Booking</h2>
-        <div class="kanban-subtitle">Drag card antar kolom atau buka detail untuk pindah status secara manual.</div>
+  <main class="dashboard-main">
+    <div class="dashboard-topbar">
+      <div class="topbar-left" style="display:flex; align-items:center; gap:.6rem; flex:1 1 auto; min-width:0;">
+        <button class="topbar-menu-btn" id="topbarMenuBtn" type="button" aria-label="Buka menu">
+          <i class="bi bi-list"></i>
+        </button>
+        <form id="booking-filter-form" method="GET" action="{{ route('bookings.index') }}" class="topbar-search">
+          <i class="bi bi-search"></i>
+          <input id="q" name="q" type="text" value="{{ $filters['q'] ?? '' }}" placeholder="Cari nama, nomor, kendaraan, atau invoice..." aria-label="Cari booking" autocomplete="off" />
+          <span class="topbar-shortcut">Ctrl + K</span>
+        </form>
       </div>
-      <div style="display:flex; gap:.5rem; align-items:center;">
-        <a class="btn btn-primary" href="{{ route('bookings.create') }}">Tambah Booking</a>
-        <a href="{{ route('bookings.trash') }}" title="Trash Bookings" style="display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:50%; background:#f1f5f9; border:1px solid var(--border); color:#64748b; text-decoration:none; transition:all .15s;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg>
+      <div class="topbar-right">
+        <a class="topbar-icon-btn" href="{{ route('bookings.trash') }}" title="Trash Bookings" aria-label="Trash Bookings">
+          <i class="bi bi-trash3"></i>
         </a>
+        <a class="topbar-icon-btn" href="{{ route('dashboard.calendar') }}" title="Kalender booking" aria-label="Kalender booking">
+          <i class="bi bi-calendar3"></i>
+        </a>
+        <div class="topbar-user" title="{{ auth()->user()->name ?? 'Pengguna' }}">
+          <div class="topbar-avatar">{{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}</div>
+          <div class="topbar-user-meta">
+            <strong>{{ auth()->user()->name ?? 'Pengguna' }}</strong>
+            <span>{{ str_replace('_', ' ', auth()->user()->role ?? 'user') }}</span>
+          </div>
+          <i class="bi bi-chevron-down"></i>
+        </div>
       </div>
     </div>
 
-    <form id="booking-filter-form" method="GET" action="{{ route('bookings.index') }}" class="kanban-filters">
-      <div class="field">
-        <label for="q">Pencarian</label>
-        <input id="q" name="q" type="text" value="{{ $filters['q'] ?? '' }}" placeholder="Cari nama, nomor, kendaraan, atau invoice" autocomplete="off" />
+    <section class="bookings-hero">
+      <div>
+        <div class="hero-eyebrow">MANAGE BOOKINGS</div>
+        <h2>Kelola Booking</h2>
+        <div class="subtitle">Drag card antar kolom atau buka detail untuk pindah status secara manual.</div>
       </div>
-      <div class="field">
-        <label for="has_mitra">Filter Mitra</label>
-        <select id="has_mitra" name="has_mitra">
-          <option value="" {{ empty($filters['has_mitra']) ? 'selected' : '' }}>Semua</option>
-          <option value="yes" {{ ($filters['has_mitra'] ?? '') === 'yes' ? 'selected' : '' }}>Sudah ada Mitra</option>
-          <option value="no" {{ ($filters['has_mitra'] ?? '') === 'no' ? 'selected' : '' }}>Belum ada Mitra</option>
-        </select>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="{{ route('bookings.create') }}"><i class="bi bi-plus-lg"></i> Tambah Booking</a>
       </div>
-    </form>
+    </section>
+
+    <section class="bookings-panel">
+      <div class="bookings-toolbar">
+        <div class="bookings-toolbar__fields">
+          <div class="field">
+            <label for="has_mitra">Filter Mitra</label>
+            <select id="has_mitra" name="has_mitra" form="booking-filter-form">
+              <option value="" {{ empty($filters['has_mitra']) ? 'selected' : '' }}>Semua ({{ $filterCounts['total'] ?? 0 }})</option>
+              <option value="yes" {{ ($filters['has_mitra'] ?? '') === 'yes' ? 'selected' : '' }}>Sudah ada Mitra ({{ $filterCounts['mitra']['yes'] ?? 0 }})</option>
+              <option value="no" {{ ($filters['has_mitra'] ?? '') === 'no' ? 'selected' : '' }}>Belum ada Mitra ({{ $filterCounts['mitra']['no'] ?? 0 }})</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="group_id">Filter Group</label>
+            <select id="group_id" name="group_id" form="booking-filter-form">
+              <option value="">Semua Group ({{ $filterCounts['total'] ?? 0 }})</option>
+              @foreach($groups as $group)
+                <option value="{{ $group->id }}" {{ (string) ($filters['group_id'] ?? '') === (string) $group->id ? 'selected' : '' }}>{{ $group->name }} ({{ $filterCounts['group'][$group->id] ?? 0 }})</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="field">
+            <label for="country">Filter Negara</label>
+            <select id="country" name="country" form="booking-filter-form">
+              <option value="">Semua Negara ({{ $filterCounts['total'] ?? 0 }})</option>
+              <option value="__none" {{ ($filters['country'] ?? '') === '__none' ? 'selected' : '' }}>Tanpa Negara ({{ $filterCounts['no_country'] ?? 0 }})</option>
+              @foreach($countries as $countryName)
+                <option value="{{ $countryName }}" {{ ($filters['country'] ?? '') === $countryName ? 'selected' : '' }}>{{ $countryName }} ({{ $filterCounts['country'][$countryName] ?? 0 }})</option>
+              @endforeach
+            </select>
+          </div>
+          <div class="field">
+            <label for="price">Filter Biaya</label>
+            <select id="price" name="price" form="booking-filter-form">
+              <option value="" {{ empty($filters['price']) ? 'selected' : '' }}>Semua ({{ $filterCounts['total'] ?? 0 }})</option>
+              <option value="empty" {{ ($filters['price'] ?? '') === 'empty' ? 'selected' : '' }}>Biaya Kosong ({{ $filterCounts['price']['empty'] ?? 0 }})</option>
+              <option value="filled" {{ ($filters['price'] ?? '') === 'filled' ? 'selected' : '' }}>Biaya Terisi ({{ $filterCounts['price']['filled'] ?? 0 }})</option>
+            </select>
+          </div>
+        </div>
+        <div class="bookings-total"><i class="bi bi-collection"></i> {{ $bookings->count() }} booking</div>
+      </div>
 
     <div class="kanban-board" id="kanbanBoard">
       @foreach(\App\Models\Booking::KANBAN_PHASES as $phaseKey => $definition)
@@ -245,9 +912,10 @@
           <div class="kanban-column__cards" data-drop-zone="{{ $phaseKey }}">
             @forelse(($bookingsByPhase[$phaseKey] ?? collect()) as $booking)
               <article
-                class="booking-card {{ $booking->kanbanCardClass() }}"
+                class="booking-card {{ $booking->kanbanCardClass() }}{{ ($bookingOrder[$booking->id] ?? 0) >= $initialBookingLimit ? ' is-hidden-booking' : '' }}"
                 draggable="true"
                 data-booking-id="{{ $booking->id }}"
+                data-booking-index="{{ $bookingOrder[$booking->id] ?? 0 }}"
                 data-phase="{{ $booking->kanbanPhase() }}"
               >
                 <div class="booking-card__top">
@@ -301,6 +969,16 @@
         </section>
       @endforeach
     </div>
+
+    <div class="bookings-loadmore">
+      <div class="bookings-loadmore-info" id="bookingsVisibleInfo">
+        Menampilkan {{ min($initialBookingLimit, $bookings->count()) }} dari {{ $bookings->count() }} booking
+      </div>
+      <button type="button" class="bookings-loadmore-btn" id="loadMoreBookings" @if($bookings->count() <= $initialBookingLimit) hidden @endif>
+        <i class="bi bi-arrow-down-circle"></i> Muat {{ $initialBookingLimit }} booking lagi
+      </button>
+    </div>
+    </section>
   </main>
 </div>
 
@@ -426,9 +1104,11 @@
   @method('DELETE')
 </form>
 
+<script type="application/json" id="bookingBoardData">@json($bookingBoardData)</script>
+<script type="application/json" id="bookingPhaseEndpoints">@json($bookings->mapWithKeys(fn ($booking) => [$booking->id => route('bookings.phase.update', $booking)]))</script>
 <script>
-  window.bookingBoardData = @json($bookingBoardData);
-  window.bookingPhaseEndpoints = @json($bookings->mapWithKeys(fn ($booking) => [$booking->id => route('bookings.phase.update', $booking)]));
+  window.bookingBoardData = JSON.parse(document.getElementById('bookingBoardData').textContent);
+  window.bookingPhaseEndpoints = JSON.parse(document.getElementById('bookingPhaseEndpoints').textContent);
   window.bookingCsrfToken = @json(csrf_token());
   window.bookingSnapshot = @json($bookings->pluck('id'));
   window.bookingNotificationSettings = @json($notificationSoundSettings ?? []);
@@ -438,6 +1118,9 @@
   (function () {
     const form = document.getElementById('booking-filter-form');
     const hasMitraEl = document.getElementById('has_mitra');
+    const groupEl = document.getElementById('group_id');
+    const countryEl = document.getElementById('country');
+    const priceEl = document.getElementById('price');
     const qEl = document.getElementById('q');
     const toastEl = document.getElementById('bookingToast');
     const notifyBackdrop = document.getElementById('bookingNotifyBackdrop');
@@ -476,7 +1159,7 @@
       travelPlans: document.getElementById('detailTravelPlans'),
     };
 
-    if (!form || !hasMitraEl || !qEl || !board || !backdrop || !modalClose || !phaseSelect || !phaseSaveBtn) {
+    if (!form || !hasMitraEl || !groupEl || !countryEl || !priceEl || !qEl || !board || !backdrop || !modalClose || !phaseSelect || !phaseSaveBtn) {
       return;
     }
 
@@ -764,7 +1447,8 @@
       }
     }
 
-    document.querySelectorAll('.booking-card').forEach((card) => {
+    function bindCards() {
+      board.querySelectorAll('.booking-card').forEach((card) => {
       card.addEventListener('dragstart', (event) => {
         event.dataTransfer.effectAllowed = 'move';
         event.dataTransfer.setData('text/plain', card.dataset.bookingId);
@@ -778,13 +1462,17 @@
         if (event.target.closest('a, button')) return;
         openModal(card.dataset.bookingId);
       });
-    });
+      });
 
-    document.querySelectorAll('[data-open-booking]').forEach((button) => {
-      button.addEventListener('click', () => openModal(button.dataset.openBooking));
-    });
+      board.querySelectorAll('[data-open-booking]').forEach((button) => {
+        button.addEventListener('click', () => openModal(button.dataset.openBooking));
+      });
+    }
 
-    document.querySelectorAll('[data-drop-zone]').forEach((zone) => {
+    bindCards();
+
+    function bindDropZones() {
+      board.querySelectorAll('[data-drop-zone]').forEach((zone) => {
       zone.addEventListener('dragover', (event) => {
         event.preventDefault();
         zone.closest('.kanban-column').classList.add('is-over');
@@ -811,7 +1499,10 @@
           showToast(error.message || 'Gagal memperbarui status booking.');
         }
       });
-    });
+      });
+    }
+
+    bindDropZones();
 
     backdrop.addEventListener('click', (event) => {
       if (event.target === backdrop) closeModal();
@@ -851,16 +1542,80 @@
       const url = new URL(baseUrl, window.location.origin);
       const params = new URLSearchParams(url.search);
       const hasMitra = hasMitraEl.value;
+      const groupId = groupEl.value;
+      const country = countryEl.value;
+      const price = priceEl.value;
       const q = qEl.value;
       if (hasMitra) params.set('has_mitra', hasMitra); else params.delete('has_mitra');
+      if (groupId) params.set('group_id', groupId); else params.delete('group_id');
+      if (country) params.set('country', country); else params.delete('country');
+      if (price) params.set('price', price); else params.delete('price');
       if (q) params.set('q', q); else params.delete('q');
       url.search = params.toString();
       return url.toString();
     }
 
-    function fetchBoard(targetUrl) {
+    const panel = document.querySelector('.bookings-panel');
+    let boardRequest = null;
+
+    function syncBoardData(doc) {
+      try {
+        const dataEl = doc.getElementById('bookingBoardData');
+        const endpointsEl = doc.getElementById('bookingPhaseEndpoints');
+        if (dataEl) window.bookingBoardData = JSON.parse(dataEl.textContent);
+        if (endpointsEl) window.bookingPhaseEndpoints = JSON.parse(endpointsEl.textContent);
+      } catch (_) {}
+    }
+
+    async function fetchBoard(targetUrl) {
       const url = buildUrl(targetUrl || form.action);
-      window.location.href = url;
+
+      if (boardRequest) boardRequest.abort();
+      const controller = new AbortController();
+      boardRequest = controller;
+
+      if (panel) panel.classList.add('is-loading');
+
+      try {
+        const response = await fetch(url, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'text/html' },
+          cache: 'no-store',
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error('Gagal memuat data booking.');
+
+        const html = await response.text();
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const newBoard = doc.getElementById('kanbanBoard');
+        if (!newBoard) throw new Error('Board tidak ditemukan.');
+
+        const boardScrollLeft = board.scrollLeft;
+        board.innerHTML = newBoard.innerHTML;
+        board.scrollLeft = boardScrollLeft;
+
+        const currentLoadmore = document.querySelector('.bookings-loadmore');
+        const newLoadmore = doc.querySelector('.bookings-loadmore');
+        if (currentLoadmore && newLoadmore) currentLoadmore.replaceWith(newLoadmore);
+
+        const currentTotal = document.querySelector('.bookings-total');
+        const newTotal = doc.querySelector('.bookings-total');
+        if (currentTotal && newTotal) currentTotal.innerHTML = newTotal.innerHTML;
+
+        syncBoardData(doc);
+
+        visibleBookingLimit = loadStep;
+        closeModal();
+        bindCards();
+        bindDropZones();
+        applyVisibleLimit();
+
+        window.history.replaceState({}, '', url);
+      } catch (error) {
+        if (error.name === 'AbortError') return;
+        window.location.href = url;
+      } finally {
+        if (panel && boardRequest === controller) panel.classList.remove('is-loading');
+      }
     }
 
     async function checkForNewBookings() {
@@ -899,7 +1654,45 @@
       } catch (_) {}
     }
 
+    const loadStep = 15;
+    var visibleBookingLimit = loadStep;
+
+    function applyVisibleLimit() {
+      const visibleInfo = document.getElementById('bookingsVisibleInfo');
+      const loadMoreBtn = document.getElementById('loadMoreBookings');
+      const cards = Array.from(board.querySelectorAll('.booking-card')).sort((a, b) => {
+        return Number(a.dataset.bookingIndex || 0) - Number(b.dataset.bookingIndex || 0);
+      });
+
+      cards.forEach((card, index) => {
+        card.classList.toggle('is-hidden-booking', index >= visibleBookingLimit);
+      });
+
+      if (visibleInfo) {
+        visibleInfo.textContent = 'Menampilkan ' + Math.min(visibleBookingLimit, cards.length) + ' dari ' + cards.length + ' booking';
+      }
+
+      if (loadMoreBtn) {
+        const remaining = cards.length - visibleBookingLimit;
+        loadMoreBtn.hidden = remaining <= 0;
+        if (remaining > 0) {
+          loadMoreBtn.innerHTML = '<i class="bi bi-arrow-down-circle"></i> Muat ' + Math.min(loadStep, remaining) + ' booking lagi';
+        }
+      }
+    }
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('#loadMoreBookings')) return;
+      visibleBookingLimit += loadStep;
+      applyVisibleLimit();
+    });
+
+    applyVisibleLimit();
+
     hasMitraEl.addEventListener('change', () => fetchBoard());
+    groupEl.addEventListener('change', () => fetchBoard());
+    countryEl.addEventListener('change', () => fetchBoard());
+    priceEl.addEventListener('change', () => fetchBoard());
     let qTimer = null;
     qEl.addEventListener('input', () => {
       window.clearTimeout(qTimer);
@@ -913,6 +1706,39 @@
     document.addEventListener('pointerdown', unlockNotificationAudio, { once: true });
     document.addEventListener('keydown', unlockNotificationAudio, { once: true });
     document.addEventListener('touchstart', unlockNotificationAudio, { once: true, passive: true });
+  })();
+</script>
+
+<script>
+  (function () {
+    const menuBtn = document.getElementById('topbarMenuBtn');
+    const searchInput = document.getElementById('q');
+
+    if (menuBtn) {
+      menuBtn.addEventListener('click', function () {
+        document.body.classList.toggle('mobile-sidebar-open');
+      });
+
+      document.addEventListener('click', function (e) {
+        if (!document.body.classList.contains('mobile-sidebar-open')) return;
+        const sidebar = document.querySelector('.dashboard-sidebar');
+        if (sidebar && !sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+          document.body.classList.remove('mobile-sidebar-open');
+        }
+      });
+
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') document.body.classList.remove('mobile-sidebar-open');
+      });
+    }
+
+    document.addEventListener('keydown', function (e) {
+      if (!(e.ctrlKey || e.metaKey) || (e.key !== 'k' && e.key !== 'K')) return;
+      if (!searchInput) return;
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    });
   })();
 </script>
 @endsection

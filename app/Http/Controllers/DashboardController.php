@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
@@ -22,6 +23,7 @@ class DashboardController extends Controller
 
         $trendLabels = [];
         $trendValues = [];
+        $trendRanges = [];
 
         if ($role === 'super_admin') {
             $metrics = [
@@ -46,16 +48,10 @@ class DashboardController extends Controller
                 (float) Booking::whereBetween('created_at', $lastMonth)->sum('price')
             );
 
-            // Tren jumlah booking 7 hari terakhir (berdasarkan tanggal pembuatan).
-            $bookingsPerDay = Booking::where('created_at', '>=', now()->subDays(6)->startOfDay())
-                ->get(['created_at'])
-                ->groupBy(fn (Booking $booking) => $booking->created_at->toDateString());
-
-            for ($i = 6; $i >= 0; $i--) {
-                $day = now()->subDays($i);
-                $trendLabels[] = $day->format('d M');
-                $trendValues[] = $bookingsPerDay->get($day->toDateString(), collect())->count();
-            }
+            // Data tren booking untuk semua pilihan filter pada grafik.
+            $trendRanges = $this->trendRanges();
+            $trendLabels = $trendRanges['7d']['labels'];
+            $trendValues = $trendRanges['7d']['values'];
         } else {
             $userId = Auth::id();
             $metrics = [
@@ -65,7 +61,79 @@ class DashboardController extends Controller
             ];
         }
 
-        return view('dashboard.index', compact('user', 'role', 'metrics', 'trendLabels', 'trendValues'));
+        return view('dashboard.index', compact('user', 'role', 'metrics', 'trendLabels', 'trendValues', 'trendRanges'));
+    }
+
+    /**
+     * Jumlah booking per periode (berdasarkan tanggal pembuatan) untuk filter grafik tren.
+     */
+    private function trendRanges(): array
+    {
+        $created = Booking::query()->pluck('created_at')->map(fn ($value) => Carbon::parse($value));
+        $countByDay = $created->countBy(fn (Carbon $date) => $date->toDateString());
+        $countByMonth = $created->countBy(fn (Carbon $date) => $date->format('Y-m'));
+        $countByYear = $created->countBy(fn (Carbon $date) => $date->format('Y'));
+
+        // 7 hari terakhir.
+        $labels7 = [];
+        $values7 = [];
+        for ($i = 6; $i >= 0; $i--) {
+            $day = now()->subDays($i);
+            $labels7[] = $day->format('d M');
+            $values7[] = (int) ($countByDay[$day->toDateString()] ?? 0);
+        }
+
+        // 1 minggu ini (Senin sampai Minggu).
+        $weekStart = now()->startOfWeek(Carbon::MONDAY);
+        $labelsWeek = [];
+        $valuesWeek = [];
+        for ($i = 0; $i < 7; $i++) {
+            $day = $weekStart->copy()->addDays($i);
+            $labelsWeek[] = $day->format('d M');
+            $valuesWeek[] = (int) ($countByDay[$day->toDateString()] ?? 0);
+        }
+
+        // 12 bulan terakhir.
+        $labelsYear = [];
+        $valuesYear = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $month = now()->copy()->subMonths($i)->startOfMonth();
+            $labelsYear[] = $month->format('M y');
+            $valuesYear[] = (int) ($countByMonth[$month->format('Y-m')] ?? 0);
+        }
+
+        // Semua data, dikelompokkan per tahun.
+        $labelsAll = [];
+        $valuesAll = [];
+        $minYear = (int) ($created->min(fn (Carbon $date) => (int) $date->format('Y')) ?? now()->format('Y'));
+        $maxYear = (int) now()->format('Y');
+        for ($year = $minYear; $year <= $maxYear; $year++) {
+            $labelsAll[] = (string) $year;
+            $valuesAll[] = (int) ($countByYear[(string) $year] ?? 0);
+        }
+
+        return [
+            '7d' => [
+                'labels' => $labels7,
+                'values' => $values7,
+                'subtitle' => 'Perkembangan jumlah booking 7 hari terakhir.',
+            ],
+            '1w' => [
+                'labels' => $labelsWeek,
+                'values' => $valuesWeek,
+                'subtitle' => 'Jumlah booking minggu ini (Senin - Minggu).',
+            ],
+            '1y' => [
+                'labels' => $labelsYear,
+                'values' => $valuesYear,
+                'subtitle' => 'Jumlah booking 12 bulan terakhir.',
+            ],
+            'all' => [
+                'labels' => $labelsAll,
+                'values' => $valuesAll,
+                'subtitle' => 'Jumlah booking sejak data pertama.',
+            ],
+        ];
     }
 
     /**

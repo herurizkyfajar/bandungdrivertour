@@ -32,7 +32,28 @@ Route::get('/bookings', function (Request $request) {
             });
     }
 
-    $bookings = $query->latest()->take(1000)->get();
+    $search = trim((string) $request->query('q', ''));
+    if ($search !== '') {
+        $like = '%' . $search . '%';
+        $query->where(function ($sub) use ($like) {
+            $sub->where('customer_name', 'like', $like)
+                ->orWhere('pickup_location', 'like', $like)
+                ->orWhere('contact_number', 'like', $like)
+                ->orWhere('status', 'like', $like)
+                ->orWhereHas('vehicle', function ($vehicle) use ($like) {
+                    $vehicle->where('plate_number', 'like', $like)
+                        ->orWhere('make', 'like', $like)
+                        ->orWhere('model', 'like', $like);
+                })
+                ->orWhereHas('service', fn ($service) => $service->where('name', 'like', $like))
+                ->orWhereHas('mitra', fn ($mitra) => $mitra->where('full_name', 'like', $like));
+        });
+    }
+
+    $limit = (int) $request->query('limit', 1000);
+    $limit = max(1, min($limit, 1000));
+
+    $bookings = $query->latest()->take($limit)->get();
 
     return response()->json($bookings);
 });

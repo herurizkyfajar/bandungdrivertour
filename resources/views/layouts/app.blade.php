@@ -231,14 +231,6 @@
         .site-footer a:hover {
             text-decoration: underline;
         }
-        .sidebar-toggle-btn { position: fixed; left: 16px; bottom: 20px; z-index: 70; display: inline-flex; align-items: center; justify-content: center; gap: .4rem; border: 1px solid #e2e8f0; background: #ffffff; color: #64748b; border-radius: 12px; padding: .5rem .75rem; font-size: .82rem; font-weight: 600; box-shadow: 0 4px 12px rgba(15, 23, 42, .08); cursor: pointer; transition: all .2s ease; }
-        .sidebar-toggle-btn:hover { background: #f1f5f9; color: #334155; border-color: #cbd5e1; box-shadow: 0 6px 16px rgba(15, 23, 42, .12); }
-        .sidebar-toggle-btn svg { width: 14px; height: 14px; }
-        body.sidebar-collapsed .dashboard-wrap { grid-template-columns: 1fr !important; }
-        body.sidebar-collapsed .dashboard-shell { grid-template-columns: 1fr !important; }
-        body.sidebar-collapsed .dashboard-sidebar { display: none !important; }
-        body.sidebar-collapsed .sidebar { display: none !important; }
-        body.sidebar-collapsed .calendar-side { display: none !important; }
         @media (max-width: 1024px) {
             .container { max-width: 820px; }
             .form-grid { grid-template-columns: repeat(6, 1fr); }
@@ -363,41 +355,6 @@
         </div>
     </nav>
     @endif
-    <script>
-        (function () {
-            const storageKey = 'bdt_sidebar_collapsed';
-            const collapsed = localStorage.getItem(storageKey) === '1';
-
-            function setCollapsedState(nextCollapsed) {
-                document.body.classList.toggle('sidebar-collapsed', nextCollapsed);
-                localStorage.setItem(storageKey, nextCollapsed ? '1' : '0');
-                document.querySelectorAll('.sidebar-toggle-btn').forEach((button) => {
-                    button.innerHTML = nextCollapsed
-                        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg> Show'
-                        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Hide';
-                });
-            }
-
-            function createToggleButton() {
-                if (!document.querySelector('.sidebar, .dashboard-sidebar, .calendar-side')) return;
-                if (document.getElementById('sidebarToggleButton')) return;
-                const toggleButton = document.createElement('button');
-                toggleButton.type = 'button';
-                toggleButton.className = 'sidebar-toggle-btn';
-                toggleButton.id = 'sidebarToggleButton';
-                toggleButton.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg> Hide';
-                toggleButton.addEventListener('click', function () {
-                    setCollapsedState(!document.body.classList.contains('sidebar-collapsed'));
-                });
-                document.body.appendChild(toggleButton);
-            }
-
-            document.addEventListener('DOMContentLoaded', function () {
-                createToggleButton();
-                setCollapsedState(collapsed);
-            });
-        })();
-    </script>
     @auth
     @if(auth()->user()?->role === 'super_admin')
     <script>

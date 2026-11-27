@@ -1,6 +1,6 @@
 <aside class="dashboard-sidebar">
   <div class="dashboard-brand">
-    <img src="{{ asset('Logo-Bandung-Driver-Tour.webp') }}" alt="BDT Rental">
+    <img src="{{ asset('assets/img/logo-bandung-driver-tour.webp') }}" alt="BDT Rental">
     <div>
       <h3>BDT Rental</h3>
       <div class="subtitle">{{ auth()->user()?->role === 'super_admin' ? 'Super Admin Panel' : 'User Panel' }}</div>

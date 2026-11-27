@@ -29,8 +29,11 @@ class BookingsController extends Controller
         $hasMitra = $request->query('has_mitra');
         $phase = $request->query('phase');
         $q = trim((string) $request->query('q', ''));
+        $groupId = $request->query('group_id');
+        $priceFilter = $request->query('price');
+        $country = trim((string) $request->query('country', ''));
 
-        $query = Booking::with(['vehicle','service','services','mitra','invoice'])->latest();
+        $query = Booking::with(['vehicle','service','services','mitra','invoice','group'])->latest();
 
         if ($hasMitra === 'yes') {
             $query->whereNotNull('mitra_id');
@@ -41,6 +44,26 @@ class BookingsController extends Controller
         $allowedPhases = array_keys(Booking::KANBAN_PHASES);
         if (in_array($phase, $allowedPhases, true)) {
             $query->whereIn('status', Booking::phaseStatuses($phase));
+        }
+
+        if ($groupId !== null && $groupId !== '') {
+            $query->where('group_id', (int) $groupId);
+        }
+
+        if ($country === '__none') {
+            $query->where(function ($w) {
+                $w->whereNull('country_of_origin')->orWhere('country_of_origin', '');
+            });
+        } elseif ($country !== '') {
+            $query->where('country_of_origin', $country);
+        }
+
+        if ($priceFilter === 'empty') {
+            $query->where(function ($w) {
+                $w->whereNull('price')->orWhere('price', '<=', 0);
+            });
+        } elseif ($priceFilter === 'filled') {
+            $query->whereNotNull('price')->where('price', '>', 0);
         }
 
         if ($q !== '') {
@@ -74,6 +97,45 @@ class BookingsController extends Controller
             'has_mitra' => $hasMitra,
             'phase' => $phase,
             'q' => $q,
+            'group_id' => $groupId,
+            'price' => $priceFilter,
+            'country' => $country,
+        ];
+
+        $groups = Group::orderBy('name')->get(['id', 'name']);
+        $countries = Booking::query()
+            ->whereNotNull('country_of_origin')
+            ->where('country_of_origin', '!=', '')
+            ->distinct()
+            ->orderBy('country_of_origin')
+            ->pluck('country_of_origin');
+
+        $bookingTotal = Booking::count();
+        $filterCounts = [
+            'total' => $bookingTotal,
+            'mitra' => [
+                'yes' => Booking::whereNotNull('mitra_id')->count(),
+                'no' => Booking::whereNull('mitra_id')->count(),
+            ],
+            'group' => Booking::query()
+                ->selectRaw('group_id, count(*) as total')
+                ->groupBy('group_id')
+                ->pluck('total', 'group_id'),
+            'country' => Booking::query()
+                ->selectRaw('country_of_origin, count(*) as total')
+                ->whereNotNull('country_of_origin')
+                ->where('country_of_origin', '!=', '')
+                ->groupBy('country_of_origin')
+                ->pluck('total', 'country_of_origin'),
+            'no_country' => Booking::where(function ($w) {
+                $w->whereNull('country_of_origin')->orWhere('country_of_origin', '');
+            })->count(),
+            'price' => [
+                'empty' => Booking::where(function ($w) {
+                    $w->whereNull('price')->orWhere('price', '<=', 0);
+                })->count(),
+                'filled' => Booking::whereNotNull('price')->where('price', '>', 0)->count(),
+            ],
         ];
 
         $notificationSoundSettings = [
@@ -89,6 +151,9 @@ class BookingsController extends Controller
             'bookingsByPhase' => $bookingsByPhase,
             'counts' => $counts,
             'filters' => $filters,
+            'groups' => $groups,
+            'countries' => $countries,
+            'filterCounts' => $filterCounts,
             'notificationSoundSettings' => $notificationSoundSettings,
         ]);
     }
