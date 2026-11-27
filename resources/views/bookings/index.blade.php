@@ -909,14 +909,23 @@
             </div>
             <div class="kanban-column__count" data-count-for="{{ $phaseKey }}">{{ $counts[$phaseKey] ?? 0 }}</div>
           </div>
+          @php
+            $phaseBookingIndex = 0;
+            $phaseInitialLimit = 10;
+          @endphp
           <div class="kanban-column__cards" data-drop-zone="{{ $phaseKey }}">
             @forelse(($bookingsByPhase[$phaseKey] ?? collect()) as $booking)
+              @php
+                $isHidden = $phaseBookingIndex >= $phaseInitialLimit;
+                $phaseBookingIndex++;
+              @endphp
               <article
-                class="booking-card {{ $booking->kanbanCardClass() }}{{ ($bookingOrder[$booking->id] ?? 0) >= $initialBookingLimit ? ' is-hidden-booking' : '' }}"
+                class="booking-card {{ $booking->kanbanCardClass() }}{{ $isHidden ? ' is-hidden-booking' : '' }}"
                 draggable="true"
                 data-booking-id="{{ $booking->id }}"
-                data-booking-index="{{ $bookingOrder[$booking->id] ?? 0 }}"
+                data-booking-index="{{ $phaseBookingIndex - 1 }}"
                 data-phase="{{ $booking->kanbanPhase() }}"
+                data-phase-index="{{ $phaseBookingIndex - 1 }}"
               >
                 <div class="booking-card__top">
                   <div>
@@ -965,18 +974,26 @@
             @empty
               <div class="kanban-empty" data-empty-state="{{ $phaseKey }}">Tidak ada booking di kolom ini.</div>
             @endforelse
+
+            @php
+              $phaseCount = $counts[$phaseKey] ?? 0;
+            @endphp
+            @if($phaseCount > $phaseInitialLimit)
+              <div class="kanban-column__loadmore" data-phase-loadmore="{{ $phaseKey }}">
+                <button type="button" class="phase-loadmore-btn"
+                    data-phase="{{ $phaseKey }}"
+                    data-phase-total="{{ $phaseCount }}"
+                    @if($phaseCount <= $phaseInitialLimit) hidden @endif>
+                  <i class="bi bi-arrow-down-circle"></i> Muat lebih ({{ $phaseCount }} booking)
+                </button>
+                <span class="phase-loadmore-info" data-phase-info="{{ $phaseKey }}">
+                  Menampilkan {{ min($phaseInitialLimit, $phaseCount) }} dari {{ $phaseCount }} booking
+                </span>
+              </div>
+            @endif
           </div>
         </section>
       @endforeach
-    </div>
-
-    <div class="bookings-loadmore">
-      <div class="bookings-loadmore-info" id="bookingsVisibleInfo">
-        Menampilkan {{ min($initialBookingLimit, $bookings->count()) }} dari {{ $bookings->count() }} booking
-      </div>
-      <button type="button" class="bookings-loadmore-btn" id="loadMoreBookings" @if($bookings->count() <= $initialBookingLimit) hidden @endif>
-        <i class="bi bi-arrow-down-circle"></i> Muat {{ $initialBookingLimit }} booking lagi
-      </button>
     </div>
     </section>
   </main>
@@ -1654,40 +1671,49 @@
       } catch (_) {}
     }
 
-    const loadStep = 15;
-    var visibleBookingLimit = loadStep;
+    const phaseLoadStep = 10;
+    const phaseVisibleLimit = {};
 
-    function applyVisibleLimit() {
-      const visibleInfo = document.getElementById('bookingsVisibleInfo');
-      const loadMoreBtn = document.getElementById('loadMoreBookings');
-      const cards = Array.from(board.querySelectorAll('.booking-card')).sort((a, b) => {
-        return Number(a.dataset.bookingIndex || 0) - Number(b.dataset.bookingIndex || 0);
-      });
+    function applyPhaseLimit() {
+      const columns = board.querySelectorAll('.kanban-column');
+      columns.forEach((column) => {
+        const phaseKey = column.getAttribute('data-phase');
+        if (!phaseKey) return;
+        if (!phaseVisibleLimit[phaseKey]) phaseVisibleLimit[phaseKey] = phaseLoadStep;
 
-      cards.forEach((card, index) => {
-        card.classList.toggle('is-hidden-booking', index >= visibleBookingLimit);
-      });
+        const cards = Array.from(column.querySelectorAll('.booking-card')).sort((a, b) => {
+          return Number(a.dataset.phaseIndex || 0) - Number(b.dataset.phaseIndex || 0);
+        });
 
-      if (visibleInfo) {
-        visibleInfo.textContent = 'Menampilkan ' + Math.min(visibleBookingLimit, cards.length) + ' dari ' + cards.length + ' booking';
-      }
+        cards.forEach((card, index) => {
+          card.classList.toggle('is-hidden-booking', index >= phaseVisibleLimit[phaseKey]);
+        });
 
-      if (loadMoreBtn) {
-        const remaining = cards.length - visibleBookingLimit;
-        loadMoreBtn.hidden = remaining <= 0;
-        if (remaining > 0) {
-          loadMoreBtn.innerHTML = '<i class="bi bi-arrow-down-circle"></i> Muat ' + Math.min(loadStep, remaining) + ' booking lagi';
+        const info = column.querySelector('[data-phase-info="' + phaseKey + '"]');
+        const btn = column.querySelector('[data-phase-loadmore="' + phaseKey + '"] button');
+        if (info) {
+          info.textContent = 'Menampilkan ' + Math.min(phaseVisibleLimit[phaseKey], cards.length) + ' dari ' + cards.length + ' booking';
         }
-      }
+        if (btn) {
+          const remaining = cards.length - phaseVisibleLimit[phaseKey];
+          btn.hidden = remaining <= 0;
+          if (remaining > 0) {
+            btn.innerHTML = '<i class="bi bi-arrow-down-circle"></i> Muat lebih (' + Math.min(phaseLoadStep, remaining) + ' lagi)';
+          }
+        }
+      });
     }
 
     document.addEventListener('click', (event) => {
-      if (!event.target.closest('#loadMoreBookings')) return;
-      visibleBookingLimit += loadStep;
-      applyVisibleLimit();
+      const btn = event.target.closest('.phase-loadmore-btn');
+      if (!btn) return;
+      const phaseKey = btn.getAttribute('data-phase');
+      if (!phaseKey) return;
+      phaseVisibleLimit[phaseKey] = (phaseVisibleLimit[phaseKey] || phaseLoadStep) + phaseLoadStep;
+      applyPhaseLimit();
     });
 
-    applyVisibleLimit();
+    applyPhaseLimit();
 
     hasMitraEl.addEventListener('change', () => fetchBoard());
     groupEl.addEventListener('change', () => fetchBoard());
