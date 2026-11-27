@@ -38,10 +38,10 @@ Route::get('/booking', [BookingController::class, 'create'])->name('booking.crea
 Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
 
 // Auth routes
-Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
-Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.perform');
+Route::get('/login', [AuthController::class, 'showLogin'])->name('login')->middleware('guest');
+Route::post('/login', [AuthController::class, 'login'])->name('login.perform')->middleware('guest');
+Route::get('/register', [AuthController::class, 'showRegister'])->name('register')->middleware('guest');
+Route::post('/register', [AuthController::class, 'register'])->name('register.perform')->middleware('guest');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('/dev/login-superadmin', function () {
     if (!app()->isLocal()) {
