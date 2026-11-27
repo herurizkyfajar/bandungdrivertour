@@ -112,6 +112,15 @@ class DashboardController extends Controller
             $valuesAll[] = (int) ($countByYear[(string) $year] ?? 0);
         }
 
+        // 30 hari terakhir.
+        $labelsMonth = [];
+        $valuesMonth = [];
+        for ($i = 29; $i >= 0; $i--) {
+            $day = now()->subDays($i);
+            $labelsMonth[] = $day->format('d M');
+            $valuesMonth[] = (int) ($countByDay[$day->toDateString()] ?? 0);
+        }
+
         return [
             '7d' => [
                 'labels' => $labels7,
@@ -122,6 +131,11 @@ class DashboardController extends Controller
                 'labels' => $labelsWeek,
                 'values' => $valuesWeek,
                 'subtitle' => 'Jumlah booking minggu ini (Senin - Minggu).',
+            ],
+            '1m' => [
+                'labels' => $labelsMonth,
+                'values' => $valuesMonth,
+                'subtitle' => 'Jumlah booking 30 hari terakhir.',
             ],
             '1y' => [
                 'labels' => $labelsYear,

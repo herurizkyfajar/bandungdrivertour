@@ -3617,7 +3617,7 @@
           </div>
           <select class="chart-pill chart-pill-select" id="trendRangeSelect" aria-label="Filter periode tren booking">
             <option value="7d">7 Hari Terakhir</option>
-            <option value="1w">1 Minggu Ini</option>
+            <option value="1m">1 Bulan Ini</option>
             <option value="1y">1 Tahun Terakhir</option>
             <option value="all">Semuanya</option>
           </select>
